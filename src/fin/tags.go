@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tags
+package main
 
 import (
 	"bufio"
@@ -24,7 +24,7 @@ import (
 
 type Tags map[string][]string
 
-func Load(path string) (Tags, error) {
+func LoadTags(path string) (Tags, error) {
 	t := make(map[string][]string)
 
 	f, err := os.Open(path)

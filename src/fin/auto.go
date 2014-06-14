@@ -19,10 +19,9 @@ import (
 	"regexp"
 
 	"bank/qif"
-	"fin/tags"
 )
 
-func terms(entries []*qif.Entry, tags tags.Tags) {
+func terms(entries []*qif.Entry, tags Tags) {
 	type Info struct {
 		id, count int
 		tags      StringSet
@@ -56,6 +55,6 @@ func terms(entries []*qif.Entry, tags tags.Tags) {
 	}
 }
 
-func autoMain(entries []*qif.Entry, tags tags.Tags) {
+func autoMain(entries []*qif.Entry, tags Tags) {
 	terms(entries, tags)
 }

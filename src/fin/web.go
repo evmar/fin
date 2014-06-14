@@ -22,12 +22,11 @@ import (
 	"sort"
 
 	"bank/qif"
-	"fin/tags"
 )
 
 type web struct {
 	tagsPath string
-	tags     tags.Tags
+	tags     Tags
 	entries  []*qif.Entry
 }
 

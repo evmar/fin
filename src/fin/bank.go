@@ -24,7 +24,6 @@ import (
 	"strconv"
 
 	"bank/qif"
-	"fin/tags"
 )
 
 func check(err error) {
@@ -85,7 +84,7 @@ func main() {
 		return
 	}
 
-	tags, err := tags.Load(tagsPath)
+	tags, err := LoadTags(tagsPath)
 	check(err)
 
 	var entries []*qif.Entry
