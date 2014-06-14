@@ -53,7 +53,7 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 		err = fmt.Errorf("reading %s: %s", path, err.Error())
 		check(err)
 	}
-	log.Printf("type %q\n", ttype)
+	log.Printf("%s: %q\n", path, ttype)
 
 	for {
 		entry, err := r.ReadEntry()
@@ -62,9 +62,6 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 				break
 			}
 			check(err)
-		}
-		if entry.Payee == "" {
-			continue
 		}
 
 		entries = append(entries, entry)

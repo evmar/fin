@@ -128,7 +128,13 @@ func (r Reader) ReadEntry() (*Entry, error) {
 			}
 			e.Amount = int(f * 100)
 		case '^':
-			return e, nil
+			if read {
+				return e, nil
+			} else {
+				// Empty entry. Sometimes signals EOF, but not
+				// reliably. Skip it.
+				continue
+			}
 		default:
 			log.Printf("qif: unknown field code %q", code)
 		}
