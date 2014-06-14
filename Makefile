@@ -5,14 +5,11 @@ JSFILES = d3 react code
 
 .PHONY: all test clean
 
-all: $(foreach js,$(JSFILES),build/$(js).js) build/style.css fin
+all: $(JSFILES:%=build/%.js) build/style.css build/view.html fin
 
 build:
 	mkdir -p build
 	cp static/* build
-
-build/%.js: %.coffee | build
-	$(COFFEE) -o build -b -c $<
 
 build/d3.js: third_party/d3/d3.v3.min.js | build
 	cp $^ $@
@@ -20,7 +17,13 @@ build/d3.js: third_party/d3/d3.v3.min.js | build
 build/react.js: third_party/react/react-0.10.0.js | build
 	cp $^ $@
 
-build/style.css: style.css
+build/%.js: web/%.coffee | build
+	$(COFFEE) -o build -b -c $<
+
+build/style.css: web/style.css
+	cp $^ $@
+
+build/view.html: web/view.html
 	cp $^ $@
 
 fin: src/* src/*/*

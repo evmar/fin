@@ -93,7 +93,7 @@ func webMain(entries []*qif.Entry, tags tags.Tags) {
 			return
 		}
 
-		http.ServeFile(w, r, "view.html")
+		http.ServeFile(w, r, "build/view.html")
 	})
 	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/javascript")

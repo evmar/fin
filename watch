@@ -1,5 +1,5 @@
 #!/bin/sh
 
-while inotifywait -r -q -e close_write *.coffee src; do
+while inotifywait -r -q -e close_write src web; do
     make
 done
