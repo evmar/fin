@@ -25,11 +25,15 @@ import (
 	"fin/tags"
 )
 
-var g_tags tags.Tags
+type web struct {
+	tagsPath string
+	tags     tags.Tags
+	entries  []*qif.Entry
+}
 
-func toJson(w io.Writer, entries []*qif.Entry) {
+func (web *web) toJson(w io.Writer) {
 	var jentries []map[string]interface{}
-	for _, e := range entries {
+	for _, e := range web.entries {
 		je := make(map[string]interface{})
 		id := qifId(e)
 		je["id"] = id
@@ -38,7 +42,7 @@ func toJson(w io.Writer, entries []*qif.Entry) {
 		je["amount"] = e.Amount
 		je["payee"] = e.Payee
 		je["addr"] = e.Address
-		if tags, ok := g_tags[id]; ok {
+		if tags, ok := web.tags[id]; ok {
 			je["tags"] = tags
 		}
 		jentries = append(jentries, je)
@@ -48,7 +52,7 @@ func toJson(w io.Writer, entries []*qif.Entry) {
 	})
 }
 
-func updateTags(tagsPath string, r io.Reader) {
+func (web *web) updateTagsFromPost(r io.Reader) {
 	type tagUpdate struct {
 		Tags []string `json:"tags"`
 		Ids  []string `json:"ids"`
@@ -59,7 +63,7 @@ func updateTags(tagsPath string, r io.Reader) {
 
 	for _, id := range data.Ids {
 		tagset := NewStringSet()
-		tagset.AddMulti(g_tags[id])
+		tagset.AddMulti(web.tags[id])
 		for _, tag := range data.Tags {
 			if len(tag) == 0 {
 				continue
@@ -73,14 +77,12 @@ func updateTags(tagsPath string, r io.Reader) {
 		}
 		tags := tagset.Strings()
 		sort.Strings(tags)
-		g_tags[id] = tags
+		web.tags[id] = tags
 	}
-	g_tags.Save(tagsPath)
+	web.tags.Save(web.tagsPath)
 }
 
-func startWeb(entries []*qif.Entry, tagsPath string, tags tags.Tags) {
-	g_tags = tags
-
+func (web *web) start() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
@@ -88,7 +90,7 @@ func startWeb(entries []*qif.Entry, tagsPath string, tags tags.Tags) {
 		}
 
 		if r.Method == "POST" {
-			updateTags(tagsPath, r.Body)
+			web.updateTagsFromPost(r.Body)
 			http.Redirect(w, r, "/", 303)
 			return
 		}
@@ -97,7 +99,7 @@ func startWeb(entries []*qif.Entry, tagsPath string, tags tags.Tags) {
 	})
 	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/javascript")
-		toJson(w, entries)
+		web.toJson(w)
 	})
 	http.Handle("/static/", http.StripPrefix("/static/",
 		http.FileServer(http.Dir("build"))))
@@ -105,6 +107,4 @@ func startWeb(entries []*qif.Entry, tagsPath string, tags tags.Tags) {
 	addr := ":8080"
 	log.Printf("listening on %s", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
-
-	check(g_tags.Save(tagsPath))
 }

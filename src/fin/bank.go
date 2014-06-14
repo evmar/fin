@@ -93,5 +93,10 @@ func main() {
 		entries = parse(arg, entries)
 	}
 
-	startWeb(entries, tagsPath, tags)
+	w := web{
+		entries:  entries,
+		tags:     tags,
+		tagsPath: tagsPath,
+	}
+	w.start()
 }
