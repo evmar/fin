@@ -48,7 +48,7 @@ func toJson(w io.Writer, entries []*qif.Entry) {
 	})
 }
 
-func updateTags(r io.Reader) {
+func updateTags(tagsPath string, r io.Reader) {
 	type tagUpdate struct {
 		Tags []string `json:"tags"`
 		Ids  []string `json:"ids"`
@@ -78,7 +78,7 @@ func updateTags(r io.Reader) {
 	g_tags.Save(tagsPath)
 }
 
-func webMain(entries []*qif.Entry, tags tags.Tags) {
+func startWeb(entries []*qif.Entry, tagsPath string, tags tags.Tags) {
 	g_tags = tags
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +88,7 @@ func webMain(entries []*qif.Entry, tags tags.Tags) {
 		}
 
 		if r.Method == "POST" {
-			updateTags(r.Body)
+			updateTags(tagsPath, r.Body)
 			http.Redirect(w, r, "/", 303)
 			return
 		}

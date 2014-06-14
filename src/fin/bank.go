@@ -16,6 +16,7 @@ package main
 
 import (
 	"crypto/sha1"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -25,8 +26,6 @@ import (
 	"bank/qif"
 	"fin/tags"
 )
-
-const tagsPath = "tags"
 
 func check(err error) {
 	if err != nil {
@@ -76,13 +75,23 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 }
 
 func main() {
+	var tagsPath string
+	flag.StringVar(&tagsPath, "tags", "", "path to read/write tag list")
+	flag.Parse()
+
+	if tagsPath == "" {
+		fmt.Println("must specify tags path")
+		flag.PrintDefaults()
+		return
+	}
+
 	tags, err := tags.Load(tagsPath)
 	check(err)
 
 	var entries []*qif.Entry
-	for _, arg := range os.Args[1:] {
+	for _, arg := range flag.Args()[1:] {
 		entries = parse(arg, entries)
 	}
 
-	webMain(entries, tags)
+	startWeb(entries, tagsPath, tags)
 }
