@@ -3,7 +3,7 @@ COFFEE ?= $(JS)/coffee
 
 JSFILES = d3 react code
 
-.PHONY: all test
+.PHONY: all test clean
 
 all: $(foreach js,$(JSFILES),build/$(js).js) build/style.css fin
 
@@ -28,3 +28,6 @@ fin: src/* src/*/*
 
 test:
 	GOPATH=`pwd` go test fin/... bank/...
+
+clean:
+	rm -rf build fin
