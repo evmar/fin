@@ -1,4 +1,4 @@
-JS := ../mutext/node_modules/.bin
+JS := ./node_modules/.bin
 COFFEE ?= $(JS)/coffee
 
 JSFILES = d3 react code

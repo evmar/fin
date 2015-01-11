@@ -1,0 +1,19 @@
+{
+  "name": "fin",
+  "version": "1.0.0",
+  "description": "some tools for playing around with bank statements.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/martine/fin.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/martine/fin/issues"
+  },
+  "homepage": "https://github.com/martine/fin",
+  "devDependencies": {
+    "coffee-script": "^1.8.0",
+    "react": "^0.12.2"
+  }
+}
