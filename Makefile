@@ -1,5 +1,6 @@
 JS := ./node_modules/.bin
 COFFEE ?= $(JS)/coffee
+WEBPACK ?= $(JS)/webpack
 
 JSFILES = d3 react code
 
@@ -17,8 +18,8 @@ build/d3.js: third_party/d3/d3.v3.min.js | build
 build/react.js: third_party/react/react-0.10.0.js | build
 	cp $^ $@
 
-build/%.js: web/%.coffee | build
-	$(COFFEE) -o build -b -c $<
+build/code.js: webpack.config.js web/*.coffee | build
+	$(WEBPACK)
 
 build/style.css: web/style.css
 	cp $^ $@
