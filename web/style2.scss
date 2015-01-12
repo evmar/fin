@@ -1,11 +1,29 @@
 
-.material-display1 {
+.material {
+  font-family: Roboto;
+  font-size: 13px;
+  color: hsl(0, 0%, 13%);
+}
+
+.material-type-display1 {
   font-size: 24px;
   font-weight: 400;
 }
 
+.material-type-button {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.material-type-caption {
+  font-size: 12px;
+  font-weight: 400;
+  color: hsl(0, 0%, 46%);
+}
+
+
 .ledger {
-  font-family: Roboto;
+  @extend .material;
   max-width: 480px;
 }
 
@@ -20,16 +38,23 @@
 }
 
 .ledger-text {
-  font-size: 13px;
+  @extend .material-type-button;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ledger-subtext {
+  @extend .material-type-caption;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .ledger-money {
-  @extend .material-display1;
+  @extend .material-type-display1;
+  font-weight: 300;
+  color: black;
   white-space: nowrap;
   line-height: 1;
   width: 24px;
-  color: rgb(0.54, 0.54, 0.54);
 }
