@@ -1,0 +1,35 @@
+
+.material-display1 {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.ledger {
+  font-family: Roboto;
+  max-width: 480px;
+}
+
+.ledger-entry {
+  display: flex;
+  height: 36px;
+  padding-bottom: 8px;
+}
+
+.ledger-body {
+  flex: 1;
+}
+
+.ledger-text {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ledger-money {
+  @extend .material-display1;
+  white-space: nowrap;
+  line-height: 1;
+  width: 24px;
+  color: rgb(0.54, 0.54, 0.54);
+}

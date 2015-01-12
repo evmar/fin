@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require('./style2.scss')
+
 fmt = (str, args...) ->
   start = 0
   out = []
@@ -48,6 +50,8 @@ for tag in [
   do (tag) ->
     R[tag] = (params, args...) ->
       React.createElement(tag, params, args...)
+
+Ledger2 = require('./ledger');
 
 Ledger = React.createClass
   displayName: 'Ledger'
@@ -261,7 +265,7 @@ AutoC = React.createClass
 App = React.createClass
   displayName: 'App'
 
-  getInitialState: -> {mode:'browse', search:null}
+  getInitialState: -> {mode:'ledger', search:null}
 
   getEntries: ->
     entries = @props.entries
@@ -294,6 +298,8 @@ App = React.createClass
             Ledger {entries}
         when 'chart'
           null
+        when 'ledger'
+          React.createElement Ledger2, {entries}
 
   viewMode: (e, mode) ->
     e.preventDefault()

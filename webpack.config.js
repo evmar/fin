@@ -1,4 +1,5 @@
 var webpack = require("webpack");
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   entry: "./web/code.coffee",
@@ -9,13 +10,18 @@ module.exports = {
   },
   module: {
     loaders: [
-      { test: /\.coffee$/, loader: "coffee-loader" }
+      { test: /\.coffee$/, loader: "coffee-loader" },
+      { test: /\.jsx$/, loader: "jsx-loader?harmony" },
+      { test: /\.scss$/,
+        loader: ExtractTextPlugin.extract("style-loader",
+                                          "css-loader!sass-loader") }
     ]
   },
   resolve: {
-    extensions: ["", ".web.coffee", ".web.js", ".coffee", ".js"]
+    extensions: ["", ".coffee", ".js", ".jsx", ".scss"]
   },
   plugins: [
     //new webpack.optimize.UglifyJsPlugin({minimize:true})
+    new ExtractTextPlugin("style2.css")
   ]
 }

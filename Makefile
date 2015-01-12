@@ -18,7 +18,7 @@ build/d3.js: third_party/d3/d3.v3.min.js | build
 build/react.js: third_party/react/react-0.12.2.js | build
 	cp $^ $@
 
-build/code.js: webpack.config.js web/*.coffee | build
+build/code.js: webpack.config.js web/* | build
 	$(WEBPACK)
 
 build/style.css: web/style.css
