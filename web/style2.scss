@@ -6,8 +6,18 @@
 }
 
 .material-type-display1 {
+  font-size: 34px;
+  font-weight: 400;
+}
+
+.material-type-headline {
   font-size: 24px;
   font-weight: 400;
+}
+
+.material-type-title {
+  font-size: 20px;
+  font-weight: 500;
 }
 
 .material-type-button {
@@ -33,6 +43,11 @@
   padding-bottom: 8px;
 }
 
+.ledger-date {
+  @extend .material-type-headline;
+  width: 96px;
+}
+
 .ledger-body {
   flex: 1;
 }
@@ -51,7 +66,7 @@
 }
 
 .ledger-money {
-  @extend .material-type-display1;
+  font-size: 24px;
   text-align: right;
   font-weight: 300;
   color: black;
