@@ -1,4 +1,6 @@
-var AppShell = React.createClass({
+var Ledger2 = require('./ledger');
+
+module.exports.AppShell = React.createClass({
   getInitialState() {
     return {};
   },
@@ -11,8 +13,8 @@ var AppShell = React.createClass({
     if (!this.state.entries || this.state.loading) {
       return <div></div>;
     }
-    return <App entries={this.state.entries} tags={this.state.tags}
-                reload={this.reload}></App>;
+    return <module.exports.App entries={this.state.entries} tags={this.state.tags}
+                reload={this.reload} />;
   },
 
   reload() {
@@ -42,7 +44,25 @@ var AppShell = React.createClass({
     window.data = {entries:entries, tags:tags};
     this.setState({entries, tags});
   }
-
 });
 
-module.exports = AppShell;
+
+module.exports.App = React.createClass({
+  render() {
+    return (
+      <div>
+        <header>
+          <div style={{width:128}}></div>
+          <div>Ledger</div></header>
+        <div className="body">
+          <nav>
+            <div>Ledger</div>
+          </nav>
+          <main>
+            <Ledger2 entries={this.props.entries} />
+          </main>
+        </div>
+      </div>
+    );
+  },
+});

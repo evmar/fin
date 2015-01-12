@@ -1,3 +1,4 @@
+$teal: #009688;
 
 .material {
   font-family: Roboto;
@@ -31,6 +32,29 @@
   color: hsl(0, 0%, 46%);
 }
 
+.body {
+  display: flex;
+}
+
+nav {
+  width: (128px - 32px);
+  padding: 16px;
+}
+
+header {
+  height: 48px;
+  padding: 8px 0;
+  @extend .material-type-display1;
+  color: white;
+  background: $teal;
+
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
+}
+
+main {
+  padding: 16px 0;
+  flex: 1;
+}
 
 .ledger {
   @extend .material;

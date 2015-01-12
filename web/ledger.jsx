@@ -1,6 +1,6 @@
 var util = require('./util');
 
-var Ledger2 = React.createClass({
+module.exports = React.createClass({
   render: function() {
     var entries = this.props.entries.slice(0, 100);
     //entries = nest.entries(entries);
@@ -36,5 +36,3 @@ var Ledger2 = React.createClass({
     );
   }
 });
-
-module.exports = Ledger2;

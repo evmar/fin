@@ -3,12 +3,8 @@ html, body {
   margin: 0;
 }
 body {
-  font-family: 'open sans', sans-serif;
-  font-size: 14px;
-}
-main {
-  max-width: 100ex;
-  margin: 2ex auto;
+  font-family: Roboto;
+  font-size: 13px;
 }
 input {
   font-family: inherit;

@@ -52,7 +52,7 @@ for tag in [
       React.createElement(tag, params, args...)
 
 Ledger2 = require('./ledger');
-AppShell = require('./app');
+app = require('./app');
 
 Ledger = React.createClass
   displayName: 'Ledger'
@@ -327,7 +327,7 @@ window.App = React.createClass
 
 init = ->
   React.render(
-    React.createElement(AppShell),
-    document.getElementById('main'))
+    React.createElement(app.AppShell),
+    document.body)
 
 init()
