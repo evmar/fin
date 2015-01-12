@@ -52,9 +52,9 @@
 
 .ledger-money {
   @extend .material-type-display1;
+  text-align: right;
   font-weight: 300;
   color: black;
   white-space: nowrap;
-  line-height: 1;
-  width: 24px;
+  width: 128px;
 }
