@@ -44,8 +44,7 @@
 }
 
 .ledger-date {
-  @extend .material-type-headline;
-  width: 96px;
+  width: 64px;
 }
 
 .ledger-body {
@@ -53,7 +52,6 @@
 }
 
 .ledger-text {
-  @extend .material-type-button;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -69,7 +67,7 @@
   font-size: 24px;
   text-align: right;
   font-weight: 300;
-  color: black;
+  color: hsl(0, 0%, 13%);
   white-space: nowrap;
   width: 128px;
 }
