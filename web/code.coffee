@@ -25,7 +25,7 @@ fmt = (str, args...) ->
         out.push(args.shift())
   return out.join('')
 
-cmp = (a, b) ->
+window.cmp = (a, b) ->
   return -1 if a < b
   return 1 if a > b
   return 0
@@ -52,6 +52,7 @@ for tag in [
       React.createElement(tag, params, args...)
 
 Ledger2 = require('./ledger');
+AppShell = require('./app');
 
 Ledger = React.createClass
   displayName: 'Ledger'
@@ -262,7 +263,7 @@ AutoC = React.createClass
     @setState {text}
     return
 
-App = React.createClass
+window.App = React.createClass
   displayName: 'App'
 
   getInitialState: -> {mode:'ledger', search:null}
@@ -323,45 +324,6 @@ App = React.createClass
     req.send(JSON.stringify(data))
 
     return true
-
-AppShell = React.createClass
-  displayName: 'AppShell'
-
-  getInitialState: ->
-    @reload()
-    {}
-
-  render: ->
-    unless @state.entries or @state.loading
-      return R.div()
-    React.createElement App, {entries:@state.entries, tags:@state.tags, reload:(=> @reload(); return)}
-
-  load: (data) ->
-    entries = data.entries.sort (a, b) -> cmp a.date, b.date
-    entries = entries.filter (e) -> e.amount != 0
-
-    tags = {}
-    for entry in entries
-      entry.amount = -entry.amount
-      if entry.tags
-        for tag in entry.tags
-          tags[tag] = true
-    tags = Object.keys(tags)
-
-    window.data = {entries, tags}
-    @setState {entries, tags}
-
-  reload: ->
-    @setState {loading:true}
-    req = new XMLHttpRequest()
-    req.onload = (e) =>
-      @load(JSON.parse(req.responseText))
-      @setState {loading:false}
-      return
-    req.open('get', '/data')
-    req.send()
-    return
-
 
 init = ->
   React.render(
