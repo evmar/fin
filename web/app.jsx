@@ -1,4 +1,5 @@
 var Ledger2 = require('./ledger');
+var overview = require('./overview');
 
 module.exports.AppShell = React.createClass({
   getInitialState() {
@@ -59,7 +60,7 @@ module.exports.App = React.createClass({
             <div>Ledger</div>
           </nav>
           <main>
-            <Ledger2 entries={this.props.entries} />
+            <overview.Overview entries={this.props.entries} />
           </main>
         </div>
       </div>
