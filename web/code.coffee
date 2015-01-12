@@ -31,7 +31,23 @@ cmp = (a, b) ->
 parseDate = d3.time.format('%Y/%m/%d').parse
 formatAmount = (a) -> d3.format('$.2f')(a/100)
 
-R = React.DOM
+R = {}
+for tag in [
+  'a'
+  'table'
+  'thead'
+  'tr'
+  'th'
+  'td'
+  'span'
+  'header'
+  'input'
+  'label'
+  'div'
+  ]
+  do (tag) ->
+    R[tag] = (params, args...) ->
+      React.createElement(tag, params, args...)
 
 Ledger = React.createClass
   displayName: 'Ledger'
@@ -266,10 +282,10 @@ App = React.createClass
                 ' '
                 R.a {href:'#', onClick:((e) => @viewMode(e, mode))}, mode
         R.div {className:'spacer'}
-        Filter {onSearch:@onSearch}
+        React.createElement Filter, {onSearch:@onSearch}
       switch @state.mode
         when 'browse'
-          Summary {tags:@props.tags, entries}
+          React.createElement Summary, {tags:@props.tags, entries}
         when 'tag'
           R.div null,
             R.div null,
@@ -305,13 +321,14 @@ App = React.createClass
 AppShell = React.createClass
   displayName: 'AppShell'
 
-  getInitialState: -> {}
+  getInitialState: ->
+    @reload()
+    {}
 
   render: ->
     unless @state.entries or @state.loading
-      @reload()
       return R.div()
-    App {entries:@state.entries, tags:@state.tags, reload:(=> @reload(); return)}
+    React.createElement App, {entries:@state.entries, tags:@state.tags, reload:(=> @reload(); return)}
 
   load: (data) ->
     entries = data.entries.sort (a, b) -> cmp a.date, b.date
@@ -341,6 +358,8 @@ AppShell = React.createClass
 
 
 init = ->
-  React.renderComponent(AppShell(), document.getElementById('main'))
+  React.render(
+    React.createElement(AppShell),
+    document.getElementById('main'))
 
 init()
