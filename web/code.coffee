@@ -104,50 +104,6 @@ Ledger = React.createClass
     @setState {col, reverse}
 
 
-Filter = React.createClass
-  displayName: 'Filter'
-
-  render: ->
-    R.label null,
-      'filter: ',
-      R.input {ref:'filter', type:'search', incremental:true, autoFocus:true}
-
-  componentDidMount: ->
-    f = @refs.filter.getDOMNode()
-    f.incremental = true
-    f.addEventListener 'search', @search
-    return
-
-  search: ->
-    query = @refs.filter.getDOMNode().value
-    @props.onSearch(@parseQuery(query))
-
-  parseQuery: (query) ->
-    terms = for tok in query.split(/\s+/)
-      continue if tok == ''
-      do (tok) ->
-        negate = false
-        if /^-/.test tok
-          negate = true
-          tok = tok.substr(1)
-        if /^t:/.test tok
-          tok = tok.substr(2)
-          if tok == ''
-            f = (e) -> e.tags?
-          else
-            f = (e) -> e.tags and tok in e.tags
-        else
-          r = new RegExp(tok, 'i')
-          f = (e) -> r.test(e.payee)
-        if negate
-          (e) -> not f(e)
-        else
-          f
-    return null unless terms.length > 0
-    return (e) ->
-      for q in terms
-        return false if not q(e)
-      return true
 
 
 Summary = React.createClass

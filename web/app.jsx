@@ -1,5 +1,6 @@
 var Ledger2 = require('./ledger');
 var overview = require('./overview');
+var Filter = require('./filter').Filter;
 
 module.exports.AppShell = React.createClass({
   getInitialState() {
@@ -53,8 +54,10 @@ module.exports.App = React.createClass({
     return (
       <div>
         <header>
-          <div style={{width:128}}></div>
-          <div>Ledger</div></header>
+          <div className="title">Ledger</div>
+          <div className="spacer"></div>
+          <Filter />
+        </header>
         <div className="body">
           <nav>
             <div>Ledger</div>
