@@ -32,6 +32,20 @@ $teal: #009688;
   color: hsl(0, 0%, 46%);
 }
 
+html, body {
+  margin: 0;
+}
+
+body {
+  font-family: Roboto;
+  font-size: 13px;
+}
+
+input {
+  font-family: inherit;
+  font-size: inherit;
+}
+
 .body {
   display: flex;
 }
@@ -108,5 +122,10 @@ main {
     fill: none;
     stroke: black;
     stroke-width: 1px;
+  }
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
   }
 }
