@@ -1,6 +1,6 @@
 var Ledger2 = require('./ledger');
 var overview = require('./overview');
-var Filter = require('./filter').Filter;
+var filter = require('./filter');
 
 module.exports.AppShell = React.createClass({
   getInitialState() {
@@ -56,7 +56,7 @@ module.exports.App = React.createClass({
         <header>
           <div className="title">Ledger</div>
           <div className="spacer"></div>
-          <Filter />
+          <label>filter: <filter.SearchInput onSearch={this.search} /></label>
         </header>
         <div className="body">
           <nav>
@@ -68,5 +68,9 @@ module.exports.App = React.createClass({
         </div>
       </div>
     );
+  },
+
+  search(query) {
+    var query = filter.parseQuery(query);
   },
 });
