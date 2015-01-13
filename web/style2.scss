@@ -1,4 +1,6 @@
-$teal: #009688;
+$teal200: #80cbc4;
+$teal400: #26a69a;
+$teal500: #009688;
 
 .material {
   font-family: Roboto;
@@ -60,7 +62,7 @@ header {
   align-items: center;
   height: 64px;
   padding: 0 128px;
-  background: $teal;
+  background: $teal500;
   color: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 
@@ -127,5 +129,10 @@ main {
   .axis line {
     fill: none;
     stroke: black;
+    shape-rendering: crispEdges;
+  }
+  rect {
+    fill: $teal400;
+    shape-rendering: crispEdges;
   }
 }
