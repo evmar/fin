@@ -2,11 +2,14 @@ var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
-  entry: "./web/code.coffee",
+  entry: {
+    code: "./web/code.coffee",
+    "autocomplete-demo": "./web/autocomplete-demo.jsx",
+  },
   devtool: "source-map",
   output: {
     path: "build",
-    filename: "code.js"
+    filename: "[name].js"
   },
   module: {
     loaders: [
@@ -22,6 +25,6 @@ module.exports = {
   },
   plugins: [
     //new webpack.optimize.UglifyJsPlugin({minimize:true})
-    new ExtractTextPlugin("style2.css")
+    new ExtractTextPlugin("style.css")
   ]
 }

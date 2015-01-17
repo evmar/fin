@@ -21,11 +21,8 @@ build/react.js: third_party/react/react-0.12.2.js | build
 build/code.js: webpack.config.js web/* | build
 	$(WEBPACK)
 
-build/style2.css: webpack.config.js web/* | build
+build/style.css: webpack.config.js web/* | build
 	$(WEBPACK)
-
-build/style.css: web/style.css
-	cp $^ $@
 
 build/view.html: web/view.html
 	cp $^ $@

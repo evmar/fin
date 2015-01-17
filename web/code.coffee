@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require('./style2.scss')
+require('./style.scss')
 
 fmt = (str, args...) ->
   start = 0
@@ -51,8 +51,10 @@ for tag in [
     R[tag] = (params, args...) ->
       React.createElement(tag, params, args...)
 
-Ledger2 = require('./ledger');
-app = require('./app');
+Ledger2 = require('./ledger')
+app = require('./app')
+window.modules = {}
+window.modules.AutoComplete = require('./autocomplete')
 
 Ledger = React.createClass
   displayName: 'Ledger'
@@ -281,9 +283,6 @@ window.App = React.createClass
 
     return true
 
-init = ->
-  React.render(
-    React.createElement(app.AppShell),
-    document.body)
-
-init()
+React.render(
+  React.createElement(app.AppShell),
+  document.body)
