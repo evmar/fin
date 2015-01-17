@@ -1,0 +1,45 @@
+$teal200: #80cbc4;
+$teal400: #26a69a;
+$teal500: #009688;
+
+.material {
+  font-family: Roboto;
+  font-size: 13px;
+  color: hsl(0, 0%, 13%);
+}
+
+h1, .material-type-display1 {
+  font-size: 34px;
+  font-weight: 400;
+}
+
+.material-type-headline {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.material-type-title {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.material-type-button {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.material-type-caption {
+  font-size: 12px;
+  font-weight: 400;
+  color: hsl(0, 0%, 46%);
+}
+
+body {
+  font-family: Roboto;
+  font-size: 13px;
+}
+
+input {
+  font-family: inherit;
+  font-size: inherit;
+}

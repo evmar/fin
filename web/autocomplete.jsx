@@ -1,3 +1,4 @@
+require('./autocomplete.scss');
 
 exports.AutoComplete = React.createClass({
   getInitialState() {

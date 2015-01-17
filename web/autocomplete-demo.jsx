@@ -1,3 +1,4 @@
+require('./demo.scss');
 var AutoComplete = require('./autocomplete').AutoComplete;
 
 var Demo = React.createClass({

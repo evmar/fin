@@ -6,7 +6,7 @@ JSFILES = d3 react code
 
 .PHONY: all test clean
 
-all: $(JSFILES:%=build/%.js) build/style.css build/view.html fin
+all: $(JSFILES:%=build/%.js) build/code.css build/view.html fin
 
 build:
 	mkdir -p build
@@ -21,7 +21,7 @@ build/react.js: third_party/react/react-0.12.2.js | build
 build/code.js: webpack.config.js web/* | build
 	$(WEBPACK)
 
-build/style.css: webpack.config.js web/* | build
+build/code.css: webpack.config.js web/* | build
 	$(WEBPACK)
 
 build/view.html: web/view.html
