@@ -52,9 +52,11 @@ exports.AutoComplete = React.createClass({
     switch (e.key) {
     case 'ArrowDown':
     case 'Tab':
-      if (sel == null)
+      if (sel == null || sel == options.length - 1) {
         sel = 0;
-      sel++;
+      } else {
+        sel++;
+      }
       break;
     case 'ArrowUp':
       if (sel)
