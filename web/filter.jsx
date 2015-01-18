@@ -35,19 +35,18 @@ exports.parseQuery = function(query) {
 exports.SearchInput = React.createClass({
   render() {
     return (
-      <input ref="filter" type="search" incremental="true"
-             autoFocus="true" />
+      <input ref="i" type="search" incremental="true" />
     );
   },
 
   componentDidMount() {
-    var f = this.refs.filter.getDOMNode();
-    f.incremental = true;
-    f.addEventListener('search', this.search);
+    var i = this.refs.i.getDOMNode();
+    i.incremental = true;
+    i.addEventListener('search', this.search);
   },
 
   search() {
-    var query = this.refs.filter.getDOMNode().value;
+    var query = this.refs.i.getDOMNode().value;
     this.props.onSearch(query);
   },
 });

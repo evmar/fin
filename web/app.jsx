@@ -1,6 +1,5 @@
 var Ledger2 = require('./ledger');
 var overview = require('./overview');
-var filter = require('./filter');
 
 exports.AppShell = React.createClass({
   getInitialState() {
@@ -15,8 +14,7 @@ exports.AppShell = React.createClass({
     if (!this.state.entries || this.state.loading) {
       return <div></div>;
     }
-    return <module.exports.App entries={this.state.entries} tags={this.state.tags}
-                reload={this.reload} />;
+    return <overview.Page entries={this.state.entries} tags={this.state.tags} />;
   },
 
   reload() {
@@ -46,33 +44,6 @@ exports.AppShell = React.createClass({
     window.data = {entries:entries, tags:tags};
     this.setState({entries, tags});
   }
-});
-
-
-module.exports.App = React.createClass({
-  render() {
-    return (
-      <div>
-        <header>
-          <div className="title">Ledger</div>
-          <div className="spacer"></div>
-          <label>filter: <filter.SearchInput onSearch={this.search} /></label>
-        </header>
-        <div className="body">
-          <nav>
-            <div>Ledger</div>
-          </nav>
-          <main>
-            <overview.Overview entries={this.props.entries} />
-          </main>
-        </div>
-      </div>
-    );
-  },
-
-  search(query) {
-    var query = filter.parseQuery(query);
-  },
 });
 
 React.render(

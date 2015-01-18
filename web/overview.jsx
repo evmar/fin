@@ -1,3 +1,5 @@
+var page = require('./page');
+var filter = require('./filter');
 
 var LineChart = React.createClass({
   componentDidMount() {
@@ -62,9 +64,17 @@ var LineChart = React.createClass({
 
 var Histo = React.createClass({
   componentDidMount() {
+    this.create();
+    this.update();
+  },
+  componentDidUpdate() {
+    this.update();
+  },
+
+  create() {
     var margin = {top:20, right:20, bottom:30, left:70};
-    var width = this.props.width - margin.left - margin.right;
-    var height = this.props.height - margin.top - margin.bottom;
+    this.width = this.props.width - margin.left - margin.right;
+    this.height = this.props.height - margin.top - margin.bottom;
 
     var el = this.getDOMNode();
     var svg = d3.select(el).append('svg')
@@ -72,7 +82,9 @@ var Histo = React.createClass({
                 .attr('height', this.props.height)
                 .append('g')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+  },
 
+  update() {
     var entries = this.props.entries;
     entries.sort(d3.ascending((e) => e.date));
 
@@ -90,17 +102,19 @@ var Histo = React.createClass({
     var x = d3.time.scale()
               .domain([d3.time.month.offset(months[0].month, -1),
                        d3.time.month.offset(months[months.length-1].month, 1)])
-              .range([0, width]);
+              .range([0, this.width]);
     var y = d3.scale.linear()
               .domain(d3.extent(months, (d) => d.values))
-              .range([height, 0]);
+              .range([this.height, 0]);
 
     var xAxis = d3.svg.axis()
                   .scale(x)
                   .orient('bottom');
+
+    var svg = d3.select(this.getDOMNode()).select('svg');
     svg.append('g')
        .attr('class', 'x axis')
-       .attr('transform', 'translate(0,' + height + ')')
+       .attr('transform', 'translate(0,' + this.height + ')')
        .call(xAxis);
 
     var yAxis = d3.svg.axis()
@@ -134,8 +148,36 @@ var Histo = React.createClass({
   }
 });
 
-module.exports.Overview = React.createClass({
+var Overview = React.createClass({
   render() {
-    return <Histo entries={this.props.entries} width={8*64} height={8*32} />;
+    return (
+      <div>
+      {this.props.entries.length ?
+       <Histo entries={this.props.entries} width={8*64} height={8*32} />
+       : null}
+      </div>
+    );
+  }
+});
+
+exports.Page = React.createClass({
+  getInitialState() {
+    return {entries:this.props.entries};
+  },
+  render() {
+    return (
+        <page.Page title="Overview" onSearch={this.onSearch}>
+      <Overview entries={this.state.entries} />
+        </page.Page>
+    );
+  },
+
+  onSearch(query) {
+    var entries = this.props.entries;
+    query = filter.parseQuery(query);
+    if (query) {
+      entries = this.props.entries.filter(query);
+    }
+    this.setState({entries:entries});
   }
 });
