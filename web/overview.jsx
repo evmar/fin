@@ -13,7 +13,7 @@ var LineChart = React.createClass({
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     var entries = this.props.entries;
-    entries.sort((a, b) => cmp(a.date, b.date));
+    entries.sort((e) => e.date);
     var format = d3.time.format("%Y/%m/%d");
     var cum = 0;
     entries.forEach((e) => {
@@ -74,8 +74,7 @@ var Histo = React.createClass({
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     var entries = this.props.entries;
-    entries.sort((a, b) => cmp(a.date, b.date));
-
+    entries.sort(d3.ascending((e) => e.date));
 
     var months = d3.nest()
                    .key((e) => e.date.substr(0, 7))

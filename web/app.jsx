@@ -29,7 +29,7 @@ module.exports.AppShell = React.createClass({
   },
 
   load(data) {
-    var entries = data.entries.sort((a, b) => cmp(a.date, b.date));
+    var entries = data.entries.sort(d3.ascending((e) => e.date));
     entries = entries.filter((e) => e.amount != 0);
 
     var tags = {};

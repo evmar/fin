@@ -14,23 +14,6 @@
 
 require('./style.scss')
 
-fmt = (str, args...) ->
-  start = 0
-  out = []
-  for i in [0..str.length]
-    if i == str.length or str[i] == '$'
-      out.push(str.substr(start, i - start))
-      start = i + 1
-      if str[i] == '$'
-        out.push(args.shift())
-  return out.join('')
-
-window.cmp = (a, b) ->
-  return -1 if a < b
-  return 1 if a > b
-  return 0
-
-parseDate = d3.time.format('%Y/%m/%d').parse
 formatAmount = (a) -> d3.format('$.2f')(a/100)
 
 R = {}
@@ -73,7 +56,7 @@ Ledger = React.createClass
 
     entries = @props.entries
     sortFn = cols[@state.col].get
-    entries.sort (a, b) -> cmp sortFn(a), sortFn(b)
+    entries.sort d3.ascending
     entries.reverse() if @state.reverse
 
     total = 0
@@ -140,7 +123,7 @@ Summary = React.createClass
   render: ->
     buckets = @compute()
     buckets = ([buckets[t], t] for t of buckets)
-    buckets.sort((a, b) -> cmp b[0], a[0])
+    buckets.sort(d3.descending((b) -> b[0]))
     total = 0
 
     R.div null,
