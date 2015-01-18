@@ -2,7 +2,7 @@ var Ledger2 = require('./ledger');
 var overview = require('./overview');
 var filter = require('./filter');
 
-module.exports.AppShell = React.createClass({
+exports.AppShell = React.createClass({
   getInitialState() {
     return {};
   },
@@ -74,3 +74,7 @@ module.exports.App = React.createClass({
     var query = filter.parseQuery(query);
   },
 });
+
+React.render(
+  React.createElement(exports.AppShell),
+  document.body)

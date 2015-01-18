@@ -14,7 +14,7 @@
 
 require('./style.scss')
 
-formatAmount = (a) -> d3.format('$.2f')(a/100)
+var formatAmount = require('./util').formatAmount;
 
 R = {}
 for tag in [
@@ -33,11 +33,6 @@ for tag in [
   do (tag) ->
     R[tag] = (params, args...) ->
       React.createElement(tag, params, args...)
-
-Ledger2 = require('./ledger')
-app = require('./app')
-window.modules = {}
-window.modules.AutoComplete = require('./autocomplete')
 
 Ledger = React.createClass
   displayName: 'Ledger'
@@ -200,6 +195,5 @@ window.App = React.createClass
 
     return true
 
-React.render(
-  React.createElement(app.AppShell),
-  document.body)
+
+require('./app')
