@@ -34,57 +34,6 @@ for tag in [
     R[tag] = (params, args...) ->
       React.createElement(tag, params, args...)
 
-Ledger = React.createClass
-  displayName: 'Ledger'
-
-  getInitialState: -> {col:0, reverse:true}
-
-  render: ->
-    renderPayee = (e) ->
-      console.log e
-
-    cols = [
-      { name: 'date',   get: (e) -> e.date  },
-      { name: 'payee',  get: (e) -> e.payee },
-      { name: 'amount', get: (e) -> e.amount },
-    ]
-
-    entries = @props.entries
-    sortFn = cols[@state.col].get
-    entries.sort d3.ascending
-    entries.reverse() if @state.reverse
-
-    total = 0
-    R.table {id:'ledger-table', cellSpacing:0},
-      R.thead null,
-        R.tr null,
-          for col, i in cols
-            R.th {key:i, onClick:@sort}, col.name
-      R.tbody null,
-        for e, i in @props.entries
-          total += e.amount
-          R.tr {key:i},
-            R.td {className:'date'}, e.date
-            R.td {className:'payee'},
-              e.payee,
-              for tag in (e.tags or [])
-                R.span {key:tag, className:'tag'}, tag
-            R.td {className:'amount'}, formatAmount(e.amount)
-        if entries.length > 0
-          R.tr null,
-            R.td null
-            R.td null, 'total'
-            R.td {className:'amount'}, formatAmount(total)
-
-  sort: (e) ->
-    col = e.target.cellIndex
-    reverse = @state.reverse
-    if col == @state.col
-      reverse = !reverse
-    @setState {col, reverse}
-
-
-
 
 Summary = React.createClass
   displayName: 'Summary'
