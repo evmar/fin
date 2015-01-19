@@ -123,9 +123,10 @@ var Histo = React.createClass({
 
     var xAxis = d3.svg.axis()
                   .scale(x)
+                  .ticks(4)
                   .orient('bottom');
 
-    var svg = d3.select(this.getDOMNode()).select('svg');
+    var svg = d3.select(this.getDOMNode()).select('svg').select('g');
     svg.append('g')
        .attr('class', 'x axis')
        .attr('transform', 'translate(0,' + this.height + ')')
