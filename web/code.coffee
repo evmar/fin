@@ -14,7 +14,7 @@
 
 require('./style.scss')
 
-var formatAmount = require('./util').formatAmount;
+formatAmount = require('./util').formatAmount
 
 R = {}
 for tag in [
