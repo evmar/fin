@@ -10,9 +10,9 @@ import (
 
 const input = `"Status","Date","Description","Debit","Credit"` + "\r\n" +
 	`"Cleared","08/04/2015","FOREIGN TRANSACTION FEE                 
-","17.29",""` + "\r\n" +
+","3,117.29",""` + "\r\n" +
 	`"Cleared","08/03/2015","GOOGLE *Music          GOOGLE.COM/CH CA 
-","9.99",""` + "\r\n"
+","",""` + "\r\n"
 
 func TestCSV(t *testing.T) {
 	r := strings.NewReader(input)
@@ -27,8 +27,8 @@ func TestCSV(t *testing.T) {
 		amount  int
 		cleared qif.ClearedType
 	}{
-		{"08/04/2015", "FOREIGN TRANSACTION FEE", -1729, qif.Cleared},
-		{"08/03/2015", "GOOGLE *Music          GOOGLE.COM/CH CA", -999, qif.Cleared},
+		{"08/04/2015", "FOREIGN TRANSACTION FEE", -311729, qif.Cleared},
+		{"08/03/2015", "GOOGLE *Music          GOOGLE.COM/CH CA", 0, qif.Cleared},
 	}
 	for _, tcase := range tcases {
 		e, err := cr.ReadEntry()
@@ -43,7 +43,7 @@ func TestCSV(t *testing.T) {
 			t.Errorf("bad desc: %q", e.Payee)
 		}
 		if e.Amount != tcase.amount {
-			t.Errorf("bad desc: %v", e.Amount)
+			t.Errorf("bad amount: %v", e.Amount)
 		}
 		if e.Cleared != tcase.cleared {
 			t.Errorf("bad cleared: %v", e.Cleared)

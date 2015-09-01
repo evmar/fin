@@ -46,13 +46,19 @@ func (cr *CSVReader) ReadEntry() (*qif.Entry, error) {
 
 	amount := row[cr.fields["Credit"]]
 	if amount == "" {
-		amount = "-" + row[cr.fields["Debit"]]
+		amount = row[cr.fields["Debit"]]
+		if amount != "" {
+			amount = "-" + amount
+		}
 	}
-	amountF, err := strconv.ParseFloat(amount, 64)
-	if err != nil {
-		return nil, err
+	amount = strings.Replace(amount, ",", "", -1)
+	if amount != "" {
+		amountF, err := strconv.ParseFloat(amount, 64)
+		if err != nil {
+			return nil, err
+		}
+		e.Amount = int(amountF * 100.0)
 	}
-	e.Amount = int(amountF * 100.0)
 
 	e.Payee = strings.TrimSpace(row[cr.fields["Description"]])
 
