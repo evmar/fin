@@ -31,7 +31,7 @@ func NewCSVReader(r io.Reader) (*CSVReader, error) {
 	return cr, nil
 }
 
-func (cr *CSVReader) Read() (*qif.Entry, error) {
+func (cr *CSVReader) ReadEntry() (*qif.Entry, error) {
 	row, err := cr.r.Read()
 	if err != nil {
 		return nil, err

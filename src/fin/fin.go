@@ -21,8 +21,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 
+	qifcsv "bank/csv"
 	"bank/qif"
 )
 
@@ -42,21 +44,43 @@ func qifId(e *qif.Entry) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
+type QIFRead interface {
+	ReadEntry() (*qif.Entry, error)
+}
+
 func parse(path string, entries []*qif.Entry) []*qif.Entry {
 	f, err := os.Open(path)
 	check(err)
 	defer f.Close()
 
-	r := qif.NewReader(f)
-	ttype, err := r.ReadHeader()
-	if err != nil {
-		err = fmt.Errorf("reading %s: %s", path, err.Error())
-		check(err)
+	var qr QIFRead
+
+	ext := filepath.Ext(path)
+	log.Printf("ext %v", ext)
+	switch ext {
+	case ".qif":
+		r := qif.NewReader(f)
+		ttype, err := r.ReadHeader()
+		if err != nil {
+			err = fmt.Errorf("reading %s: %s", path, err.Error())
+			check(err)
+		}
+		log.Printf("%s: %q", path, ttype)
+		qr = r
+	case ".csv":
+		r, err := qifcsv.NewCSVReader(f)
+		if err != nil {
+			err = fmt.Errorf("reading %s: %s", path, err.Error())
+			check(err)
+		}
+		log.Printf("%s: csv", path)
+		qr = r
+	default:
+		log.Printf("%s: unknown format", path)
 	}
-	log.Printf("%s: %q\n", path, ttype)
 
 	for {
-		entry, err := r.ReadEntry()
+		entry, err := qr.ReadEntry()
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -85,7 +109,7 @@ func main() {
 	check(err)
 
 	var entries []*qif.Entry
-	for _, arg := range flag.Args()[1:] {
+	for _, arg := range flag.Args() {
 		entries = parse(arg, entries)
 	}
 

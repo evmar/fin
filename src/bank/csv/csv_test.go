@@ -31,7 +31,7 @@ func TestCSV(t *testing.T) {
 		{"08/03/2015", "GOOGLE *Music          GOOGLE.COM/CH CA", -999, qif.Cleared},
 	}
 	for _, tcase := range tcases {
-		e, err := cr.Read()
+		e, err := cr.ReadEntry()
 		if err != nil {
 			panic(err)
 		}
@@ -50,7 +50,7 @@ func TestCSV(t *testing.T) {
 		}
 	}
 
-	_, err = cr.Read()
+	_, err = cr.ReadEntry()
 	if err == nil {
 		panic("expected EOF")
 	}
