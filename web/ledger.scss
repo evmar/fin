@@ -1,38 +1,37 @@
 .ledger {
   max-width: 640px;
-}
 
-.ledger-entry {
-  display: flex;
-  height: 36px;
-  padding-bottom: 8px;
-}
+  &-entry {
+    display: flex;
+    height: 36px;
+    padding-bottom: 8px;
+  }
 
-.ledger-date {
-  width: 64px;
-}
+  &-date {
+    width: 64px;
+  }
 
-.ledger-body {
-  flex: 1;
-}
+  &-body {
+    flex: 1;
+  }
 
-.ledger-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ledger-subtext {
-  @extend .material-type-caption;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  &-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &-subtext {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-.ledger-money {
-  font-size: 28px;
-  text-align: right;
-  font-weight: 300;
-  color: hsl(0, 0%, 13%);
-  white-space: nowrap;
-  width: 128px;
+  &-money {
+    font-size: 28px;
+    text-align: right;
+    font-weight: 300;
+    color: hsl(0, 0%, 13%);
+    white-space: nowrap;
+    width: 128px;
+  }
 }

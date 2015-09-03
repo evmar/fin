@@ -1,4 +1,12 @@
-@import 'material';
+body {
+  font-family: Roboto;
+  font-size: 14px;
+}
+
+input {
+  font-family: inherit;
+  font-size: inherit;
+}
 
 html, body {
   margin: 0;
@@ -18,12 +26,10 @@ header {
   align-items: center;
   height: 64px;
   padding: 0 128px;
-  background: $teal500;
   color: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 
   .title {
-    @extend .material-type-display1;
   }
   .spacer {
     flex: 1;
@@ -48,7 +54,6 @@ main {
     shape-rendering: crispEdges;
   }
   rect {
-    fill: $teal400;
     shape-rendering: crispEdges;
   }
 }
