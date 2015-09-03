@@ -20,7 +20,7 @@ module.exports = React.createClass({
     var entries = this.props.entries.slice(0, 100);
     //entries = nest.entries(entries);
     var last = null;
-    var rEntries = entries.map((e) => {
+    var rEntries = entries.map((e, i) => {
       var date = e.date.slice(0, 7);
       var next = date;
       if (last != null) {
@@ -35,7 +35,7 @@ module.exports = React.createClass({
         tags = e.tags.map((t) => ' #' + t);
       }
       return (
-        <div className="ledger-entry">
+        <div className="ledger-entry" key={i}>
           <div className="ledger-date">{date}</div>
           <div className="ledger-body">
             <div className="ledger-text" title={e.date}>{e.payee}</div>
