@@ -12,15 +12,17 @@
     "url": "https://github.com/martine/fin/issues"
   },
   "homepage": "https://github.com/martine/fin",
-  "devDependencies": {
+  "dependencies": {
     "coffee-loader": "^0.7.2",
     "coffee-script": "^1.8.0",
     "css-loader": "^0.9.1",
+    "d3": "^3.5.6",
     "extract-text-webpack-plugin": "^0.3.7",
     "jsx-loader": "^0.12.2",
-    "react": "^0.12.2",
+    "react": "^0.13.3",
     "sass-loader": "^2.0.1",
     "style-loader": "^0.8.2",
-    "webpack": "^1.12.0"
+    "webpack": "^1.12.0",
+    "webpack-dev-server": "^1.10.1"
   }
 }

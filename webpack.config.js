@@ -6,7 +6,7 @@ module.exports = {
     code: "./web/code.coffee",
     "autocomplete-demo": "./web/autocomplete-demo.jsx",
   },
-  devtool: "source-map",
+  // devtool: "source-map",
   output: {
     path: "build",
     filename: "[name].js"
@@ -18,13 +18,16 @@ module.exports = {
       { test: /\.scss$/,
         loader: ExtractTextPlugin.extract("style-loader",
                                           "css-loader!sass-loader") }
-    ]
+    ],
   },
   resolve: {
     extensions: ["", ".coffee", ".js", ".jsx", ".scss"]
   },
   plugins: [
-    //new webpack.optimize.UglifyJsPlugin({minimize:true})
-    new ExtractTextPlugin("[name].css")
-  ]
+    // new webpack.optimize.UglifyJsPlugin({minimize:true}),
+    new ExtractTextPlugin("[name].css"),
+  ],
+  externals: {
+    'react': 'React'
+  }
 }
