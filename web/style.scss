@@ -35,46 +35,6 @@ main {
   flex: 1;
 }
 
-.ledger {
-  @extend .material;
-  max-width: 480px;
-}
-
-.ledger-entry {
-  display: flex;
-  height: 36px;
-  padding-bottom: 8px;
-}
-
-.ledger-date {
-  width: 64px;
-}
-
-.ledger-body {
-  flex: 1;
-}
-
-.ledger-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ledger-subtext {
-  @extend .material-type-caption;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ledger-money {
-  font-size: 24px;
-  text-align: right;
-  font-weight: 300;
-  color: hsl(0, 0%, 13%);
-  white-space: nowrap;
-  width: 128px;
-}
-
 .graph {
   .line {
     fill: none;
