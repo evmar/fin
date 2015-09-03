@@ -14,7 +14,7 @@
 
 var filter = require('./filter');
 
-exports.Page = React.createClass({
+module.exports = React.createClass({
   render() {
     return (
       <div>

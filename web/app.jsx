@@ -14,6 +14,7 @@
 
 require('./style.scss');
 var Ledger = require('./ledger');
+var Page = require('./page');
 var overview = require('./overview');
 
 exports.AppShell = React.createClass({
@@ -29,7 +30,11 @@ exports.AppShell = React.createClass({
     if (!this.state.entries || this.state.loading) {
       return <div></div>;
     }
-    return <Ledger entries={this.state.entries} tags={this.state.tags} />;
+    return (
+      <Page>
+        <Ledger entries={this.state.entries} tags={this.state.tags} />
+      </Page>
+    );
   },
 
   reload() {
@@ -42,8 +47,9 @@ exports.AppShell = React.createClass({
   },
 
   load(data) {
-    var entries = data.entries.sort(d3.ascending((e) => e.date));
+    var entries = data.entries;
     entries = entries.filter((e) => e.amount != 0);
+    entries = entries.sort((a, b) => d3.descending(a.date, b.date));
 
     var tags = {};
     entries.forEach((entry) => {
