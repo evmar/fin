@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Ledger2 = require('./ledger');
+require('./style.scss');
+var Ledger = require('./ledger');
 var overview = require('./overview');
 
 exports.AppShell = React.createClass({
@@ -28,7 +29,7 @@ exports.AppShell = React.createClass({
     if (!this.state.entries || this.state.loading) {
       return <div></div>;
     }
-    return <overview.Page entries={this.state.entries} tags={this.state.tags} />;
+    return <Ledger entries={this.state.entries} tags={this.state.tags} />;
   },
 
   reload() {

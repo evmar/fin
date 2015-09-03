@@ -29,7 +29,7 @@ module.exports = React.createClass({
       }
       last = next;
 
-      var tags = 'no tags';
+      var tags = '';
       if (e.tags) {
         tags = e.tags.map((t) => ' #' + t);
       }
@@ -38,9 +38,7 @@ module.exports = React.createClass({
           <div className="ledger-date">{date}</div>
           <div className="ledger-body">
             <div className="ledger-text" title={e.date}>{e.payee}</div>
-            <div className="ledger-subtext">
-              {tags}
-            </div>
+            <div className="ledger-subtext">{tags}</div>
           </div>
           <div className="ledger-money">{util.formatAmount(e.amount)}</div>
         </div>);

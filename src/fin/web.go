@@ -82,26 +82,26 @@ func (web *web) updateTagsFromPost(r io.Reader) {
 }
 
 func (web *web) start() {
+	fs := http.FileServer(http.Dir("build"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
+		if r.URL.Path == "/" {
+			if r.Method == "POST" {
+				web.updateTagsFromPost(r.Body)
+				http.Redirect(w, r, "/", 303)
+				return
+			}
+
+			http.ServeFile(w, r, "build/view.html")
 			return
 		}
 
-		if r.Method == "POST" {
-			web.updateTagsFromPost(r.Body)
-			http.Redirect(w, r, "/", 303)
-			return
-		}
-
-		http.ServeFile(w, r, "build/view.html")
+		fs.ServeHTTP(w, r)
 	})
 	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/javascript")
 		web.toJson(w)
 	})
-	http.Handle("/static/", http.StripPrefix("/static/",
-		http.FileServer(http.Dir("build"))))
+	http.Handle("/static/", http.FileServer(http.Dir("build")))
 
 	addr := ":8080"
 	log.Printf("listening on %s", addr)

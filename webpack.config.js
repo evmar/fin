@@ -3,7 +3,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   entry: {
-    code: "./web/code.coffee",
+    code: "./web/app.jsx",
     "autocomplete-demo": "./web/autocomplete-demo.jsx",
   },
   // devtool: "source-map",
@@ -13,7 +13,6 @@ module.exports = {
   },
   module: {
     loaders: [
-      { test: /\.coffee$/, loader: "coffee-loader" },
       { test: /\.jsx$/, loader: "jsx-loader?harmony" },
       { test: /\.scss$/,
         loader: ExtractTextPlugin.extract("style-loader",
@@ -29,5 +28,14 @@ module.exports = {
   ],
   externals: {
     'react': 'React'
+  },
+  devServer: {
+    contentBase: "build/",
+    // hot: true,
+    // inline: true,
+    port: 9090,
+    proxy: {
+      "*": "http://localhost:8080",
+    },
   }
 }
