@@ -28,6 +28,13 @@ exports.parseQuery = function(query) {
       } else {
         f = (e) => e.tags && e.tags.filter((t) => t == tag).length > 0;
       }
+    } else if (/^[><]/.test(tok)) {
+      var amount = parseFloat(tok.substr(1), 10) * 100;
+      if (tok[0] == '<') {
+        f = (e) => e.amount < amount;
+      } else {
+        f = (e) => e.amount > amount;
+      }
     } else {
       var r = new RegExp(tok, 'i');
       f = (e) => r.test(e.payee);
