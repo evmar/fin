@@ -26,16 +26,15 @@ exports.parseQuery = function(query) {
       if (tag == '') {
         f = (e) => !!e.tags;
       } else {
-        f = (e) => e.tags && tok in e.tags;
+        f = (e) => e.tags && e.tags.filter((t) => t == tag).length > 0;
       }
     } else {
       var r = new RegExp(tok, 'i');
       f = (e) => r.test(e.payee);
-      var y = 4;
-
     }
     if (negate) {
-      f = (e) => !f(e);
+      var inner = f;
+      f = (e) => !inner(e);
     }
     return f;
   });

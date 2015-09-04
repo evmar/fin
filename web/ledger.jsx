@@ -58,12 +58,34 @@ exports.LedgerPage = React.createClass({
     return {filter: null};
   },
 
+  analyzeTags(entries) {
+    var tags = {};
+    for (var i = 0; i < entries.length; i++) {
+      var e = entries[i];
+      if (e.tags) {
+        for (var j = 0; j < e.tags.length; j++) {
+          var tag = e.tags[j];
+          tags[tag] = (tags[tag] || 0) + 1;
+        }
+      }
+    }
+
+    var dom = [];
+    console.log(tags);
+    for (var tag in tags) {
+      var frac = tags[tag] / entries.length;
+      if (frac > 0.2 && frac < 1) {
+        dom.push(<span key={tag}>{(frac * 100).toFixed(0)}% {tag};</span>);
+      }
+    }
+    return dom;
+  },
+  
   render() {
     var entries = this.props.entries;
     if (this.state.filter) {
       entries = this.props.entries.filter(this.state.filter);
     }
-    console.log(entries.length);
     return (
       <div>
         <header>
@@ -75,6 +97,7 @@ exports.LedgerPage = React.createClass({
         </header>
         <div className="body">
           <main>
+            <p>{this.analyzeTags(entries)} {entries.length} entries.</p>
             <Ledger entries={entries} tags={this.props.tags} />
           </main>
         </div>
