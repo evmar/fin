@@ -21,9 +21,9 @@ module.exports = React.createClass({
         <header>
           <div className="title">{this.props.title}</div>
           <div className="spacer"></div>
-      {this.props.onSearch ?
-       <label>filter: <filter.SearchInput onSearch={this.props.onSearch} /></label>
-       : null}
+          {this.props.onSearch ?
+           <label>filter: <filter.SearchInput onSearch={this.props.onSearch} /></label>
+                                                     : null}
         </header>
         <div className="body">
           <nav>

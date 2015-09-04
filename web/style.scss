@@ -11,25 +11,21 @@ input {
 html, body {
   margin: 0;
 }
-
-.body {
+body {
+  margin: 0 128px;
   display: flex;
-}
-
-nav {
-  width: (128px - 32px);
-  padding: 16px;
 }
 
 header {
   display: flex;
   align-items: center;
   height: 64px;
-  padding: 0 128px;
-  color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
+  max-width: 640px;
+  border-bottom: solid 1px hsl(0, 0, 12%);
 
   .title {
+    font-family: 'PT Serif';
+    font-size: 34px;
   }
   .spacer {
     flex: 1;
@@ -37,7 +33,7 @@ header {
 }
 
 main {
-  padding: 16px 0;
+  margin: 16px 0;
   flex: 1;
 }
 

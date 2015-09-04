@@ -13,8 +13,7 @@
 // limitations under the License.
 
 require('./style.scss');
-var Ledger = require('./ledger');
-var Page = require('./page');
+var ledger = require('./ledger');
 var overview = require('./overview');
 
 exports.AppShell = React.createClass({
@@ -31,9 +30,7 @@ exports.AppShell = React.createClass({
       return <div></div>;
     }
     return (
-      <Page>
-        <Ledger entries={this.state.entries} tags={this.state.tags} />
-      </Page>
+      <ledger.LedgerPage entries={this.state.entries} tags={this.state.tags} />
     );
   },
 

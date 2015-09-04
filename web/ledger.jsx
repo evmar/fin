@@ -13,9 +13,11 @@
 // limitations under the License.
 
 require('./ledger.scss');
+var Page = require('./page');
 var util = require('./util');
+var filter = require('./filter');
 
-module.exports = React.createClass({
+var Ledger = React.createClass({
   render: function() {
     var entries = this.props.entries.slice(0, 100);
     //entries = nest.entries(entries);
@@ -30,14 +32,18 @@ module.exports = React.createClass({
       }
       last = next;
 
-      var tags = '';
+      var tags = null;
       if (e.tags) {
         tags = e.tags.map((t) => ' #' + t);
+        tags = <span>{tags}</span>;
       }
       return (
         <div className="ledger-entry" key={i}>
           <div className="ledger-date">{date}</div>
-          <div className="ledger-body" title={e.date}>{e.payee}</div>
+          <div className="ledger-body" title={e.date}>
+            <div className="ledger-payee">{e.payee}</div>
+            <div className="ledger-tags">{tags}</div>
+          </div>
           <div className="ledger-money">{util.formatAmount(e.amount)}</div>
         </div>);
     });
@@ -45,4 +51,38 @@ module.exports = React.createClass({
       <div className="ledger">{rEntries}</div>
     );
   }
+});
+
+exports.LedgerPage = React.createClass({
+  getInitialState() {
+    return {filter: null};
+  },
+
+  render() {
+    var entries = this.props.entries;
+    if (this.state.filter) {
+      entries = this.props.entries.filter(this.state.filter);
+    }
+    console.log(entries.length);
+    return (
+      <div>
+        <header>
+          <div className="title">Ledger</div>
+          <div className="spacer"></div>
+          <label>
+            filter: <filter.SearchInput onSearch={this.onSearch} />
+          </label>
+        </header>
+        <div className="body">
+          <main>
+            <Ledger entries={entries} tags={this.props.tags} />
+          </main>
+        </div>
+      </div>
+    );
+  },
+
+  onSearch(query) {
+    this.setState({filter: filter.parseQuery(query)});
+  },
 });
