@@ -91,6 +91,10 @@ exports.LedgerPage = React.createClass({
   
   render() {
     var entries = this.getEntries();
+
+    var total = 0;
+    entries.forEach((e) => total += e.amount);
+
     var applyTag = null;
     if (this.state.filter || 1) {
       applyTag = (
@@ -112,7 +116,7 @@ exports.LedgerPage = React.createClass({
         </header>
         <div className="body">
           <main>
-            <p>{this.analyzeTags(entries)} {entries.length} entries.</p>
+            <p>{this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}.</p>
             {applyTag}
             <Ledger entries={entries} tags={this.props.tags} />
           </main>
