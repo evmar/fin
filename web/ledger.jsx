@@ -20,7 +20,7 @@ var AutoComplete = require('./autocomplete');
 
 var Ledger = React.createClass({
   render: function() {
-    var entries = this.props.entries.slice(0, 100);
+    var entries = this.props.entries.slice(0, 200);
     //entries = nest.entries(entries);
     var last = null;
     var rEntries = entries.map((e, i) => {
@@ -96,12 +96,12 @@ exports.LedgerPage = React.createClass({
     entries.forEach((e) => total += e.amount);
 
     var applyTag = null;
-    if (this.state.filter || 1) {
+    if (this.state.filter) {
       applyTag = (
-        <p>
+        <span>
           Tag: <AutoComplete options={this.props.tags}
                              onCommit={this.onTag} />
-        </p>
+        </span>
       );
     }
 
@@ -116,8 +116,8 @@ exports.LedgerPage = React.createClass({
         </header>
         <div className="body">
           <main>
-            <p>{this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}.</p>
-            {applyTag}
+            <p>{this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
+            </p>
             <Ledger entries={entries} tags={this.props.tags} />
           </main>
         </div>

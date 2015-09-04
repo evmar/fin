@@ -43,12 +43,12 @@ module.exports = React.createClass({
     }
 
     return (
-      <div className='autoc'>
+      <span className='autoc'>
         <input ref='input' autoComplete='false' value={this.state.text}
                onChange={this.onChange} onKeyDown={this.onKeyDown}
                onFocus={this.onFocus} onBlur={this.onBlur} />
         {dropdown}
-      </div>
+      </span>
     );
   },
 
