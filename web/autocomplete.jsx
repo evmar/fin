@@ -14,7 +14,7 @@
 
 require('./autocomplete.scss');
 
-exports.AutoComplete = React.createClass({
+module.exports = React.createClass({
   getInitialState() {
     return {sel:null, text:'', focus:false};
   },

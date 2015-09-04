@@ -16,6 +16,7 @@ require('./ledger.scss');
 var Page = require('./page');
 var util = require('./util');
 var filter = require('./filter');
+var AutoComplete = require('./autocomplete');
 
 var Ledger = React.createClass({
   render: function() {
@@ -71,21 +72,35 @@ exports.LedgerPage = React.createClass({
     }
 
     var dom = [];
-    console.log(tags);
     for (var tag in tags) {
       var frac = tags[tag] / entries.length;
-      if (frac > 0.2 && frac < 1) {
+      if (frac > 0.2) {
         dom.push(<span key={tag}>{(frac * 100).toFixed(0)}% {tag};</span>);
       }
     }
     return dom;
   },
   
-  render() {
+  getEntries() {
     var entries = this.props.entries;
     if (this.state.filter) {
       entries = this.props.entries.filter(this.state.filter);
     }
+    return entries;
+  },
+  
+  render() {
+    var entries = this.getEntries();
+    var applyTag = null;
+    if (this.state.filter || 1) {
+      applyTag = (
+        <p>
+          Tag: <AutoComplete options={this.props.tags}
+                             onCommit={this.onTag} />
+        </p>
+      );
+    }
+
     return (
       <div>
         <header>
@@ -98,11 +113,27 @@ exports.LedgerPage = React.createClass({
         <div className="body">
           <main>
             <p>{this.analyzeTags(entries)} {entries.length} entries.</p>
+            {applyTag}
             <Ledger entries={entries} tags={this.props.tags} />
           </main>
         </div>
       </div>
     );
+  },
+
+  onTag(text) {
+    var entries = this.getEntries();
+    var json = {
+      tags: text.split(/\s+/).filter((t) => /\w/.test(t)),
+      ids: entries.map((e) => e.id),
+    };
+
+    req = new XMLHttpRequest();
+    req.onload = () => window.location.reload();
+    req.open('post', '/');
+    req.send(JSON.stringify(json))
+
+    return false;
   },
 
   onSearch(query) {
