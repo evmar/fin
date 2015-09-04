@@ -37,10 +37,7 @@ module.exports = React.createClass({
       return (
         <div className="ledger-entry" key={i}>
           <div className="ledger-date">{date}</div>
-          <div className="ledger-body">
-            <div className="ledger-text" title={e.date}>{e.payee}</div>
-            <div className="ledger-subtext">{tags}</div>
-          </div>
+          <div className="ledger-body" title={e.date}>{e.payee}</div>
           <div className="ledger-money">{util.formatAmount(e.amount)}</div>
         </div>);
     });

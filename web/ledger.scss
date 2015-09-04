@@ -1,37 +1,27 @@
 .ledger {
   max-width: 640px;
+}
 
-  &-entry {
-    display: flex;
-    height: 36px;
-    padding-bottom: 8px;
-  }
+.ledger-entry {
+  display: flex;
+  height: 16px;
+  padding-bottom: 8px;
+}
 
-  &-date {
-    width: 64px;
-  }
+.ledger-date {
+  width: 64px;
+}
 
-  &-body {
-    flex: 1;
-  }
+.ledger-body {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-  &-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  &-subtext {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  &-money {
-    font-size: 28px;
-    text-align: right;
-    font-weight: 300;
-    color: hsl(0, 0%, 13%);
-    white-space: nowrap;
-    width: 128px;
-  }
+.ledger-money {
+  text-align: right;
+  color: hsl(0, 0%, 13%);
+  white-space: nowrap;
+  width: 128px;
 }
