@@ -87,6 +87,25 @@ func (r Reader) ReadHeader() (string, error) {
 	return string(id), nil
 }
 
+func isoToUTF(data []byte) string {
+	ascii := true
+	for _, b := range data {
+		if b > 0x7f {
+			ascii = false
+			break
+		}
+	}
+	if ascii {
+		return string(data)
+	}
+
+	buf := &bytes.Buffer{}
+	for _, b := range data {
+		buf.WriteRune(rune(b))
+	}
+	return buf.String()
+}
+
 // ReadEntry reads an Entry from the input, and can be called repeatedly.
 // ReadHeader must be called first.  Returns (nil, io.EOF) at the end
 // of the input.
@@ -96,7 +115,7 @@ func (r Reader) ReadEntry() (*Entry, error) {
 	for r.s.Scan() {
 		line := r.s.Bytes()
 		code := line[0]
-		data := string(line[1:])
+		data := isoToUTF(line[1:])
 		switch code {
 		case 'A':
 			e.Address = data
