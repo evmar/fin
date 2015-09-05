@@ -24,6 +24,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.ledger-tags {
+  color: hsl(0, 0, 40%);
+  font-size: 80%;
+}
 
 .ledger-money {
   text-align: right;
