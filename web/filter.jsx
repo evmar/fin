@@ -35,6 +35,9 @@ exports.parseQuery = function(query) {
       } else {
         f = (e) => e.amount > amount;
       }
+    } else if (/^y:/.test(tok)) {
+      var year = tok.substr(2);
+      f = (e) => e.date.substr(0, 4) == year;
     } else {
       var r = new RegExp(tok, 'i');
       f = (e) => r.test(e.payee);
