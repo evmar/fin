@@ -37,19 +37,3 @@ main {
   flex: 1;
 }
 
-.graph {
-  .line {
-    fill: none;
-    stroke: black;
-    stroke-width: 1px;
-  }
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
-  }
-  rect {
-    shape-rendering: crispEdges;
-  }
-}

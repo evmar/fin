@@ -29,8 +29,9 @@ exports.AppShell = React.createClass({
     if (!this.state.entries || this.state.loading) {
       return <div></div>;
     }
+    /* <ledger.LedgerPage entries={this.state.entries} tags={this.state.tags} /> */
     return (
-      <ledger.LedgerPage entries={this.state.entries} tags={this.state.tags} />
+      <overview.Page entries={this.state.entries} tags={this.state.tags} />
     );
   },
 
