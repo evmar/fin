@@ -178,23 +178,22 @@ var Overview = React.createClass({
 
 exports.Page = React.createClass({
   getInitialState() {
-    return {entries:this.props.entries};
+    return {filter: filter.parseQuery('-t:transfer')};
   },
 
   render() {
+    var entries = this.props.entries;
+    if (this.state.filter)
+      entries = entries.filter(this.state.filter);
+
     return (
       <Page title="Overview" onSearch={this.onSearch}>
-        <Overview entries={this.state.entries} />
+        <Overview entries={entries} />
       </Page>
     );
   },
 
   onSearch(query) {
-    var entries = this.props.entries;
-    query = filter.parseQuery(query);
-    if (query) {
-      entries = this.props.entries.filter(query);
-    }
-    this.setState({entries:entries});
+    this.setState({filter: filter.parseQuery(query)});
   }
 });

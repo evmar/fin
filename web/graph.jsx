@@ -14,6 +14,56 @@
 
 require('./graph.scss');
 
+function epanKernel(scale) {
+  return function(u) {
+    return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
+  };
+}
+
+function norm(k) {
+  var s = d3.sum(k);
+  return k.map((v) => v / s);
+}
+
+function conv(k, distf) {
+  var w = Math.floor(k.length / 2);
+  return function(data) {
+    return data.map((x, i) => {
+      var s = 0;
+      for (var j = -w; j <= w; j++) {
+        var x1 = data[i+j];
+        if (!x1)
+          continue;
+        var ki = distf(x1[0] - x[0]) + w;
+        if (!k[ki])
+          continue;
+        s += k[ki] * x1[1];
+      }
+      return [x[0], s];
+    });
+  };
+}
+
+function smooth(data) {
+  var kern = [];
+  var window = 1;
+  for (var j = -window; j <= window; j++) {
+    kern.push(epanKernel(1)(j / window));
+  }
+
+  kern = norm(kern);
+  console.log(kern);
+
+  var c = conv(kern, (d) => d / 86400000);
+  return c(data);
+}
+
+function dayOfYear(date) {
+  var start = new Date();
+  start.setMonth(0, 0);
+  return (date - start)/8.64e7;
+}
+
 module.exports = React.createClass({
   componentDidMount() {
     this.create();
@@ -30,34 +80,46 @@ module.exports = React.createClass({
     this.height = this.props.height - margin.top - margin.bottom;
 
     var el = this.getDOMNode();
-    var svg = d3.select(el).append('svg')
+    this.svg = d3.select(el).append('svg')
                 .attr('width', this.props.width)
-                .attr('height', this.props.height)
+                .attr('height', this.props.height);
+    this.g = this.svg
                 .append('g')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    this.g.append('g')
+       .attr('class', 'x axis')
+       .attr('transform', 'translate(0,' + this.height + ')');
+
+    this.g.append('g')
+       .attr('class', 'y axis');
+
+    this.p = this.g.append('path')
+       .attr('class', 'line');
   },
 
   update() {
     var entries = this.props.entries;
-    entries.sort(d3.ascending((e) => e.date));
+    var format = d3.time.format("%Y/%m/%d");
+    var data = d3.nest()
+                 .key((e) => e.date)
+                 .sortKeys(d3.ascending)
+                 .rollup((es) => d3.sum(es, (e) => e.amount))
+                 .entries(entries);
+    /* data.forEach(e => console.log(e.key, e.values)) */
 
-    var months = d3.nest()
-                   .key((e) => e.date.substr(0, 7))
-                   .sortKeys(d3.ascending)
-                   .rollup((es) => d3.sum(es, (e) => e.amount))
-                   .entries(entries);
-
-    var format = d3.time.format("%Y/%m");
-    months.forEach((m) => {
-      m.month = format.parse(m.key);
-    });
+    data = data.map((e) => [format.parse(e.key), e.values]);
+    data = smooth(data);
 
     var x = d3.time.scale()
-              .domain([d3.time.month.offset(months[0].month, -1),
-                       d3.time.month.offset(months[months.length-1].month, 1)])
+              .domain([format.parse("2015/01/01"),
+                       format.parse("2015/10/01")])
               .range([0, this.width]);
+
+    var yext = d3.extent(data, (d) => d[1]);
+    yext[0] = 0;
     var y = d3.scale.linear()
-              .domain(d3.extent(months, (d) => d.values))
+              .domain(yext)
               .range([this.height, 0]);
 
     var xAxis = d3.svg.axis()
@@ -65,36 +127,22 @@ module.exports = React.createClass({
                   .ticks(4)
                   .orient('bottom');
 
-    var svg = d3.select(this.getDOMNode()).select('svg').select('g');
-    svg.append('g')
-       .attr('class', 'x axis')
-       .attr('transform', 'translate(0,' + this.height + ')')
-       .call(xAxis);
+    var svg = this.g;
+    svg.select('g.x').call(xAxis);
 
     var yAxis = d3.svg.axis()
                   .scale(y)
                   .orient('left')
                   .ticks(5)
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
-    svg.append('g')
-       .attr('class', 'y axis')
-       .call(yAxis);
+    svg.select('g.y').call(yAxis);
     
-    months.forEach((m) => {
-      var y1 = y(0);
-      var y2 = y(m.values);
-      m.y = d3.min([y1, y2]);
-      m.height = Math.abs(y1 - y2);
-    });
-    var m = months[0].month;
-    var barwidth = x(d3.time.month.offset(m, 1)) - x(m) - 4;
-    svg.selectAll('rect')
-       .data(months)
-       .enter().append('rect')
-       .attr('x', (m) => x(m.month) - barwidth/2)
-       .attr('y', (m) => m.y)
-       .attr('width', barwidth)
-       .attr('height', (m) => m.height)
+    var line = d3.svg.line()
+                 .x((d) => x(d[0]))
+                 .y((d) => y(d[1]));
+    /* .interpolate('step'); */
+    this.p.datum(data)
+       .attr('d', line);
   },
 
   render() {

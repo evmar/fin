@@ -26,9 +26,6 @@ module.exports = React.createClass({
                                                      : null}
         </header>
         <div className="body">
-          <nav>
-            <div>...</div>
-          </nav>
           <main>
             {this.props.children}
           </main>
