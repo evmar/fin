@@ -109,23 +109,12 @@ exports.LedgerPage = React.createClass({
     }
 
     return (
-      <div>
-        <header>
-          <div className="title">Ledger</div>
-          <div className="spacer"></div>
-          <label>
-            filter: <filter.SearchInput onSearch={this.onSearch} />
-          </label>
-        </header>
-        <div className="body">
-          <main>
-            <filter.FilterPane entries={entries} onFilter={this.onFilter} />
-            <p>{this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
-            </p>
-            <Ledger entries={entries} tags={this.props.tags} />
-          </main>
-        </div>
-      </div>
+      <Page title="Ledger" onSearch={this.onSearch}>
+        <filter.FilterPane entries={entries} onFilter={this.onFilter} />
+        <p>{this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
+        </p>
+        <Ledger entries={entries} tags={this.props.tags} />
+      </Page>
     );
   },
 
