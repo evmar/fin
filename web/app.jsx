@@ -29,9 +29,11 @@ exports.AppShell = React.createClass({
     if (!this.state.entries || this.state.loading) {
       return <div></div>;
     }
-    /* <ledger.LedgerPage entries={this.state.entries} tags={this.state.tags} /> */
     return (
-      <overview.Page entries={this.state.entries} tags={this.state.tags} />
+      <ledger.LedgerPage entries={this.state.entries} />
+    );
+    return (
+      <overview.Page entries={this.state.entries} />
     );
   },
 
@@ -48,20 +50,10 @@ exports.AppShell = React.createClass({
     var entries = data.entries;
     entries = entries.filter((e) => e.amount != 0);
     entries = entries.sort((a, b) => d3.descending(a.date, b.date));
+    entries.forEach((e) => e.amount = -e.amount);
 
-    var tags = {};
-    entries.forEach((entry) => {
-      entry.amount = -entry.amount;
-      if (entry.tags) {
-        entry.tags.forEach((tag) => {
-          tags[tag] = true;
-        });
-      }
-    });
-    tags = Object.keys(tags);
-
-    window.data = {entries:entries, tags:tags};
-    this.setState({entries, tags});
+    window.data = {entries:entries};
+    this.setState({entries});
   }
 });
 

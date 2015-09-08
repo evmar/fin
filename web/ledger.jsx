@@ -16,6 +16,7 @@ require('./ledger.scss');
 var Page = require('./page');
 var util = require('./util');
 var filter = require('./filter');
+var taglib = require('./tags');
 var AutoComplete = require('./autocomplete');
 
 var Ledger = React.createClass({
@@ -62,11 +63,9 @@ exports.LedgerPage = React.createClass({
 
   analyzeTags(entries) {
     var tags = {};
-    for (var i = 0; i < entries.length; i++) {
-      var e = entries[i];
+    for (var e of entries) {
       if (e.tags) {
-        for (var j = 0; j < e.tags.length; j++) {
-          var tag = e.tags[j];
+        for (var tag of e.tags) {
           tags[tag] = (tags[tag] || 0) + 1;
         }
       }
@@ -98,9 +97,10 @@ exports.LedgerPage = React.createClass({
 
     var applyTag = null;
     if (this.state.filter) {
+      var tags = Object.keys(taglib.gatherTags(entries));
       applyTag = (
         <span>
-          Tag: <AutoComplete options={this.props.tags}
+          Tag: <AutoComplete options={tags}
                              onCommit={this.onTag} />
         </span>
       );
@@ -117,6 +117,7 @@ exports.LedgerPage = React.createClass({
         </header>
         <div className="body">
           <main>
+            <filter.FilterPane entries={entries} />
             <p>{this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
             </p>
             <Ledger entries={entries} tags={this.props.tags} />

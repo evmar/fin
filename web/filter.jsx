@@ -12,6 +12,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+var taglib = require('./tags');
+var util = require('./util');
+
+function sortOnBy(f, c) {
+  return function(a, b) {
+    return c(f(a), f(b));
+  };
+}
+
+exports.FilterPane = React.createClass({
+  getInitialState() {
+    return {hiddenTags: {}};
+  },
+
+  render() {
+    var tags = d3.entries(taglib.gatherTags(this.props.entries));
+    tags = tags.sort(sortOnBy((t) => Math.abs(t.value), d3.descending));
+
+    var showTags = [];
+    for (var tag in this.state.hiddenTags) {
+      showTags.push({tag:tag});
+    }
+    for (var tag of tags) {
+      if (tag.key in this.state.hiddenTags)
+        continue;
+      showTags.push({tag:tag.key, amount:tag.value});
+    }
+    showTags = showTags.slice(0, 10);
+
+    return (
+      <div style={{WebkitColumnCount:2}}>
+        {showTags.map((t) => (
+          <div key={t.tag}>
+            <label>
+              <input type="checkbox"
+                           checked={!(t.tag in this.state.hiddenTags)}
+          onChange={this.toggle.bind(this, t.tag)} />
+          {t.tag} {t.amount ? util.formatAmount(t.amount) : ""}
+            </label></div>
+        ))}
+      </div>
+    );
+  },
+
+  toggle(tag) {
+    if (tag in this.state.hiddenTags) {
+      delete this.state.hiddenTags[tag];
+    } else {
+      this.state.hiddenTags[tag] = '';
+    }
+    this.setState(this.state);
+  },
+});
+
 exports.parseQuery = function(query) {
   var tokens = query.split(/\s+/).filter((t) => t != '');
   var terms = tokens.map((tok) => {
