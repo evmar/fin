@@ -83,8 +83,10 @@ exports.LedgerPage = React.createClass({
   
   getEntries() {
     var entries = this.props.entries;
-    if (this.state.filter) {
-      entries = this.props.entries.filter(this.state.filter);
+    var query = [this.state.filter, this.state.query].join(' ');
+    var f = filter.parseQuery(query);
+    if (f) {
+      entries = this.props.entries.filter(f);
     }
     return entries;
   },
@@ -96,7 +98,7 @@ exports.LedgerPage = React.createClass({
     entries.forEach((e) => total += e.amount);
 
     var applyTag = null;
-    if (this.state.filter) {
+    if (this.state.filter || this.state.query) {
       var tags = Object.keys(taglib.gatherTags(entries));
       applyTag = (
         <span>
@@ -117,7 +119,7 @@ exports.LedgerPage = React.createClass({
         </header>
         <div className="body">
           <main>
-            <filter.FilterPane entries={entries} />
+            <filter.FilterPane entries={entries} onFilter={this.onFilter} />
             <p>{this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
             </p>
             <Ledger entries={entries} tags={this.props.tags} />
@@ -143,6 +145,9 @@ exports.LedgerPage = React.createClass({
   },
 
   onSearch(query) {
-    this.setState({filter: filter.parseQuery(query)});
+    this.setState({query: query});
+  },
+  onFilter(filter) {
+    this.setState({filter: filter});
   },
 });

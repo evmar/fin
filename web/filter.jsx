@@ -39,19 +39,19 @@ exports.FilterPane = React.createClass({
         continue;
       showTags.push({tag:tag.key, amount:tag.value});
     }
-    showTags = showTags.slice(0, 10);
+    showTags = showTags.slice(0, 12);
 
     return (
-      <div style={{WebkitColumnCount:2}}>
+      <div style={{WebkitColumnCount:3}}>
         {showTags.map((t) => (
           <div key={t.tag}>
-            <label>
-              <input type="checkbox"
-                           checked={!(t.tag in this.state.hiddenTags)}
+          <label>
+          <input type="checkbox"
+          checked={!(t.tag in this.state.hiddenTags)}
           onChange={this.toggle.bind(this, t.tag)} />
           {t.tag} {t.amount ? util.formatAmount(t.amount) : ""}
-            </label></div>
-        ))}
+          </label></div>
+         ))}
       </div>
     );
   },
@@ -63,6 +63,12 @@ exports.FilterPane = React.createClass({
       this.state.hiddenTags[tag] = '';
     }
     this.setState(this.state);
+
+    var query = [];
+    for (var t in this.state.hiddenTags) {
+      query.push('-t:' + t);
+    }
+    this.props.onFilter(query.join(' '));
   },
 });
 
