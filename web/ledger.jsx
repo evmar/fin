@@ -53,6 +53,7 @@ var Ledger = React.createClass({
     );
   }
 });
+exports.Ledger = Ledger;
 
 exports.LedgerPage = React.createClass({
   getInitialState() {

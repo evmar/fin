@@ -52,7 +52,6 @@ function smooth(data) {
   }
 
   kern = norm(kern);
-  console.log(kern);
 
   var c = conv(kern, (d) => d / 86400000);
   return c(data);
@@ -101,15 +100,22 @@ module.exports = React.createClass({
   update() {
     var entries = this.props.entries;
     var format = d3.time.format("%Y/%m/%d");
+    entries = entries.map((e) => ({
+      mdate: format.parse(e.date.substr(0, 8) + "01"),
+      amount: e.amount,
+    }))
     var data = d3.nest()
-                 .key((e) => e.date)
-                 .sortKeys(d3.ascending)
-                 .rollup((es) => d3.sum(es, (e) => e.amount))
-                 .entries(entries);
-    /* data.forEach(e => console.log(e.key, e.values)) */
-
-    data = data.map((e) => [format.parse(e.key), e.values]);
-    data = smooth(data);
+                 .key((e) => +e.mdate)
+                 .rollup((es) => ({
+                   mdate: es[0].mdate,
+                   amount: d3.sum(es, (e) => e.amount)
+                 }))
+                 .entries(entries)
+                 .map((e) => [e.values.mdate, e.values.amount]);
+    /* data = smooth(data); */
+    data.forEach((e) => {
+      console.log(e[0], e[1]);
+    });
 
     var x = d3.time.scale()
               .domain([format.parse("2015/01/01"),
@@ -117,7 +123,7 @@ module.exports = React.createClass({
               .range([0, this.width]);
 
     var yext = d3.extent(data, (d) => d[1]);
-    yext[0] = 0;
+    yext[0] = Math.min(yext[0], 0);
     var y = d3.scale.linear()
               .domain(yext)
               .range([this.height, 0]);
@@ -139,8 +145,8 @@ module.exports = React.createClass({
     
     var line = d3.svg.line()
                  .x((d) => x(d[0]))
-                 .y((d) => y(d[1]));
-    /* .interpolate('step'); */
+                 .y((d) => y(d[1]))
+                 .interpolate('step');
     this.p.datum(data)
        .attr('d', line);
   },

@@ -15,6 +15,7 @@
 var Page = require('./page');
 var Graph = require('./graph');
 var filter = require('./filter');
+var Ledger = require('./ledger').Ledger;
 
 var LineChart = React.createClass({
   componentDidMount() {
@@ -167,11 +168,7 @@ var Histo = React.createClass({
 var Overview = React.createClass({
   render() {
     return (
-      <div>
-      {this.props.entries.length ?
-       <Graph entries={this.props.entries} width={8*64} height={8*32} />
-       : null}
-      </div>
+      <Graph entries={this.props.entries} width={8*64} height={8*32} />
     );
   }
 });
@@ -189,6 +186,7 @@ exports.Page = React.createClass({
     return (
       <Page title="Overview" onSearch={this.onSearch}>
         <Overview entries={entries} />
+        <Ledger entries={entries} />
       </Page>
     );
   },
