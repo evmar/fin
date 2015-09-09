@@ -181,13 +181,17 @@ module.exports = React.createClass({
       var perMonthDelta = regression.slope*8.64e7 * 30;
       // Round to nearest dollar amount.
       perMonthDelta = Math.round(perMonthDelta / 100);
-      perMonthDelta = d3.format('$,d')(perMonthDelta);
-      if (perMonthDelta[0] != '-') {
-        perMonthDelta = '+' + perMonthDelta;
+      if (perMonthDelta != 0) {
+        perMonthDelta = d3.format('$,d')(perMonthDelta);
+        if (perMonthDelta[0] != '-') {
+          perMonthDelta = '+' + perMonthDelta;
+        }
+      } else {
+        perMonthDelta = '';
       }
       var text = util.formatAmount(regression.yMean) + perMonthDelta + '/mo';
       this.regText
-          .attr('x', this.props.width - margin.left - margin.right - 150)
+          .attr('x', this.props.width - margin.left - margin.right - 100)
           .attr('y', y(0) - 10)
           .text(text);
     }
