@@ -15,7 +15,7 @@
 require('./graph.scss');
 var util = require('./util');
 
-var margin = {top:20, right:10, bottom:30, left:70};
+var margin = {top:5, right:10, bottom:30, left:70};
 
 function epanKernel(scale) {
   return function(u) {
@@ -87,7 +87,6 @@ module.exports = React.createClass({
   },
 
   create() {
-    var margin = {top:20, right:10, bottom:30, left:70};
     this.width = this.props.width - margin.left - margin.right;
     this.height = this.props.height - margin.top - margin.bottom;
 

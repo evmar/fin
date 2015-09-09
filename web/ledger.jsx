@@ -26,7 +26,19 @@ var Ledger = React.createClass({
   },
 
   render: function() {
-    var entries = this.props.entries.slice(0, 200);
+    var entries = this.props.entries;
+
+    // Make a row for total.
+    var total = {
+      date:'',
+      payee:'Total of ' + entries.length + ' entries',
+      amount:0
+    };
+    entries.forEach((e) => total.amount += e.amount);
+
+    entries = entries.slice(0, 200);
+    entries.unshift(total);
+
     var last = null;
     var rEntries = entries.map((e, i) => {
       var date = e.date.slice(0, 7);
@@ -54,7 +66,7 @@ var Ledger = React.createClass({
             <div className="ledger-payee">{e.payee}</div>
             {sel ? <div>
              tag: <AutoComplete options={this.props.tags}
-             onCommit={this.onTag.bind(this, e)}
+             onCommit={this.onTag.bind(this, i == 0 ? entries : [e])}
              initialText={(e.tags || []).join(' ')} />
              </div> :
              <div className="ledger-tags">{tags}</div>}
@@ -72,8 +84,8 @@ var Ledger = React.createClass({
     this.setState({sel: i});
   },
 
-  onTag(e, tags) {
-    this.props.onTag([e], tags);
+  onTag(entries, tags) {
+    this.props.onTag(entries, tags);
   },
 });
 exports.Ledger = Ledger;
@@ -85,26 +97,6 @@ exports.LedgerPage = React.createClass({
     return {filters};
   },
 
-  analyzeTags(entries) {
-    var tags = {};
-    for (var e of entries) {
-      if (e.tags) {
-        for (var tag of e.tags) {
-          tags[tag] = (tags[tag] || 0) + 1;
-        }
-      }
-    }
-
-    var dom = [];
-    for (var tag in tags) {
-      var frac = tags[tag] / entries.length;
-      if (frac > 0.2) {
-        dom.push(<span key={tag}>{(frac * 100).toFixed(0)}% {tag};</span>);
-      }
-    }
-    return dom;
-  },
-  
   getEntries() {
     var entries = this.props.entries;
     var query = filter.filtersToQuery(this.state.filters);
@@ -130,7 +122,7 @@ exports.LedgerPage = React.createClass({
       applyTag = (
         <span>
           Tag: <AutoComplete options={allTags}
-                             onCommit={(t) => this.onTag(this.getEntries(), t)} />
+                             onCommit={(t) => this.onTag(entries, t)} />
         </span>
       );
     }
@@ -147,11 +139,8 @@ exports.LedgerPage = React.createClass({
         </header>
         <div className="body">
           <main>
-              <p>
-                {this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
-              </p>
-              <Graph entries={entries} width={10*64} height={3*64} />
-              <Ledger entries={entries} tags={allTags} onTag={this.onTag} />
+            <Graph entries={entries} width={10*64} height={3*64} />
+            <Ledger entries={entries} tags={allTags} onTag={this.onTag} />
           </main>
         </div>
       </div>

@@ -71,13 +71,13 @@ exports.FilterPane = React.createClass({
           <div className='filter-click-catch'
                onClick={()=>this.setState({showing:false})}></div>
           <div className='filter-pane-popup'>
-            <TagList entries={this.props.entries}
-                     hiddenTags={this.props.filters.hiddenTags}
-                     onToggle={this.onToggleTag} />
             <label>filter:&nbsp;
               <exports.SearchInput onSearch={this.onSearch}
                                    initialText={this.props.filters.query} />
             </label>
+            <TagList entries={this.props.entries}
+                     hiddenTags={this.props.filters.hiddenTags}
+                     onToggle={this.onToggleTag} />
           </div>
         </div>
       );
