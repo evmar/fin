@@ -74,7 +74,7 @@ module.exports = React.createClass({
   },
 
   create() {
-    var margin = {top:20, right:20, bottom:30, left:70};
+    var margin = {top:20, right:10, bottom:30, left:70};
     this.width = this.props.width - margin.left - margin.right;
     this.height = this.props.height - margin.top - margin.bottom;
 
@@ -118,8 +118,7 @@ module.exports = React.createClass({
     });
 
     var x = d3.time.scale()
-              .domain([format.parse("2015/01/01"),
-                       format.parse("2015/10/01")])
+              .domain(d3.extent(data, (d) => d[0]))
               .range([0, this.width]);
 
     var yext = d3.extent(data, (d) => d[1]);

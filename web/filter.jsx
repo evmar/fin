@@ -27,15 +27,16 @@ exports.FilterPane = React.createClass({
   },
 
   render() {
-    if (!this.state.showing) {
-      return (
-        <h2 onClick={()=>this.setState({showing:true})}>
-          filter &gt;
-        </h2>
-      );
-    }
+    var header = (
+      <h2 onClick={()=>this.setState({showing:!this.state.showing})}>
+        filter &gt;
+      </h2>
+    );
+    if (!this.state.showing)
+      return header;
     return (
       <div>
+        {header}
         <TagList entries={this.props.entries}
                  hiddenTags={this.state.hiddenTags}
                  onToggle={this.onToggleTag} />

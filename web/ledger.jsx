@@ -18,6 +18,7 @@ var util = require('./util');
 var filter = require('./filter');
 var taglib = require('./tags');
 var AutoComplete = require('./autocomplete');
+var Graph = require('./graph');
 
 var Ledger = React.createClass({
   render: function() {
@@ -114,6 +115,7 @@ exports.LedgerPage = React.createClass({
         <p>
           {this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
         </p>
+        <Graph entries={entries} width={10*64} height={8*32} />
         <Ledger entries={entries} tags={this.props.tags} />
       </Page>
     );
