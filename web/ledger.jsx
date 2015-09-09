@@ -59,7 +59,9 @@ exports.Ledger = Ledger;
 
 exports.LedgerPage = React.createClass({
   getInitialState() {
-    return {filter: null};
+    var params = util.parseURLParams(document.location.search);
+    var filters = filter.filterStateFromURL(params);
+    return {filters};
   },
 
   analyzeTags(entries) {
@@ -84,7 +86,7 @@ exports.LedgerPage = React.createClass({
   
   getEntries() {
     var entries = this.props.entries;
-    var query = [this.state.filter, this.state.query].join(' ');
+    var query = filter.filtersToQuery(this.state.filters);
     var f = filter.parseQuery(query);
     if (f) {
       entries = this.props.entries.filter(f);
@@ -112,8 +114,9 @@ exports.LedgerPage = React.createClass({
     }
 
     return (
-      <Page title="Ledger" onSearch={this.onSearch}>
-        <filter.FilterPane entries={entries} onFilter={this.onFilter} />
+      <Page title="Ledger">
+        <filter.FilterPane entries={entries} filters={this.state.filters}
+                           onFilters={this.onFilters} />
         <p>
           {this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
         </p>
@@ -138,10 +141,11 @@ exports.LedgerPage = React.createClass({
     return false;
   },
 
-  onSearch(query) {
-    this.setState({query: query});
-  },
-  onFilter(filter) {
-    this.setState({filter: filter});
+  onFilters(filters) {
+    var search = filter.filterStateToURL(filters);
+    this.setState({filters: filters});
+    history.replaceState({}, null,
+                         util.urlWithQuery(location.href,
+                                           filter.filterStateToURL(filters)));
   },
 });

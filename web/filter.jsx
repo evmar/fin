@@ -21,9 +21,41 @@ function sortOnBy(f, c) {
   };
 }
 
+exports.filterStateFromURL = function(params) {
+  var hiddenTags = {};
+  if ('h' in params) {
+    for (var t of params.h) {
+      hiddenTags[t] = true;
+    }
+  }
+  var query = null;
+  if ('q' in params) {
+    query = params.q;
+  }
+  return {hiddenTags, query};
+};
+
+exports.filterStateToURL = function(state) {
+  return util.makeURLParams({
+    h: Object.keys(state.hiddenTags),
+    q: state.query || null,
+  });
+};
+
+exports.filtersToQuery = function(filters) {
+  var query = [];
+  for (var t in filters.hiddenTags) {
+    query.push('-t:' + t);
+  }
+  if (filters.query) {
+    query.push(filters.query);
+  }
+  return query.join(' ');
+};
+
 exports.FilterPane = React.createClass({
   getInitialState() {
-    return {showing: false, hiddenTags: {}, query: null};
+    return {showing: false};
   },
 
   render() {
@@ -38,40 +70,29 @@ exports.FilterPane = React.createClass({
       <div>
         {header}
         <TagList entries={this.props.entries}
-                 hiddenTags={this.state.hiddenTags}
+                 hiddenTags={this.props.filters.hiddenTags}
                  onToggle={this.onToggleTag} />
         <label>filter:&nbsp;
-          <exports.SearchInput onSearch={this.onSearch} />
+          <exports.SearchInput onSearch={this.onSearch}
+                               initialText={this.props.filters.query} />
         </label>
       </div>
     );
   },
 
   onToggleTag(tag, hide) {
-    var hiddenTags = this.state.hiddenTags;
+    var hiddenTags = this.props.filters.hiddenTags;
     if (tag in hiddenTags) {
       delete hiddenTags[tag];
     } else {
       hiddenTags[tag] = true;
     }
-    this.setState({hiddenTags: hiddenTags});
-    this.emitFilter();
+    this.props.onFilters(this.props.filters);
   },
 
   onSearch(query) {
-    this.setState({query: query});
-    this.emitFilter();
-  },
-
-  emitFilter() {
-    var query = [];
-    for (var t in this.state.hiddenTags) {
-      query.push('-t:' + t);
-    }
-    if (this.state.query) {
-      query.push(this.state.query);
-    }
-    this.props.onFilter(query.join(' '));
+    this.props.filters.query = query;
+    this.props.onFilters(this.props.filters);
   },
 });
 
@@ -157,7 +178,8 @@ exports.parseQuery = function(query) {
 exports.SearchInput = React.createClass({
   render() {
     return (
-      <input ref="i" type="search" incremental="true" />
+      <input ref="i" type="search" incremental="true"
+             defaultValue={this.props.initialText || ''} />
     );
   },
 
