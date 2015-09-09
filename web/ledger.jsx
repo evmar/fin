@@ -101,7 +101,7 @@ exports.LedgerPage = React.createClass({
     entries.forEach((e) => total += e.amount);
 
     var applyTag = null;
-    if (this.state.filter || this.state.query) {
+    if (this.state.filters.query) {
       // Use this.props.entries (not entries) here so that we see all
       // tags in the autocomplete.
       var tags = Object.keys(taglib.gatherTags(this.props.entries));

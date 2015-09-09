@@ -23,7 +23,7 @@ exports.parseURLParams = function parseURLParams(search) {
     if (!(key in params)) {
       params[key] = [];
     }
-    params[key].push(val);
+    params[key].push(decodeURIComponent(val));
   });
   return params;
 };
@@ -38,7 +38,7 @@ exports.makeURLParams = function makeURLParams(params) {
       val = [val];
     }
     for (var v of val) {
-      query.push(key + '=' + v);
+      query.push(key + '=' + encodeURIComponent(v));
     }
   }
   return query.join('&');

@@ -64,8 +64,28 @@ exports.FilterPane = React.createClass({
         filter &gt;
       </h2>
     );
-    if (!this.state.showing)
-      return header;
+    if (!this.state.showing) {
+      var hiddenTags = Object.keys(this.props.filters.hiddenTags);
+      var hiddenDOM = null;
+      if (hiddenTags.length > 0) {
+        hiddenTags.sort();
+        hiddenDOM = <div>hiding: {hiddenTags.join(', ')}</div>;
+      }
+
+      var query = this.props.filters.query;
+      var queryDOM = null;
+      if (query) {
+        queryDOM = <div>filter: {query}</div>;
+      }
+
+      return (
+        <div>
+          {header}
+          {hiddenDOM}
+          {queryDOM}
+        </div>
+      );
+    }
     return (
       <div>
         {header}
