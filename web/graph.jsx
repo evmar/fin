@@ -140,14 +140,15 @@ module.exports = React.createClass({
                   .orient('left')
                   .ticks(5)
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
-    svg.select('g.y').call(yAxis);
+    svg.select('g.y').transition().call(yAxis);
     
     var line = d3.svg.line()
                  .x((d) => x(d[0]))
                  .y((d) => y(d[1]))
                  .interpolate('step');
     this.p.datum(data)
-       .attr('d', line);
+        .transition()
+        .attr('d', line);
   },
 
   render() {
