@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+require('./filter.scss');
 var taglib = require('./tags');
 var util = require('./util');
 
@@ -59,43 +60,38 @@ exports.FilterPane = React.createClass({
   },
 
   render() {
-    var header = (
-      <h2 onClick={()=>this.setState({showing:!this.state.showing})}>
-        filter &gt;
-      </h2>
-    );
-    if (!this.state.showing) {
-      var hiddenTags = Object.keys(this.props.filters.hiddenTags);
-      var hiddenDOM = null;
-      if (hiddenTags.length > 0) {
-        hiddenTags.sort();
-        hiddenDOM = <div>hiding: {hiddenTags.join(', ')}</div>;
-      }
+    var hiddenTags = Object.keys(this.props.filters.hiddenTags);
+    hiddenTags.sort();
+    var query = this.props.filters.query;
 
-      var query = this.props.filters.query;
-      var queryDOM = null;
-      if (query) {
-        queryDOM = <div>filter: {query}</div>;
-      }
-
-      return (
+    var popup = null;
+    if (this.state.showing) {
+      popup = (
         <div>
-          {header}
-          {hiddenDOM}
-          {queryDOM}
+          <div className='filter-click-catch'
+               onClick={()=>this.setState({showing:false})}></div>
+          <div className='filter-pane-popup'>
+            <TagList entries={this.props.entries}
+                     hiddenTags={this.props.filters.hiddenTags}
+                     onToggle={this.onToggleTag} />
+            <label>filter:&nbsp;
+              <exports.SearchInput onSearch={this.onSearch}
+                                   initialText={this.props.filters.query} />
+            </label>
+          </div>
         </div>
       );
     }
+    
     return (
-      <div>
-        {header}
-        <TagList entries={this.props.entries}
-                 hiddenTags={this.props.filters.hiddenTags}
-                 onToggle={this.onToggleTag} />
-        <label>filter:&nbsp;
-          <exports.SearchInput onSearch={this.onSearch}
-                               initialText={this.props.filters.query} />
-        </label>
+      <div className='filter-pane'>
+        {popup}
+        <div className='filter-pane-popdown'
+             onClick={()=>this.setState({showing:true})}>
+          filter &gt;
+          {hiddenTags.length > 0 ? <div>hiding: {hiddenTags.join(', ')}</div> : null}
+          {query ? <div>filter: {query}</div> : null}
+        </div>
       </div>
     );
   },

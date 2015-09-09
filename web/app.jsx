@@ -32,9 +32,6 @@ exports.AppShell = React.createClass({
     return (
       <ledger.LedgerPage entries={this.state.entries} />
     );
-    return (
-      <overview.Page entries={this.state.entries} />
-    );
   },
 
   reload() {

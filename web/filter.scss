@@ -1,0 +1,30 @@
+.filter-pane {
+  position: relative;
+  font-size: 80%;
+}
+
+.filter-pane-popdown {
+  cursor: pointer;
+}
+
+.filter-pane-popup {
+  background: white;
+  position: absolute;
+  cursor: default;
+  width: 480px;
+  right: 0;
+  top: 0;
+  padding: 8px;
+  box-shadow: 2px 2px 5px 1px #777777;
+  // This z-index isn't for the click catcher, it's so
+  // other HTML controls on the page accidentally bleed through.
+  z-index: 1;
+}
+
+.filter-click-catch {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}

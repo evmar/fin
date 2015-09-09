@@ -114,15 +114,25 @@ exports.LedgerPage = React.createClass({
     }
 
     return (
-      <Page title="Ledger">
-        <filter.FilterPane entries={entries} filters={this.state.filters}
-                           onFilters={this.onFilters} />
-        <p>
-          {this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
-        </p>
-        <Graph entries={entries} width={10*64} height={8*32} />
-        <Ledger entries={entries} tags={this.props.tags} />
-      </Page>
+      <div>
+        <header>
+          <h1 className="title">fin</h1>
+          <div className="spacer"></div>
+          <div>
+            <filter.FilterPane entries={entries} filters={this.state.filters}
+                               onFilters={this.onFilters} />
+          </div>
+        </header>
+        <div className="body">
+          <main>
+              <p>
+                {this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
+              </p>
+              <Graph entries={entries} width={10*64} height={3*64} />
+              <Ledger entries={entries} tags={this.props.tags} />
+          </main>
+        </div>
+      </div>
     );
   },
 
