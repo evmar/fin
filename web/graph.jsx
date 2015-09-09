@@ -13,6 +13,9 @@
 // limitations under the License.
 
 require('./graph.scss');
+var util = require('./util');
+
+var margin = {top:20, right:10, bottom:30, left:70};
 
 function epanKernel(scale) {
   return function(u) {
@@ -70,7 +73,7 @@ function leastSquares(data) {
   var ssXY = d3.sum(data, (d) => (d[0] - xMean) * (d[1] - yMean));
   var slope = ssXY/ssXX;
   var intercept = yMean - (xMean * slope);
-  return {slope, intercept};
+  return {slope, intercept, yMean};
 }
 
 module.exports = React.createClass({
@@ -108,8 +111,9 @@ module.exports = React.createClass({
 
     this.regLine = this.g.append('line')
                        .attr('class', 'regression');
-    this.regText = this.g.append('text')
-                       .attr('class', 'regression');
+    var g = this.g.append('g')
+                .attr('class', 'regression');
+    this.regText = g.append('text');
   },
 
   update() {
@@ -173,10 +177,19 @@ module.exports = React.createClass({
         .attr('x2', (r) => x(t2))
         .attr('y2', (r) => y(t2 * regression.slope + regression.intercept));
 
+      // Regression slope is amount per millisecond; adjust to months.
+      var perMonthDelta = regression.slope*8.64e7 * 30;
+      // Round to nearest dollar amount.
+      perMonthDelta = Math.round(perMonthDelta / 100);
+      perMonthDelta = d3.format('$,d')(perMonthDelta);
+      if (perMonthDelta[0] != '-') {
+        perMonthDelta = '+' + perMonthDelta;
+      }
+      var text = util.formatAmount(regression.yMean) + perMonthDelta + '/mo';
       this.regText
-          .attr('x', this.props.width - 50)
-          .attr('y', 20)
-          .text('foo');
+          .attr('x', this.props.width - margin.left - margin.right - 150)
+          .attr('y', y(0) - 10)
+          .text(text);
     }
   },
 

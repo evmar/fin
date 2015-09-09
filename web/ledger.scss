@@ -24,6 +24,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.sel .ledger-payee {
+  white-space: normal;
+}
+
 .ledger-tags {
   color: hsl(0, 0, 40%);
   font-size: 80%;

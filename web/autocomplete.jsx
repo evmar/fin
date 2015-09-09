@@ -16,7 +16,7 @@ require('./autocomplete.scss');
 
 var AutoComplete = React.createClass({
   getInitialState() {
-    return {sel:null, text:'', focus:false};
+    return {sel:null, text:this.props.initialText || '', focus:false};
   },
 
   getOptions() {

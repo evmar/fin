@@ -21,7 +21,10 @@
     stroke: blue;
     stroke-width: 1px;
   }
-  text.regression {
-    color: blue;
+  g.regression {
+    background: white;
+  }
+  .regression text {
+    fill: blue;
   }
 }

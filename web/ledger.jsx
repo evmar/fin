@@ -21,9 +21,12 @@ var AutoComplete = require('./autocomplete');
 var Graph = require('./graph');
 
 var Ledger = React.createClass({
+  getInitialState() {
+    return {sel:null};
+  },
+
   render: function() {
     var entries = this.props.entries.slice(0, 200);
-    //entries = nest.entries(entries);
     var last = null;
     var rEntries = entries.map((e, i) => {
       var date = e.date.slice(0, 7);
@@ -40,20 +43,38 @@ var Ledger = React.createClass({
         tags = e.tags.map((t) => ' #' + t);
         tags = <span>{tags}</span>;
       }
+      var sel = this.state.sel != null && i == this.state.sel;
+      var className = 'ledger-entry';
+      if (sel)
+        className += ' sel';
       return (
-        <div className="ledger-entry" key={i}>
+        <div className={className} key={i} onClick={this.onSel.bind(this, i)}>
           <div className="ledger-date">{date}</div>
           <div className="ledger-body" title={e.date}>
             <div className="ledger-payee">{e.payee}</div>
-            <div className="ledger-tags">{tags}</div>
+            {sel ? <div>
+             tag: <AutoComplete options={this.props.tags}
+             onCommit={this.onTag.bind(this, e)}
+             initialText={(e.tags || []).join(' ')} />
+             </div> :
+             <div className="ledger-tags">{tags}</div>}
           </div>
           <div className="ledger-money">{util.formatAmount(e.amount)}</div>
-        </div>);
+        </div>
+      );
     });
     return (
       <div className="ledger">{rEntries}</div>
     );
-  }
+  },
+
+  onSel(i) {
+    this.setState({sel: i});
+  },
+
+  onTag(e, tags) {
+    this.props.onTag([e], tags);
+  },
 });
 exports.Ledger = Ledger;
 
@@ -100,15 +121,16 @@ exports.LedgerPage = React.createClass({
     var total = 0;
     entries.forEach((e) => total += e.amount);
 
+    // Use this.props.entries (not entries) here so that we see all
+    // tags in the autocomplete.
+    var allTags = Object.keys(taglib.gatherTags(this.props.entries));
+
     var applyTag = null;
     if (this.state.filters.query) {
-      // Use this.props.entries (not entries) here so that we see all
-      // tags in the autocomplete.
-      var tags = Object.keys(taglib.gatherTags(this.props.entries));
       applyTag = (
         <span>
-          Tag: <AutoComplete options={tags}
-                             onCommit={this.onTag} />
+          Tag: <AutoComplete options={allTags}
+                             onCommit={(t) => this.onTag(this.getEntries(), t)} />
         </span>
       );
     }
@@ -129,15 +151,14 @@ exports.LedgerPage = React.createClass({
                 {this.analyzeTags(entries)} {entries.length} entries totalling {util.formatAmount(total)}. {applyTag}
               </p>
               <Graph entries={entries} width={10*64} height={3*64} />
-              <Ledger entries={entries} tags={this.props.tags} />
+              <Ledger entries={entries} tags={allTags} onTag={this.onTag} />
           </main>
         </div>
       </div>
     );
   },
 
-  onTag(text) {
-    var entries = this.getEntries();
+  onTag(entries, text) {
     var json = {
       tags: text.split(/\s+/).filter((t) => /\w/.test(t)),
       ids: entries.map((e) => e.id),
