@@ -23,19 +23,69 @@ function sortOnBy(f, c) {
 
 exports.FilterPane = React.createClass({
   getInitialState() {
-    return {hiddenTags: {}};
+    return {showing: false, hiddenTags: {}, query: null};
   },
 
   render() {
+    if (!this.state.showing) {
+      return (
+        <h2 onClick={()=>this.setState({showing:true})}>
+          filter &gt;
+        </h2>
+      );
+    }
+    return (
+      <div>
+        <TagList entries={this.props.entries}
+                 hiddenTags={this.state.hiddenTags}
+                 onToggle={this.onToggleTag} />
+        <label>filter:&nbsp;
+          <exports.SearchInput onSearch={this.onSearch} />
+        </label>
+      </div>
+    );
+  },
+
+  onToggleTag(tag, hide) {
+    var hiddenTags = this.state.hiddenTags;
+    if (tag in hiddenTags) {
+      delete hiddenTags[tag];
+    } else {
+      hiddenTags[tag] = true;
+    }
+    this.setState({hiddenTags: hiddenTags});
+    this.emitFilter();
+  },
+
+  onSearch(query) {
+    this.setState({query: query});
+    this.emitFilter();
+  },
+
+  emitFilter() {
+    var query = [];
+    for (var t in this.state.hiddenTags) {
+      query.push('-t:' + t);
+    }
+    if (this.state.query) {
+      query.push(this.state.query);
+    }
+    this.props.onFilter(query.join(' '));
+  },
+});
+
+var TagList = React.createClass({
+  render() {
     var tags = d3.entries(taglib.gatherTags(this.props.entries));
     tags = tags.sort(sortOnBy((t) => Math.abs(t.value), d3.descending));
+    var hiddenTags = this.props.hiddenTags;
 
     var showTags = [];
-    for (var tag in this.state.hiddenTags) {
+    for (var tag in this.props.hiddenTags) {
       showTags.push({tag:tag});
     }
     for (var tag of tags) {
-      if (tag.key in this.state.hiddenTags)
+      if (tag.key in hiddenTags)
         continue;
       showTags.push({tag:tag.key, amount:tag.value});
     }
@@ -47,28 +97,17 @@ exports.FilterPane = React.createClass({
           <div key={t.tag}>
           <label>
           <input type="checkbox"
-          checked={!(t.tag in this.state.hiddenTags)}
-          onChange={this.toggle.bind(this, t.tag)} />
-          {t.tag} {t.amount ? util.formatAmount(t.amount) : ""}
+          checked={!(t.tag in hiddenTags)}
+          onChange={this.onToggle.bind(this, t.tag, !(t.tag in hiddenTags))} />
+          {t.tag} {t.amount ? '(' + util.formatAmount(t.amount) + ')' : ""}
           </label></div>
          ))}
       </div>
     );
   },
 
-  toggle(tag) {
-    if (tag in this.state.hiddenTags) {
-      delete this.state.hiddenTags[tag];
-    } else {
-      this.state.hiddenTags[tag] = '';
-    }
-    this.setState(this.state);
-
-    var query = [];
-    for (var t in this.state.hiddenTags) {
-      query.push('-t:' + t);
-    }
-    this.props.onFilter(query.join(' '));
+  onToggle(tag, on) {
+    this.props.onToggle(tag, on);
   },
 });
 

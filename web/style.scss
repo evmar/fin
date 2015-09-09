@@ -20,6 +20,14 @@ body {
   display: flex;
 }
 
+h1, h2 {
+  font-family: 'PT Serif';
+  font-weight: normal;
+}
+h1 {
+  font-size: 34px;
+}
+
 header {
   display: flex;
   align-items: center;
@@ -27,10 +35,6 @@ header {
   max-width: 640px;
   border-bottom: solid 1px hsl(0, 0, 12%);
 
-  .title {
-    font-family: 'PT Serif';
-    font-size: 34px;
-  }
   .spacer {
     flex: 1;
   }

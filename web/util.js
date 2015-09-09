@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 exports.formatAmount = function formatAmount(a) {
-  return d3.format('$.2f')(a/100);
+  return d3.format('$,.2f')(a/100);
 }
