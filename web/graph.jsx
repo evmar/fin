@@ -63,6 +63,16 @@ function dayOfYear(date) {
   return (date - start)/8.64e7;
 }
 
+function leastSquares(data) {
+  var xMean = d3.mean(data, (d) => d[0]);
+  var yMean = d3.mean(data, (d) => d[1]);
+  var ssXX = d3.sum(data, (d) => Math.pow(d[0] - xMean, 2));
+  var ssXY = d3.sum(data, (d) => (d[0] - xMean) * (d[1] - yMean));
+  var slope = ssXY/ssXX;
+  var intercept = yMean - (xMean * slope);
+  return {slope, intercept};
+}
+
 module.exports = React.createClass({
   componentDidMount() {
     this.create();
@@ -91,10 +101,15 @@ module.exports = React.createClass({
        .attr('transform', 'translate(0,' + this.height + ')');
 
     this.g.append('g')
-       .attr('class', 'y axis');
+        .attr('class', 'y axis');
 
     this.p = this.g.append('path')
-       .attr('class', 'line');
+                 .attr('class', 'line');
+
+    this.regLine = this.g.append('line')
+                       .attr('class', 'regression');
+    this.regText = this.g.append('text')
+                       .attr('class', 'regression');
   },
 
   update() {
@@ -113,9 +128,6 @@ module.exports = React.createClass({
                  .entries(entries)
                  .map((e) => [e.values.mdate, e.values.amount]);
     /* data = smooth(data); */
-    data.forEach((e) => {
-      console.log(e[0], e[1]);
-    });
 
     var x = d3.time.scale()
               .domain(d3.extent(data, (d) => d[0]))
@@ -149,6 +161,23 @@ module.exports = React.createClass({
     this.p.datum(data)
         .transition()
         .attr('d', line);
+
+    if (data.length > 0) {
+      var regression = leastSquares(data);
+      var t1 = data[data.length-1][0];
+      var t2 = data[0][0];
+      this.regLine.datum(regression)
+        .transition()
+        .attr('x1', (r) => x(t1))
+        .attr('y1', (r) => y(t1 * regression.slope + regression.intercept))
+        .attr('x2', (r) => x(t2))
+        .attr('y2', (r) => y(t2 * regression.slope + regression.intercept));
+
+      this.regText
+          .attr('x', this.props.width - 50)
+          .attr('y', 20)
+          .text('foo');
+    }
   },
 
   render() {

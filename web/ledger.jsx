@@ -100,7 +100,9 @@ exports.LedgerPage = React.createClass({
 
     var applyTag = null;
     if (this.state.filter || this.state.query) {
-      var tags = Object.keys(taglib.gatherTags(entries));
+      // Use this.props.entries (not entries) here so that we see all
+      // tags in the autocomplete.
+      var tags = Object.keys(taglib.gatherTags(this.props.entries));
       applyTag = (
         <span>
           Tag: <AutoComplete options={tags}
