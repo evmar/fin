@@ -56,7 +56,6 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 	var qr QIFRead
 
 	ext := filepath.Ext(path)
-	log.Printf("ext %v", ext)
 	switch ext {
 	case ".qif":
 		r := qif.NewReader(f)
