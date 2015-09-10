@@ -121,9 +121,23 @@ module.exports = React.createClass({
     entries = entries.map((e) => ({
       mdate: format.parse(e.date.substr(0, 8) + "01"),
       amount: e.amount,
-    }))
+    }));
+
+    var x = d3.time.scale()
+              .domain(d3.extent(entries, (e) => e.mdate))
+              .range([0, this.width]);
+
+    // Add a zero entry for every month in the time span, so that
+    // we end up with an entry for every month regardless of whether
+    // we had spending.
+    entries = entries.concat(x.ticks(d3.time.month).map((m) => ({
+      mdate: m,
+      amount: 0,
+    })));
+
     var data = d3.nest()
                  .key((e) => +e.mdate)
+                 .sortKeys(d3.ascending)
                  .rollup((es) => ({
                    mdate: es[0].mdate,
                    amount: d3.sum(es, (e) => e.amount)
@@ -131,10 +145,6 @@ module.exports = React.createClass({
                  .entries(entries)
                  .map((e) => [e.values.mdate, e.values.amount]);
     /* data = smooth(data); */
-
-    var x = d3.time.scale()
-              .domain(d3.extent(data, (d) => d[0]))
-              .range([0, this.width]);
 
     var yext = d3.extent(data, (d) => d[1]);
     yext[0] = Math.min(yext[0], 0);
@@ -156,7 +166,7 @@ module.exports = React.createClass({
                   .ticks(5)
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
     svg.select('g.y').transition().call(yAxis);
-    
+
     var line = d3.svg.line()
                  .x((d) => x(d[0]))
                  .y((d) => y(d[1]))
