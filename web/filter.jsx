@@ -127,7 +127,7 @@ var TagList = React.createClass({
         continue;
       showTags.push({tag:tag.key, amount:tag.value});
     }
-    showTags = showTags.slice(0, 12);
+    showTags = showTags.slice(0, 15);
 
     return (
       <div style={{WebkitColumnCount:3}}>

@@ -78,7 +78,7 @@ function leastSquares(data) {
 
 function chooseFirstMatch(tags, entryTags) {
   for (var t of tags) {
-    for (var t2 of entryTtags) {
+    for (var t2 of entryTags) {
       if (t == t2) {
         return t;
       }
@@ -136,7 +136,7 @@ module.exports = React.createClass({
               .domain(d3.extent(entries, (e) => e.mdate))
               .range([0, this.width]);
 
-    var tags = [];//'airfare', 'hotel', 'airbnb', 'cash'];
+    var tags = ['travel', 'restaurant', 'grocery'];
     var data = d3.nest()
                  .key((e) => chooseFirstMatch(tags, e.tags || []) || 'other')
                  .key((e) => +e.mdate)
@@ -149,32 +149,34 @@ module.exports = React.createClass({
     /* data = smooth(data); */
     tags.push('other');
 
-    //var yext = d3.extent(data, (d) => d[1]);
-    var yext = [0, 5000*100];
-    yext[0] = Math.min(yext[0], 0);
-    var y = d3.scale.linear()
-              .domain(yext)
-              .range([this.height, 0]);
-
     data = tags.map((tag) => ({
       tag: tag,
       points: x.ticks(d3.time.month).map((m) => {
+        var amount = 0;
         var key = +m;
-        if (key in data[tag]) {
-          return [m, data[tag][key].amount];
-        } else {
-          return [m, 0];
+        if (tag in data && key in data[tag]) {
+          amount = data[tag][key].amount;
         }
+        return {x:m, y:amount};
       })
     }));
+
+    var stack = d3.layout.stack()
+                  .values((d) => d.points);
+    stack(data);
 
     var xAxis = d3.svg.axis()
                   .scale(x)
                   .ticks(4)
                   .orient('bottom');
-
     var svg = this.g;
     svg.select('g.x').call(xAxis);
+
+    var yext = d3.extent(data[data.length - 1].points, (d) => d.y0+d.y);
+    yext[0] = Math.min(yext[0], 0);
+    var y = d3.scale.linear()
+              .domain(yext)
+              .range([this.height, 0]);
 
     var yAxis = d3.svg.axis()
                   .scale(y)
@@ -187,16 +189,26 @@ module.exports = React.createClass({
                  .x((d) => x(d[0]))
                  .y((d) => y(d[1]))
                  .interpolate('step');
-    var lineSel = this.g.selectAll('path.line').data(data);
+    var area = d3.svg.area()
+                 .x((d) => x(d.x))
+                 .y0((d) => y(d.y0))
+                 .y1((d) => y(d.y0 + d.y))
+                 .interpolate('step');
+
+    var lineSel = this.g.selectAll('path.line').data(stack(data));
     lineSel.enter()
            .append('path')
            .attr('class', 'line');
 
     var color = d3.scale.category10();
+    /* lineSel
+       .transition()
+       .style('stroke', (d) => color(d.tag))
+       .attr('d', (d) => {debugger;return area(d.points)}); */
     lineSel
         .transition()
-        .style('stroke', (d) => color(d.tag))
-        .attr('d', (d) => line(d.points));
+        .attr('d', (d) => area(d.points))
+        .style('fill', (d) => color(d.tag));
     lineSel.exit()
       .remove();
 
