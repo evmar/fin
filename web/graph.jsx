@@ -137,49 +137,42 @@ module.exports = React.createClass({
               .range([0, this.width]);
 
     var stack = false;
-    var tags = ['travel', 'restaurant', 'grocery'];
+    
+    var stackTags = ['travel', 'restaurant', 'grocery'];
     if (!stack) {
-      tags = [];
+      stackTags = [];
     }
-    var nest = d3.nest();
-    if (stack) {
-      nest.key((e) => chooseFirstMatch(tags, e.tags || []) || 'other');
-    }
-    data = nest
-          .key((e) => +e.mdate)
-          .sortKeys(d3.ascending)
-          .rollup((es) => ({
-            x: es[0].mdate,
-            y: d3.sum(es, (e) => e.amount)
-          }))
-          .map(entries);
-    /* data = smooth(data); */
+    
+    data = d3.nest()
+             .key((e) => (
+               (stack ? chooseFirstMatch(stackTags, e.tags || [])
+                   : null)
+                 || 'other'))
+             .key((e) => +e.mdate)
+             .sortKeys(d3.ascending)
+             .rollup((es) => ({
+               x: es[0].mdate,
+               y: d3.sum(es, (e) => e.amount)
+             }))
+             .map(entries);
 
-    if (stack) {
-      tags.push('other');
+    stackTags.push('other');
       
-      data = tags.map((tag) => ({
-        tag: tag,
-        values: x.ticks(d3.time.month).map((m) => {
-          var amount = 0;
-          var key = +m;
-          if (tag in data && key in data[tag]) {
-            amount = data[tag][key].y;
-          }
-          return {x:m, y:amount};
-        })
-      }));
-      d3.layout.stack()(data);
-    } else {
-      data = x.ticks(d3.time.month).map((m) => {
+    data = stackTags.map((tag) => ({
+      tag: tag,
+      values: x.ticks(d3.time.month).map((m) => {
         var amount = 0;
         var key = +m;
-        if (key in data) {
-          amount = data[key].y;
+        if (tag in data && key in data[tag]) {
+          amount = data[tag][key].y;
         }
         return {x:m, y:amount};
-      });
-    }
+      })
+    }));
+
+    d3.layout.stack()
+      .values((d) => d.values)
+      (data);
 
     var xAxis = d3.svg.axis()
                   .scale(x)
@@ -189,10 +182,7 @@ module.exports = React.createClass({
     svg.select('g.x').call(xAxis);
 
     var yext;
-    if (stack)
-      yext = d3.extent(data[data.length - 1].values, (d) => d.y0+d.y);
-    else
-      yext = d3.extent(data, (d) => d.y);
+    yext = d3.extent(data[data.length - 1].values, (d) => (d.y0||0)+d.y);
     yext[0] = Math.min(yext[0], 0);
     var y = d3.scale.linear()
               .domain(yext)
@@ -212,16 +202,18 @@ module.exports = React.createClass({
                    .y1((d) => y(d.y0 + d.y))
                    .interpolate('step');
       var color = d3.scale.category10();
+      var lineSel = this.g.selectAll('path.line').data(data);
       lineSel.enter()
              .append('path')
              .attr('class', 'line');
       lineSel
         .transition()
-        .attr('d', (d) => area(d.points))
+        .attr('d', (d) => area(d.values))
         .style('fill', (d) => color(d.tag));
       lineSel.exit()
              .remove();
     } else {
+      data = data[0].values;
       var line = d3.svg.line()
                    .x((d) => x(d.x))
                    .y((d) => y(d.y))
