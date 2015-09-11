@@ -105,9 +105,6 @@ module.exports = React.createClass({
     this.g.append('g')
         .attr('class', 'y axis');
 
-    this.p = this.g.append('path')
-                 .attr('class', 'line');
-
     this.regLine = this.g.append('line')
                        .attr('class', 'regression');
     var g = this.g.append('g')
@@ -121,36 +118,62 @@ module.exports = React.createClass({
     entries = entries.map((e) => ({
       mdate: format.parse(e.date.substr(0, 8) + "01"),
       amount: e.amount,
+      tags: e.tags,
     }));
 
     var x = d3.time.scale()
               .domain(d3.extent(entries, (e) => e.mdate))
               .range([0, this.width]);
 
-    // Add a zero entry for every month in the time span, so that
-    // we end up with an entry for every month regardless of whether
-    // we had spending.
-    entries = entries.concat(x.ticks(d3.time.month).map((m) => ({
-      mdate: m,
-      amount: 0,
-    })));
-
+    var tags = [];//'airfare', 'hotel', 'airbnb', 'cash'];
     var data = d3.nest()
+                 .key((e) => {
+                   var tag = null;
+                   if (e.tags) {
+                     for (var t of tags) {
+                       for (var t2 of e.tags) {
+                         if (t == t2) {
+                           tag = t;
+                           break;
+                         }
+                       }
+                       if (tag)
+                         break;
+                     }
+                   }
+                   if (tag == null) {
+                     tag = 'other';
+                   }
+                   return tag;
+                 })
                  .key((e) => +e.mdate)
                  .sortKeys(d3.ascending)
                  .rollup((es) => ({
                    mdate: es[0].mdate,
                    amount: d3.sum(es, (e) => e.amount)
                  }))
-                 .entries(entries)
-                 .map((e) => [e.values.mdate, e.values.amount]);
+                 .map(entries);
     /* data = smooth(data); */
+    tags.push('other');
 
-    var yext = d3.extent(data, (d) => d[1]);
+    //var yext = d3.extent(data, (d) => d[1]);
+    var yext = [0, 5000*100];
     yext[0] = Math.min(yext[0], 0);
     var y = d3.scale.linear()
               .domain(yext)
               .range([this.height, 0]);
+
+    data = tags.map((tag) => ({
+      tag: tag,
+      points: x.ticks(d3.time.month).map((m) => {
+        var key = +m;
+        if (key in data[tag]) {
+          return [m, data[tag][key].amount];
+        } else {
+          return [m, 0];
+        }
+      })
+    }));
 
     var xAxis = d3.svg.axis()
                   .scale(x)
@@ -171,11 +194,20 @@ module.exports = React.createClass({
                  .x((d) => x(d[0]))
                  .y((d) => y(d[1]))
                  .interpolate('step');
-    this.p.datum(data)
-        .transition()
-        .attr('d', line);
+    var lineSel = this.g.selectAll('path.line').data(data);
+    lineSel.enter()
+           .append('path')
+           .attr('class', 'line');
 
-    if (data.length > 0) {
+    var color = d3.scale.category10();
+    lineSel
+        .transition()
+        .style('stroke', (d) => color(d.tag))
+        .attr('d', (d) => line(d.points));
+    lineSel.exit()
+      .remove();
+
+    if (false && data.length > 0) {
       var regression = leastSquares(data);
       var t1 = data[data.length-1][0];
       var t2 = data[0][0];
