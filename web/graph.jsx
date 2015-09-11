@@ -76,6 +76,17 @@ function leastSquares(data) {
   return {slope, intercept, yMean};
 }
 
+function chooseFirstMatch(tags, entryTags) {
+  for (var t of tags) {
+    for (var t2 of entryTtags) {
+      if (t == t2) {
+        return t;
+      }
+    }
+  }
+  return null;
+}
+
 module.exports = React.createClass({
   componentDidMount() {
     this.create();
@@ -127,25 +138,7 @@ module.exports = React.createClass({
 
     var tags = [];//'airfare', 'hotel', 'airbnb', 'cash'];
     var data = d3.nest()
-                 .key((e) => {
-                   var tag = null;
-                   if (e.tags) {
-                     for (var t of tags) {
-                       for (var t2 of e.tags) {
-                         if (t == t2) {
-                           tag = t;
-                           break;
-                         }
-                       }
-                       if (tag)
-                         break;
-                     }
-                   }
-                   if (tag == null) {
-                     tag = 'other';
-                   }
-                   return tag;
-                 })
+                 .key((e) => chooseFirstMatch(tags, e.tags || []) || 'other')
                  .key((e) => +e.mdate)
                  .sortKeys(d3.ascending)
                  .rollup((es) => ({
