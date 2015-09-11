@@ -67,10 +67,10 @@ function dayOfYear(date) {
 }
 
 function leastSquares(data) {
-  var xMean = d3.mean(data, (d) => d[0]);
-  var yMean = d3.mean(data, (d) => d[1]);
-  var ssXX = d3.sum(data, (d) => Math.pow(d[0] - xMean, 2));
-  var ssXY = d3.sum(data, (d) => (d[0] - xMean) * (d[1] - yMean));
+  var xMean = d3.mean(data, (d) => d.x);
+  var yMean = d3.mean(data, (d) => d.y);
+  var ssXX = d3.sum(data, (d) => Math.pow(d.x - xMean, 2));
+  var ssXY = d3.sum(data, (d) => (d.x - xMean) * (d.y - yMean));
   var slope = ssXY/ssXX;
   var intercept = yMean - (xMean * slope);
   return {slope, intercept, yMean};
@@ -136,34 +136,50 @@ module.exports = React.createClass({
               .domain(d3.extent(entries, (e) => e.mdate))
               .range([0, this.width]);
 
+    var stack = false;
     var tags = ['travel', 'restaurant', 'grocery'];
-    var data = d3.nest()
-                 .key((e) => chooseFirstMatch(tags, e.tags || []) || 'other')
-                 .key((e) => +e.mdate)
-                 .sortKeys(d3.ascending)
-                 .rollup((es) => ({
-                   mdate: es[0].mdate,
-                   amount: d3.sum(es, (e) => e.amount)
-                 }))
-                 .map(entries);
+    if (!stack) {
+      tags = [];
+    }
+    var nest = d3.nest();
+    if (stack) {
+      nest.key((e) => chooseFirstMatch(tags, e.tags || []) || 'other');
+    }
+    data = nest
+          .key((e) => +e.mdate)
+          .sortKeys(d3.ascending)
+          .rollup((es) => ({
+            x: es[0].mdate,
+            y: d3.sum(es, (e) => e.amount)
+          }))
+          .map(entries);
     /* data = smooth(data); */
-    tags.push('other');
 
-    data = tags.map((tag) => ({
-      tag: tag,
-      points: x.ticks(d3.time.month).map((m) => {
+    if (stack) {
+      tags.push('other');
+      
+      data = tags.map((tag) => ({
+        tag: tag,
+        values: x.ticks(d3.time.month).map((m) => {
+          var amount = 0;
+          var key = +m;
+          if (tag in data && key in data[tag]) {
+            amount = data[tag][key].y;
+          }
+          return {x:m, y:amount};
+        })
+      }));
+      d3.layout.stack()(data);
+    } else {
+      data = x.ticks(d3.time.month).map((m) => {
         var amount = 0;
         var key = +m;
-        if (tag in data && key in data[tag]) {
-          amount = data[tag][key].amount;
+        if (key in data) {
+          amount = data[key].y;
         }
         return {x:m, y:amount};
-      })
-    }));
-
-    var stack = d3.layout.stack()
-                  .values((d) => d.points);
-    stack(data);
+      });
+    }
 
     var xAxis = d3.svg.axis()
                   .scale(x)
@@ -172,7 +188,11 @@ module.exports = React.createClass({
     var svg = this.g;
     svg.select('g.x').call(xAxis);
 
-    var yext = d3.extent(data[data.length - 1].points, (d) => d.y0+d.y);
+    var yext;
+    if (stack)
+      yext = d3.extent(data[data.length - 1].values, (d) => d.y0+d.y);
+    else
+      yext = d3.extent(data, (d) => d.y);
     yext[0] = Math.min(yext[0], 0);
     var y = d3.scale.linear()
               .domain(yext)
@@ -185,61 +205,67 @@ module.exports = React.createClass({
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
     svg.select('g.y').transition().call(yAxis);
 
-    var line = d3.svg.line()
-                 .x((d) => x(d[0]))
-                 .y((d) => y(d[1]))
-                 .interpolate('step');
-    var area = d3.svg.area()
-                 .x((d) => x(d.x))
-                 .y0((d) => y(d.y0))
-                 .y1((d) => y(d.y0 + d.y))
-                 .interpolate('step');
-
-    var lineSel = this.g.selectAll('path.line').data(stack(data));
-    lineSel.enter()
-           .append('path')
-           .attr('class', 'line');
-
-    var color = d3.scale.category10();
-    /* lineSel
-       .transition()
-       .style('stroke', (d) => color(d.tag))
-       .attr('d', (d) => {debugger;return area(d.points)}); */
-    lineSel
+    if (stack) {
+      var area = d3.svg.area()
+                   .x((d) => x(d.x))
+                   .y0((d) => y(d.y0))
+                   .y1((d) => y(d.y0 + d.y))
+                   .interpolate('step');
+      var color = d3.scale.category10();
+      lineSel.enter()
+             .append('path')
+             .attr('class', 'line');
+      lineSel
         .transition()
         .attr('d', (d) => area(d.points))
         .style('fill', (d) => color(d.tag));
-    lineSel.exit()
-      .remove();
+      lineSel.exit()
+             .remove();
+    } else {
+      var line = d3.svg.line()
+                   .x((d) => x(d.x))
+                   .y((d) => y(d.y))
+                   .interpolate('step');
+      
+      var lineSel = this.g.selectAll('path.line').data([data]);
+      lineSel.enter()
+             .append('path')
+             .attr('class', 'line');
+      lineSel
+         .transition()
+         .attr('d', line);
+      lineSel.exit()
+             .remove();
 
-    if (false && data.length > 0) {
-      var regression = leastSquares(data);
-      var t1 = data[data.length-1][0];
-      var t2 = data[0][0];
-      this.regLine.datum(regression)
-        .transition()
-        .attr('x1', (r) => x(t1))
-        .attr('y1', (r) => y(t1 * regression.slope + regression.intercept))
-        .attr('x2', (r) => x(t2))
-        .attr('y2', (r) => y(t2 * regression.slope + regression.intercept));
+      if (data.length > 0) {
+        var regression = leastSquares(data);
+        var t1 = data[data.length-1].x;
+        var t2 = data[0].x;
+        this.regLine.datum(regression)
+          .transition()
+          .attr('x1', (r) => x(t1))
+          .attr('y1', (r) => y(t1 * regression.slope + regression.intercept))
+          .attr('x2', (r) => x(t2))
+          .attr('y2', (r) => y(t2 * regression.slope + regression.intercept));
 
-      // Regression slope is amount per millisecond; adjust to months.
-      var perMonthDelta = regression.slope*8.64e7 * 30;
-      // Round to nearest dollar amount.
-      perMonthDelta = Math.round(perMonthDelta / 100);
-      if (perMonthDelta != 0) {
-        perMonthDelta = d3.format('$,d')(perMonthDelta);
-        if (perMonthDelta[0] != '-') {
-          perMonthDelta = '+' + perMonthDelta;
+        // Regression slope is amount per millisecond; adjust to months.
+        var perMonthDelta = regression.slope*8.64e7 * 30;
+        // Round to nearest dollar amount.
+        perMonthDelta = Math.round(perMonthDelta / 100);
+        if (perMonthDelta != 0) {
+          perMonthDelta = d3.format('$,d')(perMonthDelta);
+          if (perMonthDelta[0] != '-') {
+            perMonthDelta = '+' + perMonthDelta;
+          }
+        } else {
+          perMonthDelta = '';
         }
-      } else {
-        perMonthDelta = '';
+        var text = util.formatAmount(regression.yMean) + perMonthDelta + '/mo';
+        this.regText
+            .attr('x', this.props.width - margin.left - margin.right - 100)
+            .attr('y', y(0) - 10)
+            .text(text);
       }
-      var text = util.formatAmount(regression.yMean) + perMonthDelta + '/mo';
-      this.regText
-          .attr('x', this.props.width - margin.left - margin.right - 100)
-          .attr('y', y(0) - 10)
-          .text(text);
     }
   },
 
