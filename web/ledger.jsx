@@ -139,7 +139,7 @@ exports.LedgerPage = React.createClass({
         </header>
         <div className="body">
           <main>
-            <Graph entries={entries} width={10*64} height={3*64} />
+            <Graph entries={entries} />
             <Ledger entries={entries} tags={allTags} onTag={this.onTag} />
           </main>
         </div>

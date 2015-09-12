@@ -14,6 +14,7 @@
 
 require('./graph.scss');
 var util = require('./util');
+var taglib = require('./tags');
 
 var margin = {top:5, right:10, bottom:30, left:70};
 
@@ -87,7 +88,27 @@ function chooseFirstMatch(tags, entryTags) {
   return null;
 }
 
-module.exports = React.createClass({
+var GraphOpts = React.createClass({
+  render() {
+    var opts = this.props.opts;
+    return (
+      <div>
+        <label>
+          <input type="checkbox" checked={opts.stack}
+                 onChange={this.onStack} /> stack
+        </label>
+      </div>
+    );
+  },
+
+  onStack() {
+    var opts = this.props.opts;
+    opts.stack = !opts.stack;
+    this.props.onChange(opts);
+  },
+});
+
+var Graph = React.createClass({
   componentDidMount() {
     this.create();
     this.update();
@@ -136,7 +157,7 @@ module.exports = React.createClass({
               .domain(d3.extent(entries, (e) => e.mdate))
               .range([0, this.width]);
 
-    var stack = false;
+    var stack = this.props.opts.stack;
     
     var stackTags = ['travel', 'restaurant', 'grocery'];
     if (!stack) {
@@ -184,6 +205,7 @@ module.exports = React.createClass({
     var yext;
     yext = d3.extent(data[data.length - 1].values, (d) => (d.y0||0)+d.y);
     yext[0] = Math.min(yext[0], 0);
+    yext[1] = Math.max(yext[1], 0);
     var y = d3.scale.linear()
               .domain(yext)
               .range([this.height, 0]);
@@ -207,9 +229,9 @@ module.exports = React.createClass({
              .append('path')
              .attr('class', 'line');
       lineSel
+        .style('fill', (d) => color(d.tag))
         .transition()
-        .attr('d', (d) => area(d.values))
-        .style('fill', (d) => color(d.tag));
+        .attr('d', (d) => area(d.values));
       lineSel.exit()
              .remove();
     } else {
@@ -224,8 +246,9 @@ module.exports = React.createClass({
              .append('path')
              .attr('class', 'line');
       lineSel
-         .transition()
-         .attr('d', line);
+        .style('fill', 'none')
+        .transition()
+        .attr('d', line);
       lineSel.exit()
              .remove();
 
@@ -263,5 +286,26 @@ module.exports = React.createClass({
 
   render() {
     return <div className="graph" />;
+  }
+});
+
+module.exports = React.createClass({
+  getInitialState() {
+    return {opts: {stack:false}};
+  },
+  
+  render() {
+    var entries = this.props.entries;
+    var tags = taglib.gatherTags(entries);
+    var total = d3.sum(entries, (e) => e.amount);
+    return (
+      <div>
+        <GraphOpts opts={this.state.opts}
+                   tags={tags}
+                   onChange={(opts) => this.setState({opts})} />
+        <Graph entries={entries} opts={this.state.opts}
+               width={10*64} height={3*64} />
+      </div>
+    );
   }
 });
