@@ -53,6 +53,12 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 	check(err)
 	defer f.Close()
 
+	fi, err := f.Stat()
+	check(err)
+	if fi.IsDir() {
+		return entries
+	}
+
 	var qr QIFRead
 
 	ext := filepath.Ext(path)
