@@ -1,41 +1,41 @@
-var webpack = require("webpack");
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: {
-    code: "./web/app.jsx",
-    "autocomplete-demo": "./web/autocomplete-demo.jsx",
+    code: './web/app.jsx',
+    'autocomplete-demo': './web/autocomplete-demo.jsx',
   },
-  // devtool: "source-map",
+  // devtool: 'source-map',
   output: {
-    path: "build",
-    filename: "[name].js"
+    path: 'build',
+    filename: '[name].js'
   },
   module: {
     loaders: [
-      { test: /\.jsx$/, loader: "jsx-loader?harmony" },
+      { test: /\.jsx$/, loader: 'jsx-loader?harmony' },
       { test: /\.scss$/,
-        loader: ExtractTextPlugin.extract("style-loader",
-                                          "css-loader!sass-loader") }
+        loader: ExtractTextPlugin.extract('style-loader',
+                                          'css-loader!sass-loader') }
     ],
   },
   resolve: {
-    extensions: ["", ".coffee", ".js", ".jsx", ".scss"]
+    extensions: ['', '.js', '.jsx', '.scss']
   },
   plugins: [
     // new webpack.optimize.UglifyJsPlugin({minimize:true}),
-    new ExtractTextPlugin("[name].css"),
+    new ExtractTextPlugin('[name].css'),
   ],
   externals: {
     'react': 'React'
   },
   devServer: {
-    contentBase: "build/",
+    contentBase: 'build/',
     // hot: true,
     // inline: true,
     port: 9090,
     proxy: {
-      "*": "http://localhost:8080",
+      '*': 'http://localhost:8080',
     },
   }
 }
