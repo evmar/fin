@@ -194,7 +194,7 @@ exports.parseQuery = function(query) {
 exports.SearchInput = React.createClass({
   render() {
     return (
-      <input ref="i" type="search" incremental="true"
+      <input ref="i" type="search" autoFocus
              defaultValue={this.props.initialText || ''} />
     );
   },
