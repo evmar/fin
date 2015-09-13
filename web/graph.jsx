@@ -217,6 +217,8 @@ var Graph = React.createClass({
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
     svg.select('g.y').transition().call(yAxis);
 
+    var lineSel = this.g.selectAll('path.line');
+    var stackSel = this.g.selectAll('path.stack');
     if (stack) {
       var area = d3.svg.area()
                    .x((d) => x(d.x))
@@ -224,16 +226,15 @@ var Graph = React.createClass({
                    .y1((d) => y(d.y0 + d.y))
                    .interpolate('step');
       var color = d3.scale.category10();
-      var lineSel = this.g.selectAll('path.line').data(data);
-      lineSel.enter()
-             .append('path')
-             .attr('class', 'line');
-      lineSel
+      stackSel = stackSel.data(data);
+      lineSel = lineSel.data([]);
+      stackSel.enter()
+              .append('path')
+              .attr('class', 'stack');
+      stackSel
         .style('fill', (d) => color(d.tag))
         .transition()
         .attr('d', (d) => area(d.values));
-      lineSel.exit()
-             .remove();
     } else {
       data = data[0].values;
       var line = d3.svg.line()
@@ -241,7 +242,8 @@ var Graph = React.createClass({
                    .y((d) => y(d.y))
                    .interpolate('step');
       
-      var lineSel = this.g.selectAll('path.line').data([data]);
+      lineSel = lineSel.data([data]);
+      stackSel = stackSel.data([]);
       lineSel.enter()
              .append('path')
              .attr('class', 'line');
@@ -249,8 +251,6 @@ var Graph = React.createClass({
         .style('fill', 'none')
         .transition()
         .attr('d', line);
-      lineSel.exit()
-             .remove();
 
       if (data.length > 0) {
         var regression = leastSquares(data);
@@ -282,6 +282,10 @@ var Graph = React.createClass({
             .text(text);
       }
     }
+    lineSel.exit()
+                    .remove();
+    stackSel.exit()
+            .remove();
   },
 
   render() {

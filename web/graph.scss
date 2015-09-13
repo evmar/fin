@@ -2,19 +2,17 @@
   text {
     font-size: 12px;
   }
-  .line {
-    fill: none;
+  line, path {
     stroke: black;
     stroke-width: 1px;
+  }
+  .line {
+  }
+  .stack {
   }
   .axis path,
   .axis line {
     fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
-  }
-  rect {
-    shape-rendering: crispEdges;
   }
 
   line.regression {
