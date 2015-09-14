@@ -15,46 +15,55 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"regexp"
+	"sort"
 
 	"bank/qif"
 )
 
-func terms(entries []*qif.Entry, tags Tags) {
-	type Info struct {
-		id, count int
-		tags      StringSet
-	}
-	termInfo := make(map[string]*Info)
-	nextId := 1
-	re := regexp.MustCompile(`\w+`)
+var indexRe = regexp.MustCompile(`\w+`)
+
+func index(input string) StringSet {
+	terms := NewStringSet()
+	terms.AddMulti(indexRe.FindAllString(input, -1))
+	return terms
+}
+
+type ScoredEntry struct {
+	score int
+	entry *qif.Entry
+}
+type ScoredEntries []ScoredEntry
+
+func (se ScoredEntries) Len() int           { return len(se) }
+func (se ScoredEntries) Less(a, b int) bool { return se[a].score < se[b].score }
+func (se ScoredEntries) Swap(a, b int)      { se[a], se[b] = se[b], se[a] }
+
+func neighbors(input string, entries []*qif.Entry, tags Tags) {
+	query := index(input)
+
+	se := ScoredEntries{}
 	for _, e := range entries {
-		terms := NewStringSet()
-		terms.AddMulti(re.FindAllString(e.Payee, -1))
+		terms := index(e.Payee)
+		score := 0
 		for t := range terms {
-			info, ok := termInfo[t]
-			if !ok {
-				info = &Info{id: nextId, tags: NewStringSet()}
-				termInfo[t] = info
-				nextId++
+			if _, ok := query[t]; ok {
+				score++
 			}
-			info.count++
-			info.tags.AddMulti(tags[qifId(e)])
 		}
+		se = append(se, ScoredEntry{score, e})
 	}
+	sort.Sort(se)
 
-	for term, info := range termInfo {
-		if info.count == 1 {
-			delete(termInfo, term)
-		}
-	}
+	n := 5
+	tagCounts := map[string]int{}
+	for _, se := range se[len(se)-n:] {
+		log.Printf("%d %#v", se.score, se.entry)
 
-	for term, info := range termInfo {
-		fmt.Println(info.count, term, info.tags.Strings())
 	}
 }
 
 func autoMain(entries []*qif.Entry, tags Tags) {
-	terms(entries, tags)
+	neighbors("BANK OF AMERICA CREDIT CARD Bill", entries, tags)
 }

@@ -113,15 +113,30 @@ func main() {
 	tags, err := LoadTags(tagsPath)
 	check(err)
 
+	mode := ""
+	if len(flag.Args()) > 0 {
+		mode = flag.Arg(0)
+	}
+	if mode == "" {
+		log.Fatalf("must specify mode")
+	}
+
 	var entries []*qif.Entry
-	for _, arg := range flag.Args() {
+	for _, arg := range flag.Args()[1:] {
 		entries = parse(arg, entries)
 	}
 
-	w := web{
-		entries:  entries,
-		tags:     tags,
-		tagsPath: tagsPath,
+	switch mode {
+	case "web":
+		w := web{
+			entries:  entries,
+			tags:     tags,
+			tagsPath: tagsPath,
+		}
+		w.start()
+	case "auto":
+		autoMain(entries, tags)
+	default:
+		log.Fatalf("unknown mode %q", mode)
 	}
-	w.start()
 }
