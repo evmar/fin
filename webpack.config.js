@@ -14,13 +14,14 @@ module.exports = {
   module: {
     loaders: [
       { test: /\.jsx$/, loader: 'jsx-loader?harmony' },
+      { test: /\.tsx?$/, loader: 'ts-loader' },
       { test: /\.scss$/,
         loader: ExtractTextPlugin.extract('style-loader',
                                           'css-loader!sass-loader') }
     ],
   },
   resolve: {
-    extensions: ['', '.js', '.jsx', '.scss']
+    extensions: ['', '.js', '.jsx', '.scss', '.ts', '.tsx']
   },
   plugins: [
     // new webpack.optimize.UglifyJsPlugin({minimize:true}),

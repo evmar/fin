@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-exports.formatAmount = function formatAmount(a) {
+export function formatAmount(a: number): string {
   return d3.format('$,.2f')(a/100);
-};
+}
 
-exports.parseURLParams = function parseURLParams(search) {
-  var params = {};
+interface URLParams {
+  [key: string]: string[];
+}
+
+export function parseURLParams(search: string): URLParams {
+  var params: URLParams = {};
   search.substr(1).split('&').forEach((p) => {
     var [key, val] = p.split('=');
     if (!(key in params)) {
@@ -26,25 +30,22 @@ exports.parseURLParams = function parseURLParams(search) {
     params[key].push(decodeURIComponent(val));
   });
   return params;
-};
+}
 
-exports.makeURLParams = function makeURLParams(params) {
+export function makeURLParams(params: URLParams): string {
   var query = [];
   for (var key in params) {
-    var val = params[key];
-    if (val == null)
+    var vals = params[key];
+    if (vals == null)
       continue;
-    if (typeof val === 'string') {
-      val = [val];
-    }
-    for (var v of val) {
-      query.push(key + '=' + encodeURIComponent(v));
+    for (var val of vals) {
+      query.push(key + '=' + encodeURIComponent(val));
     }
   }
   return query.join('&');
-};
+}
 
-exports.urlWithQuery = function(url, query) {
+export function urlWithQuery(url: string, query: string): string {
   var ofs = url.indexOf('?');
   if (ofs > 0) {
     url = url.substr(0, ofs);
@@ -53,4 +54,4 @@ exports.urlWithQuery = function(url, query) {
     url += '?' + query;
   }
   return url;
-};
+}
