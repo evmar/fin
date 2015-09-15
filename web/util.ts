@@ -55,3 +55,15 @@ export function urlWithQuery(url: string, query: string): string {
   }
   return url;
 }
+
+export function gatherTags(entries) {
+  var tags = {};
+  entries.forEach((entry) => {
+    if (entry.tags) {
+      entry.tags.forEach((tag) => {
+        tags[tag] = (tags[tag] || 0) + entry.amount;
+      });
+    }
+  });
+  return tags;
+}

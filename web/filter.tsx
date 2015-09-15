@@ -13,8 +13,7 @@
 // limitations under the License.
 
 require('./filter.scss');
-var taglib = require('./tags');
-var util = require('./util');
+import util = require('./util');
 
 function sortOnBy(f, c) {
   return function(a, b) {
@@ -22,7 +21,7 @@ function sortOnBy(f, c) {
   };
 }
 
-exports.filterStateFromURL = function(params) {
+export function filterStateFromURL(params) {
   var hiddenTags = {};
   if ('h' in params) {
     for (var t of params.h) {
@@ -34,16 +33,16 @@ exports.filterStateFromURL = function(params) {
     query = params.q;
   }
   return {hiddenTags, query};
-};
+}
 
-exports.filterStateToURL = function(state) {
+export function filterStateToURL(state) {
   return util.makeURLParams({
     h: Object.keys(state.hiddenTags),
     q: state.query || null,
   });
-};
+}
 
-exports.filtersToQuery = function(filters) {
+export function filtersToQuery(filters) {
   var query = [];
   for (var t in filters.hiddenTags) {
     query.push('-t:' + t);
@@ -52,9 +51,26 @@ exports.filtersToQuery = function(filters) {
     query.push(filters.query);
   }
   return query.join(' ');
-};
+}
 
-exports.FilterPane = React.createClass({
+interface Filters {
+  hiddenTags: {[tag:string]:boolean};
+  query: string;
+}
+
+type Entry = any;
+
+interface FilterPaneProps extends React.Props<any> {
+  filters: Filters;
+  entries: Entry[];
+  onFilters: {(filters:Filters)};
+}
+
+interface FilterPaneState extends React.Props<any> {
+  showing: boolean;
+}
+
+export var FilterPane = React.createClass<FilterPaneProps, FilterPaneState>({
   getInitialState() {
     return {showing: false};
   },
@@ -72,8 +88,8 @@ exports.FilterPane = React.createClass({
                onClick={()=>this.setState({showing:false})}></div>
           <div className='filter-pane-popup'>
             <label>filter:&nbsp;
-              <exports.SearchInput onSearch={this.onSearch}
-                                   initialText={this.props.filters.query} />
+              <SearchInput onSearch={this.onSearch}
+                           initialText={this.props.filters.query} />
             </label>
             <TagList entries={this.props.entries}
                      hiddenTags={this.props.filters.hiddenTags}
@@ -109,17 +125,23 @@ exports.FilterPane = React.createClass({
   onSearch(query) {
     this.props.filters.query = query;
     this.props.onFilters(this.props.filters);
-  },
+  }
 });
 
-var TagList = React.createClass({
+interface TagListProps {
+  entries: Entry[];
+  hiddenTags: {[tag:string]:boolean};
+  onToggle: any;
+}
+
+export var TagList = React.createClass<TagListProps, {}>({
   render() {
-    var tags = d3.entries(taglib.gatherTags(this.props.entries));
+    var tags = d3.entries(util.gatherTags(this.props.entries));
     tags = tags.sort(sortOnBy((t) => Math.abs(t.value), d3.descending));
     var hiddenTags = this.props.hiddenTags;
 
     var showTags = [];
-    for (var tag in this.props.hiddenTags) {
+    for (let tag in this.props.hiddenTags) {
       showTags.push({tag:tag});
     }
     for (var tag of tags) {
@@ -146,10 +168,10 @@ var TagList = React.createClass({
 
   onToggle(tag, on) {
     this.props.onToggle(tag, on);
-  },
+  }
 });
 
-exports.parseQuery = function(query) {
+export function parseQuery(query) {
   var tokens = query.split(/\s+/).filter((t) => t != '');
   var terms = tokens.map((tok) => {
     var negate = false;
@@ -166,7 +188,7 @@ exports.parseQuery = function(query) {
         f = (e) => e.tags && e.tags.filter((t) => t == tag).length > 0;
       }
     } else if (/^[><]/.test(tok)) {
-      var amount = parseFloat(tok.substr(1), 10) * 100;
+      var amount = parseFloat(tok.substr(1)) * 100;
       if (tok[0] == '<') {
         f = (e) => e.amount < amount;
       } else {
@@ -189,9 +211,14 @@ exports.parseQuery = function(query) {
     return null;
   }
   return (e) => terms.every((term) => term(e));
-};
+}
 
-exports.SearchInput = React.createClass({
+interface SearchInputProps extends React.Props<any> {
+  initialText: string;
+  onSearch: {(query: string)};
+}
+
+export var SearchInput = React.createClass<SearchInputProps, {}>({
   render() {
     return (
       <input ref="i" type="search" autoFocus
@@ -200,13 +227,13 @@ exports.SearchInput = React.createClass({
   },
 
   componentDidMount() {
-    var i = this.refs.i.getDOMNode();
+    var i = (this.refs['i'] as any).getDOMNode();
     i.incremental = true;
     i.addEventListener('search', this.search);
   },
 
   search() {
-    var query = this.refs.i.getDOMNode().value;
+    var query = (this.refs['i'] as any).getDOMNode().value;
     this.props.onSearch(query);
-  },
+  }
 });
