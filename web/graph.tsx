@@ -206,7 +206,7 @@ var Graph = React.createClass<{
       tag: string;
       values: Value[];
     }
-    var data: Layer[] = stackTags.map((tag) => ({
+    var data = stackTags.map((tag) => ({
       tag: tag,
       values: x.ticks(d3.time.month).map((m) => {
         var amount = 0;
@@ -214,7 +214,7 @@ var Graph = React.createClass<{
         if (tag in nest && key in nest[tag]) {
           amount = nest[tag][key].y;
         }
-        return {x:m, y:amount};
+        return {x:m, y:amount, y0:0};
       })
     }));
 
@@ -230,7 +230,7 @@ var Graph = React.createClass<{
     svg.select('g.x').call(xAxis);
 
     var yext;
-    yext = d3.extent(data[data.length - 1].values, (d) => (d.y0||0)+d.y);
+    yext = d3.extent(data[data.length - 1].values, (d) => d.y0+d.y);
     yext[0] = Math.min(yext[0], 0);
     yext[1] = Math.max(yext[1], 0);
     var y = d3.scale.linear()
