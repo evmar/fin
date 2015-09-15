@@ -29,14 +29,5 @@ module.exports = {
   ],
   externals: {
     'react': 'React'
-  },
-  devServer: {
-    contentBase: 'build/',
-    // hot: true,
-    // inline: true,
-    port: 9090,
-    proxy: {
-      '*': 'http://localhost:8080',
-    },
   }
 }

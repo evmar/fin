@@ -5,7 +5,7 @@ WEBPACK ?= $(JS)/webpack
 JSFILES = d3 react code
 HTMLFILES = autocomplete view
 
-.PHONY: all test clean serve
+.PHONY: all test clean watch
 
 all: $(JSFILES:%=build/%.js) build/code.css $(HTMLFILES:%=build/%.html) fin
 
@@ -34,5 +34,5 @@ test:
 clean:
 	rm -rf build fin
 
-serve:
-	$(JS)/webpack-dev-server --progress
+watch:
+	$(JS)/webpack --watch
