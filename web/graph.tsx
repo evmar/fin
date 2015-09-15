@@ -14,8 +14,8 @@
 
 require('./graph.scss');
 var util = require('./util');
-var taglib = require('./tags');
 
+type Entry = any;
 var margin = {top:5, right:10, bottom:30, left:70};
 
 function epanKernel(scale) {
@@ -64,20 +64,26 @@ function smooth(data) {
 function dayOfYear(date) {
   var start = new Date();
   start.setMonth(0, 0);
-  return (date - start)/8.64e7;
+  return (date.valueOf() - start.valueOf())/8.64e7;
 }
 
-function leastSquares(data) {
-  var xMean = d3.mean(data, (d) => d.x);
+interface Value {
+  x: Date;
+  y: number;
+  y0?: number;
+}
+
+function leastSquares(data: Value[]) {
+  var xMean = d3.mean(data, (d) => +d.x);
   var yMean = d3.mean(data, (d) => d.y);
-  var ssXX = d3.sum(data, (d) => Math.pow(d.x - xMean, 2));
-  var ssXY = d3.sum(data, (d) => (d.x - xMean) * (d.y - yMean));
+  var ssXX = d3.sum(data, (d) => Math.pow(+d.x - xMean, 2));
+  var ssXY = d3.sum(data, (d) => (+d.x - xMean) * (d.y - yMean));
   var slope = ssXY/ssXX;
   var intercept = yMean - (xMean * slope);
   return {slope, intercept, yMean};
 }
 
-function chooseFirstMatch(tags, entryTags) {
+function chooseFirstMatch(tags, entryTags): string {
   for (var t of tags) {
     for (var t2 of entryTags) {
       if (t == t2) {
@@ -88,7 +94,15 @@ function chooseFirstMatch(tags, entryTags) {
   return null;
 }
 
-var GraphOpts = React.createClass({
+interface GraphOpts {
+  stack: boolean;
+}
+
+var GraphOptsPane = React.createClass<{
+  opts: GraphOpts;
+  tags: string[];
+  onChange: {(opts: GraphOpts)}
+}, {}>({
   render() {
     var opts = this.props.opts;
     return (
@@ -108,7 +122,12 @@ var GraphOpts = React.createClass({
   },
 });
 
-var Graph = React.createClass({
+var Graph = React.createClass<{
+  entries: Entry[];
+  opts: GraphOpts;
+  width: number;
+  height: number;
+}, {}>({
   componentDidMount() {
     this.create();
     this.update();
@@ -145,17 +164,21 @@ var Graph = React.createClass({
   },
 
   update() {
-    var entries = this.props.entries;
     var format = d3.time.format("%Y/%m/%d");
-    entries = entries.map((e) => ({
+    interface EI {
+      mdate: Date;
+      amount: number;
+      tags: string[];
+    }
+    var entries: EI[] = this.props.entries.map((e) => ({
       mdate: format.parse(e.date.substr(0, 8) + "01"),
       amount: e.amount,
       tags: e.tags,
     }));
 
     var x = d3.time.scale()
-              .domain(d3.extent(entries, (e) => e.mdate))
-              .range([0, this.width]);
+      .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
+      .range([0, this.width]);
 
     var stack = this.props.opts.stack;
     
@@ -164,34 +187,38 @@ var Graph = React.createClass({
       stackTags = [];
     }
     
-    data = d3.nest()
-             .key((e) => (
-               (stack ? chooseFirstMatch(stackTags, e.tags || [])
-                   : null)
-                 || 'other'))
-             .key((e) => +e.mdate)
-             .sortKeys(d3.ascending)
-             .rollup((es) => ({
-               x: es[0].mdate,
-               y: d3.sum(es, (e) => e.amount)
-             }))
-             .map(entries);
+    var nest = d3.nest<EI>()
+      .key((e) => (
+        (stack ? chooseFirstMatch(stackTags, e.tags || [])
+         : null)
+          || 'other'))
+      .key((e) => e.mdate.valueOf().toString())
+      .sortKeys(d3.ascending)
+      .rollup((es) => ({
+        x: es[0].mdate,
+        y: d3.sum(es, (e) => e.amount)
+      }))
+      .map(entries);
 
     stackTags.push('other');
       
-    data = stackTags.map((tag) => ({
+    interface Layer {
+      tag: string;
+      values: Value[];
+    }
+    var data: Layer[] = stackTags.map((tag) => ({
       tag: tag,
       values: x.ticks(d3.time.month).map((m) => {
         var amount = 0;
         var key = +m;
-        if (tag in data && key in data[tag]) {
-          amount = data[tag][key].y;
+        if (tag in nest && key in nest[tag]) {
+          amount = nest[tag][key].y;
         }
         return {x:m, y:amount};
       })
     }));
 
-    d3.layout.stack()
+    d3.layout.stack<Layer, Value>()
       .values((d) => d.values)
       (data);
 
@@ -220,7 +247,7 @@ var Graph = React.createClass({
     var lineSel = this.g.selectAll('path.line');
     var stackSel = this.g.selectAll('path.stack');
     if (stack) {
-      var area = d3.svg.area()
+      var area = d3.svg.area<Value>()
                    .x((d) => x(d.x))
                    .y0((d) => y(d.y0))
                    .y1((d) => y(d.y0 + d.y))
@@ -236,13 +263,13 @@ var Graph = React.createClass({
         .transition()
         .attr('d', (d) => area(d.values));
     } else {
-      data = data[0].values;
-      var line = d3.svg.line()
+      var values = data[0].values;
+      var line = d3.svg.line<Value>()
                    .x((d) => x(d.x))
                    .y((d) => y(d.y))
                    .interpolate('step');
       
-      lineSel = lineSel.data([data]);
+      lineSel = lineSel.data([values]);
       stackSel = stackSel.data([]);
       lineSel.enter()
              .append('path')
@@ -252,30 +279,29 @@ var Graph = React.createClass({
         .transition()
         .attr('d', line);
 
-      if (data.length > 0) {
-        var regression = leastSquares(data);
-        var t1 = data[data.length-1].x;
-        var t2 = data[0].x;
+      if (values.length > 0) {
+        var regression = leastSquares(values);
+        var t1 = values[values.length-1].x;
+        var t2 = values[0].x;
         this.regLine.datum(regression)
           .transition()
           .attr('x1', (r) => x(t1))
-          .attr('y1', (r) => y(t1 * regression.slope + regression.intercept))
+          .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
           .attr('x2', (r) => x(t2))
-          .attr('y2', (r) => y(t2 * regression.slope + regression.intercept));
+          .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
 
         // Regression slope is amount per millisecond; adjust to months.
         var perMonthDelta = regression.slope*8.64e7 * 30;
         // Round to nearest dollar amount.
         perMonthDelta = Math.round(perMonthDelta / 100);
+        var deltaLabel = '';
         if (perMonthDelta != 0) {
-          perMonthDelta = d3.format('$,d')(perMonthDelta);
-          if (perMonthDelta[0] != '-') {
-            perMonthDelta = '+' + perMonthDelta;
+          deltaLabel = d3.format('$,d')(perMonthDelta);
+          if (perMonthDelta > 0) {
+            deltaLabel = '+' + deltaLabel;
           }
-        } else {
-          perMonthDelta = '';
         }
-        var text = util.formatAmount(regression.yMean) + perMonthDelta + '/mo';
+        var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
         this.regText
             .attr('x', this.props.width - margin.left - margin.right - 100)
             .attr('y', y(0) - 10)
@@ -293,20 +319,20 @@ var Graph = React.createClass({
   }
 });
 
-module.exports = React.createClass({
+export = React.createClass<{entries:Entry[]}, {opts:GraphOpts}>({
   getInitialState() {
     return {opts: {stack:false}};
   },
   
   render() {
     var entries = this.props.entries;
-    var tags = taglib.gatherTags(entries);
-    var total = d3.sum(entries, (e) => e.amount);
+    var tags = util.gatherTags(entries);
+    var total = d3.sum<Entry>(entries, (e) => e.amount);
     return (
       <div>
-        <GraphOpts opts={this.state.opts}
-                   tags={tags}
-                   onChange={(opts) => this.setState({opts})} />
+        <GraphOptsPane opts={this.state.opts}
+                       tags={tags}
+                       onChange={(opts) => this.setState({opts})} />
         <Graph entries={entries} opts={this.state.opts}
                width={10*64} height={3*64} />
       </div>

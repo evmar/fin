@@ -58,7 +58,7 @@ interface Filters {
   query: string;
 }
 
-type Entry = any;
+type Entry = util.Entry;
 
 interface FilterPaneProps extends React.Props<any> {
   filters: Filters;

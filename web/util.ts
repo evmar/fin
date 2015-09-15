@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export type Entry = any;
+
 export function formatAmount(a: number): string {
   return d3.format('$,.2f')(a/100);
 }
