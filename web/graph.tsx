@@ -14,8 +14,9 @@
 
 require('./graph.scss');
 import util = require('./util');
+import types = require('./types');
+type Entry = types.Entry;
 
-type Entry = any;
 var margin = {top:5, right:10, bottom:30, left:70};
 
 function epanKernel(scale) {

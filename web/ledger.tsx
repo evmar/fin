@@ -18,8 +18,8 @@ import util = require('./util');
 import filter = require('./filter');
 import AutoComplete = require('./autocomplete');
 import Graph = require('./graph');
-
-type Entry = any;
+import types = require('./types');
+type Entry = types.Entry;
 
 interface LedgerProps {
   entries: Entry[];

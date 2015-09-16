@@ -14,6 +14,8 @@
 
 require('./filter.scss');
 import util = require('./util');
+import types = require('./types');
+type Entry = types.Entry;
 
 function sortOnBy(f, c) {
   return function(a, b) {
@@ -57,8 +59,6 @@ export function filtersToQuery(filters: Filters) {
   }
   return query.join(' ');
 }
-
-type Entry = util.Entry;
 
 interface FilterPaneProps extends React.Props<any> {
   filters: Filters;

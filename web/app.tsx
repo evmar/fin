@@ -14,8 +14,8 @@
 
 require('./style.scss');
 import ledger = require('./ledger');
-
-type Entry = any;
+import types = require('./types');
+type Entry = types.Entry;
 
 class AppShell extends React.Component<{}, {
   entries: Entry[];
