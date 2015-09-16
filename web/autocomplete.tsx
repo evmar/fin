@@ -15,21 +15,25 @@
 require('./autocomplete.scss');
 
 // TODO: why isn't typescript complaining about missing props/state?
-export = React.createClass<{
+export = class AutoComplete extends React.Component<{
   options: string[];
+  initialText: string;
+  onCommit: {(string)};
 }, {
-  sel: number;
-}>({
+  sel?: number;
+  focus?: boolean;
+  text?: string;
+}> {
   getInitialState() {
     return {sel:null, text:this.props.initialText || '', focus:false};
-  },
+  }
 
   getOptions() {
     var words = this.state.text.split(/\s+/);
     var word = words[words.length - 1];
     return this.props.options.filter((opt) =>
       word.length > 0 && opt.indexOf(word) == 0);
-  },
+  }
 
   render() {
     var options = this.getOptions();
@@ -55,12 +59,12 @@ export = React.createClass<{
         {dropdown}
       </span>
     );
-  },
+  }
 
   onChange() {
-    var text = this.refs.input.getDOMNode().value
+    var text = (this.refs['input'] as any).getDOMNode().value
     this.setState({text});
-  },
+  }
 
   onKeyDown(e) {
     if (e.shiftKey || e.altKey || e.metaKey)
@@ -109,15 +113,15 @@ export = React.createClass<{
       }
     }
     this.setState({sel:sel});
-  },
+  }
 
   onFocus() {
     this.setState({focus:true});
-  },
+  }
 
   onBlur() {
     this.setState({sel:null, focus:false});
-  },
+  }
 
   complete(text) {
     var words = this.state.text.split(/\s+/);
@@ -125,4 +129,4 @@ export = React.createClass<{
     text = words.join(' ') + ' ';
     this.setState({text});
   }
-});
+};
