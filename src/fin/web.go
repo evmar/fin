@@ -17,6 +17,7 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"sort"
@@ -81,6 +82,18 @@ func (web *web) updateTagsFromPost(r io.Reader) {
 	web.tags.Save(web.tagsPath)
 }
 
+func (web *web) guessTags(w http.ResponseWriter, r *http.Request) {
+	desc, err := ioutil.ReadAll(r.Body)
+	check(err)
+	log.Printf("guess %s", desc)
+	tags := guessTags(string(desc), web.entries, web.tags)
+
+	w.Header().Add("Content-Type", "text/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"tags": tags,
+	})
+}
+
 func (web *web) start() {
 	fs := http.FileServer(http.Dir("build"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -101,6 +114,7 @@ func (web *web) start() {
 		w.Header().Add("Content-Type", "text/javascript")
 		web.toJson(w)
 	})
+	http.HandleFunc("/guess", web.guessTags)
 	http.Handle("/static/", http.FileServer(http.Dir("build")))
 
 	addr := ":8080"

@@ -37,11 +37,11 @@ type ScoredEntry struct {
 type ScoredEntries []ScoredEntry
 
 func (se ScoredEntries) Len() int           { return len(se) }
-func (se ScoredEntries) Less(a, b int) bool { return se[a].score < se[b].score }
+func (se ScoredEntries) Less(a, b int) bool { return se[a].score > se[b].score }
 func (se ScoredEntries) Swap(a, b int)      { se[a], se[b] = se[b], se[a] }
 
-func neighbors(input string, entries []*qif.Entry, tags Tags) {
-	query := index(input)
+func neighbors(desc string, entries []*qif.Entry, n int) []*qif.Entry {
+	query := index(desc)
 
 	se := ScoredEntries{}
 	for _, e := range entries {
@@ -56,14 +56,36 @@ func neighbors(input string, entries []*qif.Entry, tags Tags) {
 	}
 	sort.Sort(se)
 
-	n := 5
-	tagCounts := map[string]int{}
-	for _, se := range se[len(se)-n:] {
-		log.Printf("%d %#v", se.score, se.entry)
-
+	closest := make([]*qif.Entry, 0, n)
+	for i := 0; i < n; i++ {
+		closest = append(closest, se[i].entry)
 	}
+	return closest
 }
 
-func autoMain(entries []*qif.Entry, tags Tags) {
-	neighbors("BANK OF AMERICA CREDIT CARD Bill", entries, tags)
+func guessTags(desc string, entries []*qif.Entry, allTags Tags) []string {
+	n := 5
+	ns := neighbors(desc, entries, n)
+	for i, n := range ns {
+		log.Printf("%d: %#v", i, n)
+	}
+
+	tagCounts := map[string]int{}
+	for _, e := range ns {
+		tags := allTags[qifId(e)]
+		for _, tag := range tags {
+			tagCounts[tag]++
+		}
+	}
+
+	thresh := 0.3
+	var guess []string
+	for t, c := range tagCounts {
+		log.Printf("%s: %d", t, c)
+		score := float64(c) / float64(n)
+		if score > thresh {
+			guess = append(guess, t)
+		}
+	}
+	return guess
 }

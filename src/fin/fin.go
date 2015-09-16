@@ -134,8 +134,6 @@ func main() {
 			tagsPath: tagsPath,
 		}
 		w.start()
-	case "auto":
-		autoMain(entries, tags)
 	default:
 		log.Fatalf("unknown mode %q", mode)
 	}
