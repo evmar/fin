@@ -14,7 +14,12 @@
 
 require('./autocomplete.scss');
 
-var AutoComplete = React.createClass({
+// TODO: why isn't typescript complaining about missing props/state?
+export = React.createClass<{
+  options: string[];
+}, {
+  sel: number;
+}>({
   getInitialState() {
     return {sel:null, text:this.props.initialText || '', focus:false};
   },
@@ -44,7 +49,7 @@ var AutoComplete = React.createClass({
 
     return (
       <span className='autoc'>
-        <input ref='input' autoComplete='false' value={this.state.text}
+        <input ref='input' autoComplete={false} value={this.state.text}
                onChange={this.onChange} onKeyDown={this.onKeyDown}
                onFocus={this.onFocus} onBlur={this.onBlur} />
         {dropdown}
@@ -121,4 +126,3 @@ var AutoComplete = React.createClass({
     this.setState({text});
   }
 });
-module.exports = AutoComplete;
