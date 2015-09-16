@@ -13,26 +13,30 @@
 // limitations under the License.
 
 require('./style.scss');
-var ledger = require('./ledger');
-var overview = require('./overview');
+import ledger = require('./ledger');
 
-exports.AppShell = React.createClass({
-  getInitialState() {
-    return {};
-  },
+type Entry = any;
+
+class AppShell extends React.Component<{}, {
+  entries: Entry[];
+}> {
+  constructor() {
+    super();
+    this.state = {entries: null};
+  }
 
   componentDidMount() {
     this.reload();
-  },
+  }
 
   render() {
-    if (!this.state.entries || this.state.loading) {
+    if (!this.state.entries) {
       return <div></div>;
     }
     return (
       <ledger.LedgerPage entries={this.state.entries} />
     );
-  },
+  }
 
   reload() {
     var req = new XMLHttpRequest();
@@ -41,7 +45,7 @@ exports.AppShell = React.createClass({
     };
     req.open('get', '/data');
     req.send();
-  },
+  }
 
   load(data) {
     var entries = data.entries;
@@ -49,11 +53,11 @@ exports.AppShell = React.createClass({
     entries = entries.sort((a, b) => d3.descending(a.date, b.date));
     entries.forEach((e) => e.amount = -e.amount);
 
-    window.data = {entries:entries};
+    (window as any).data = {entries:entries};
     this.setState({entries});
   }
-});
+}
 
 React.render(
-  React.createElement(exports.AppShell),
+  React.createElement(AppShell),
   document.body)

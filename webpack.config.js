@@ -3,7 +3,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: {
-    code: './web/app.jsx',
+    code: './web/app.tsx',
     'autocomplete-demo': './web/autocomplete-demo.jsx',
   },
   // devtool: 'source-map',

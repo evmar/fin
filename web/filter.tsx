@@ -87,12 +87,12 @@ export class FilterPane extends React.Component<FilterPaneProps, {
                onClick={()=>this.setState({showing:false})}></div>
           <div className='filter-pane-popup'>
             <label>filter:&nbsp;
-              <SearchInput onSearch={this.onSearch}
+              <SearchInput onSearch={(q) => {this.onSearch(q)}}
                            initialText={this.props.filters.query} />
             </label>
             <TagList entries={this.props.entries}
                      hiddenTags={this.props.filters.hiddenTags}
-                     onToggle={this.onToggleTag} />
+                     onToggle={(t, on) => {this.onToggleTag(t, on)}} />
           </div>
         </div>
       );

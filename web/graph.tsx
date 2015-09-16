@@ -109,7 +109,7 @@ class GraphOptsPane extends React.Component<{
       <div>
         <label>
           <input type="checkbox" checked={opts.stack}
-                 onChange={this.onStack} /> stack
+                 onChange={() => {this.onStack()}} /> stack
         </label>
       </div>
     );
