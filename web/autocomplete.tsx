@@ -14,18 +14,20 @@
 
 require('./autocomplete.scss');
 
-// TODO: why isn't typescript complaining about missing props/state?
-export = class AutoComplete extends React.Component<{
+interface Props {
   options: string[];
   initialText: string;
   onCommit: {(string)};
-}, {
+}
+
+export = class AutoComplete extends React.Component<Props, {
   sel?: number;
   focus?: boolean;
   text?: string;
 }> {
-  getInitialState() {
-    return {sel:null, text:this.props.initialText || '', focus:false};
+  constructor(props: Props) {
+    super();
+    this.state = {sel:null, text:props.initialText || '', focus:false};
   }
 
   getOptions() {
@@ -45,17 +47,19 @@ export = class AutoComplete extends React.Component<{
           if (i == this.state.sel)
             className += ' sel';
           return <div key={i} className={className}
-                      onMouseDown={() => this.complete(o)}>{o}</div>;
-          })
-         }
+          onMouseDown={() => {this.complete(o)}}>{o}</div>;
+         })
+        }
       </div>);
     }
 
     return (
       <span className='autoc'>
         <input ref='input' autoComplete={false} value={this.state.text}
-               onChange={this.onChange} onKeyDown={this.onKeyDown}
-               onFocus={this.onFocus} onBlur={this.onBlur} />
+               onChange={() => {this.onChange()}}
+               onKeyDown={(e) => {this.onKeyDown(e)}}
+               onFocus={() => {this.onFocus()}}
+               onBlur={() => {this.onBlur()}} />
         {dropdown}
       </span>
     );
