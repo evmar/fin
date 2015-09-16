@@ -98,11 +98,11 @@ interface GraphOpts {
   stack: boolean;
 }
 
-var GraphOptsPane = React.createClass<{
+class GraphOptsPane extends React.Component<{
   opts: GraphOpts;
   tags: {[tag:string]:number};
   onChange: {(opts: GraphOpts)}
-}, {}>({
+}, {}> {
   render() {
     var opts = this.props.opts;
     return (
@@ -113,35 +113,43 @@ var GraphOptsPane = React.createClass<{
         </label>
       </div>
     );
-  },
+  }
 
   onStack() {
     var opts = this.props.opts;
     opts.stack = !opts.stack;
     this.props.onChange(opts);
-  },
-});
+  }
+}
 
-var Graph = React.createClass<{
+class Graph extends React.Component<{
   entries: Entry[];
   opts: GraphOpts;
   width: number;
   height: number;
-}, {}>({
+}, {}> {
+  width: number;
+  height: number;
+
+  svg: d3.Selection<any>;
+  g: d3.Selection<any>;
+  regLine: d3.Selection<any>;
+  regText: d3.Selection<any>;
+  
   componentDidMount() {
     this.create();
     this.update();
-  },
+  }
 
   componentDidUpdate() {
     this.update();
-  },
+  }
 
   create() {
     this.width = this.props.width - margin.left - margin.right;
     this.height = this.props.height - margin.top - margin.bottom;
 
-    var el = this.getDOMNode();
+    var el = React.findDOMNode(this);
     this.svg = d3.select(el).append('svg')
                 .attr('width', this.props.width)
                 .attr('height', this.props.height);
@@ -161,7 +169,7 @@ var Graph = React.createClass<{
     var g = this.g.append('g')
                 .attr('class', 'regression');
     this.regText = g.append('text');
-  },
+  }
 
   update() {
     var format = d3.time.format("%Y/%m/%d");
@@ -244,8 +252,6 @@ var Graph = React.createClass<{
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
     svg.select('g.y').transition().call(yAxis);
 
-    var lineSel = this.g.selectAll('path.line');
-    var stackSel = this.g.selectAll('path.stack');
     if (stack) {
       var area = d3.svg.area<Value>()
                    .x((d) => x(d.x))
@@ -253,8 +259,10 @@ var Graph = React.createClass<{
                    .y1((d) => y(d.y0 + d.y))
                    .interpolate('step');
       var color = d3.scale.category10();
-      stackSel = stackSel.data(data);
-      lineSel = lineSel.data([]);
+      this.g.selectAll('path.line')
+          .data([])
+          .exit().remove();
+      var stackSel = this.g.selectAll('path.stack').data(data);
       stackSel.enter()
               .append('path')
               .attr('class', 'stack');
@@ -269,8 +277,10 @@ var Graph = React.createClass<{
                    .y((d) => y(d.y))
                    .interpolate('step');
       
-      lineSel = lineSel.data([values]);
-      stackSel = stackSel.data([]);
+      this.g.selectAll('path.stack')
+          .data([])
+          .exit().remove();
+      var lineSel = this.g.selectAll('path.line').data([values]);
       lineSel.enter()
              .append('path')
              .attr('class', 'line');
@@ -308,21 +318,20 @@ var Graph = React.createClass<{
             .text(text);
       }
     }
-    lineSel.exit()
-                    .remove();
-    stackSel.exit()
-            .remove();
-  },
+  }
 
   render() {
     return <div className="graph" />;
   }
-});
+}
 
-export = React.createClass<{entries:Entry[]}, {opts:GraphOpts}>({
-  getInitialState() {
-    return {opts: {stack:false}};
-  },
+export = class GraphPane extends React.Component<
+{entries:Entry[]},
+    {opts:GraphOpts}> {
+  constructor() {
+    super();
+    this.state = {opts: {stack:false}};
+  }
   
   render() {
     var entries = this.props.entries;
@@ -338,4 +347,4 @@ export = React.createClass<{entries:Entry[]}, {opts:GraphOpts}>({
       </div>
     );
   }
-});
+}

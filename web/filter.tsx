@@ -66,14 +66,13 @@ interface FilterPaneProps extends React.Props<any> {
   onFilters: {(filters:Filters)};
 }
 
-interface FilterPaneState extends React.Props<any> {
+export class FilterPane extends React.Component<FilterPaneProps, {
   showing: boolean;
-}
-
-export var FilterPane = React.createClass<FilterPaneProps, FilterPaneState>({
-  getInitialState() {
-    return {showing: false};
-  },
+}> {
+  constructor() {
+    super();
+    this.state = {showing: false};
+  }
 
   render() {
     var hiddenTags = Object.keys(this.props.filters.hiddenTags);
@@ -110,7 +109,7 @@ export var FilterPane = React.createClass<FilterPaneProps, FilterPaneState>({
         </div>
       </div>
     );
-  },
+  }
 
   onToggleTag(tag, hide) {
     var hiddenTags = this.props.filters.hiddenTags;
@@ -120,21 +119,21 @@ export var FilterPane = React.createClass<FilterPaneProps, FilterPaneState>({
       hiddenTags[tag] = true;
     }
     this.props.onFilters(this.props.filters);
-  },
+  }
 
   onSearch(query) {
     this.props.filters.query = query;
     this.props.onFilters(this.props.filters);
   }
-});
+}
 
 interface TagListProps {
   entries: Entry[];
   hiddenTags: {[tag:string]:boolean};
-  onToggle: any;
+  onToggle: {(tag: string, on: boolean)};
 }
 
-export var TagList = React.createClass<TagListProps, {}>({
+export class TagList extends React.Component<TagListProps, {}> {
   render() {
     var tags = d3.entries(util.gatherTags(this.props.entries));
     tags = tags.sort(sortOnBy((t) => Math.abs(t.value), d3.descending));
@@ -158,18 +157,18 @@ export var TagList = React.createClass<TagListProps, {}>({
           <label>
           <input type="checkbox"
           checked={!(t.tag in hiddenTags)}
-          onChange={this.onToggle.bind(this, t.tag, !(t.tag in hiddenTags))} />
+          onChange={() => {this.onToggle(t.tag, !(t.tag in hiddenTags))}} />
           {t.tag} {t.amount ? '(' + util.formatAmount(t.amount) + ')' : ""}
           </label></div>
          ))}
       </div>
     );
-  },
+  }
 
   onToggle(tag, on) {
     this.props.onToggle(tag, on);
   }
-});
+}
 
 export function parseQuery(query) {
   var tokens = query.split(/\s+/).filter((t) => t != '');
@@ -218,22 +217,22 @@ interface SearchInputProps extends React.Props<any> {
   onSearch: {(query: string)};
 }
 
-export var SearchInput = React.createClass<SearchInputProps, {}>({
+export class SearchInput extends React.Component<SearchInputProps, {}> {
   render() {
     return (
       <input ref="i" type="search" autoFocus
              defaultValue={this.props.initialText || ''} />
     );
-  },
+  }
 
   componentDidMount() {
     var i = (this.refs['i'] as any).getDOMNode();
     i.incremental = true;
     i.addEventListener('search', this.search);
-  },
+  }
 
   search() {
     var query = (this.refs['i'] as any).getDOMNode().value;
     this.props.onSearch(query);
   }
-});
+}
