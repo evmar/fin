@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var AutoComplete = require('./autocomplete').AutoComplete;
+import AutoComplete = require('./autocomplete');
 
-var Demo = React.createClass({
+class Demo extends React.Component<{}, {}> {
   render() {
     var options = ["foo", "foox", "bar", "baz", "longlongword"];
     return (
@@ -23,8 +23,8 @@ var Demo = React.createClass({
         <AutoComplete options={options} />
         </main>
     );
-  },
-});
+  }
+}
 
 React.render(
   React.createElement(Demo),

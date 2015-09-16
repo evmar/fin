@@ -17,7 +17,7 @@ require('./autocomplete.scss');
 interface Props {
   options: string[];
   initialText?: string;
-  onCommit: {(string)};
+  onCommit?: {(string)};
 }
 
 export = class AutoComplete extends React.Component<Props, {
