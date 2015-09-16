@@ -14,7 +14,12 @@
 
 var filter = require('./filter');
 
-module.exports = React.createClass({
+interface Props {
+  title: string;
+  children: React.ReactNode;
+}
+
+export = class Page extends React.Component<Props, {}> {
   render() {
     return (
       <div>
@@ -32,5 +37,5 @@ module.exports = React.createClass({
         </div>
       </div>
     );
-  },
-});
+  }
+}
