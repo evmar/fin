@@ -24,7 +24,7 @@ module.exports = {
     extensions: ['', '.js', '.jsx', '.ts', '.tsx', '.scss']
   },
   plugins: [
-    // new webpack.optimize.UglifyJsPlugin({minimize:true}),
+    /* new webpack.optimize.UglifyJsPlugin({minimize:true}), */
     new ExtractTextPlugin('[name].css'),
   ],
   externals: {

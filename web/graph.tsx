@@ -337,7 +337,6 @@ export = class GraphPane extends React.Component<
   render() {
     var entries = this.props.entries;
     var tags = util.gatherTags(entries);
-    var total = d3.sum<Entry>(entries, (e) => e.amount);
     return (
       <div>
         <GraphOptsPane opts={this.state.opts}

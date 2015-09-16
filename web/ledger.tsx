@@ -119,7 +119,7 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     var query = filter.filtersToQuery(this.state.filters);
     var f = filter.parseQuery(query);
     if (f) {
-      entries = this.props.entries.filter(f);
+      entries = entries.filter(f);
     }
     return entries;
   }
