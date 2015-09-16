@@ -16,7 +16,7 @@ require('./autocomplete.scss');
 
 interface Props {
   options: string[];
-  initialText: string;
+  initialText?: string;
   onCommit: {(string)};
 }
 

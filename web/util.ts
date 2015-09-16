@@ -58,8 +58,8 @@ export function urlWithQuery(url: string, query: string): string {
   return url;
 }
 
-export function gatherTags(entries) {
-  var tags = {};
+export function gatherTags(entries: Entry[]): {[tag:string]:number} {
+  var tags: {[tag:string]:number} = {};
   entries.forEach((entry) => {
     if (entry.tags) {
       entry.tags.forEach((tag) => {

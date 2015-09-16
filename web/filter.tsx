@@ -21,8 +21,13 @@ function sortOnBy(f, c) {
   };
 }
 
-export function filterStateFromURL(params) {
-  var hiddenTags = {};
+export interface Filters {
+  hiddenTags: {[tag:string]:boolean};
+  query: string;
+}
+
+export function filterStateFromURL(params): Filters {
+  var hiddenTags: {[tag:string]:boolean} = {};
   if ('h' in params) {
     for (var t of params.h) {
       hiddenTags[t] = true;
@@ -35,14 +40,14 @@ export function filterStateFromURL(params) {
   return {hiddenTags, query};
 }
 
-export function filterStateToURL(state) {
+export function filterStateToURL(state: Filters) {
   return util.makeURLParams({
     h: Object.keys(state.hiddenTags),
-    q: state.query || null,
+    q: state.query ? [state.query] : null,
   });
 }
 
-export function filtersToQuery(filters) {
+export function filtersToQuery(filters: Filters) {
   var query = [];
   for (var t in filters.hiddenTags) {
     query.push('-t:' + t);
@@ -51,11 +56,6 @@ export function filtersToQuery(filters) {
     query.push(filters.query);
   }
   return query.join(' ');
-}
-
-interface Filters {
-  hiddenTags: {[tag:string]:boolean};
-  query: string;
 }
 
 type Entry = util.Entry;

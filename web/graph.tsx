@@ -13,7 +13,7 @@
 // limitations under the License.
 
 require('./graph.scss');
-var util = require('./util');
+import util = require('./util');
 
 type Entry = any;
 var margin = {top:5, right:10, bottom:30, left:70};
@@ -100,7 +100,7 @@ interface GraphOpts {
 
 var GraphOptsPane = React.createClass<{
   opts: GraphOpts;
-  tags: string[];
+  tags: {[tag:string]:number};
   onChange: {(opts: GraphOpts)}
 }, {}>({
   render() {

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var filter = require('./filter');
-
 interface Props {
   title: string;
   children: React.ReactNode;

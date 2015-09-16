@@ -13,18 +13,29 @@
 // limitations under the License.
 
 require('./ledger.scss');
-var Page = require('./page');
-var util = require('./util');
-var filter = require('./filter');
-var AutoComplete = require('./autocomplete');
-var Graph = require('./graph');
+import Page = require('./page');
+import util = require('./util');
+import filter = require('./filter');
+import AutoComplete = require('./autocomplete');
+import Graph = require('./graph');
 
-var Ledger = React.createClass({
-  getInitialState() {
-    return {sel:null};
-  },
+type Entry = any;
 
-  render: function() {
+interface LedgerProps {
+  entries: Entry[];
+  tags: string[];
+  onTag: {(entries: Entry[], tag: string)};
+}
+
+export class Ledger extends React.Component<LedgerProps, {
+  sel: number;
+}> {
+  constructor() {
+    super();
+    this.state = {sel:null};
+  }
+
+  render() {
     var entries = this.props.entries;
 
     // Make a row for total.
@@ -59,13 +70,14 @@ var Ledger = React.createClass({
       if (sel)
         className += ' sel';
       return (
-        <div className={className} key={i} onClick={this.onSel.bind(this, i)}>
+        <div className={className} key={i}
+             onClick={() => {this.onSel(i)}}>
           <div className="ledger-date">{date}</div>
           <div className="ledger-body" title={e.date}>
             <div className="ledger-payee">{e.payee}</div>
             {sel ? <div>
              tag: <AutoComplete options={this.props.tags}
-             onCommit={this.onTag.bind(this, i == 0 ? entries : [e])}
+             onCommit={(t) => {this.onTag(i == 0 ? entries : [e], t)}}
              initialText={(e.tags || []).join(' ')} />
              </div> :
              <div className="ledger-tags">{tags}</div>}
@@ -77,24 +89,30 @@ var Ledger = React.createClass({
     return (
       <div className="ledger">{rEntries}</div>
     );
-  },
+  }
 
   onSel(i) {
     this.setState({sel: i});
-  },
+  }
 
   onTag(entries, tags) {
     this.props.onTag(entries, tags);
-  },
-});
-exports.Ledger = Ledger;
+  }
+}
 
-exports.LedgerPage = React.createClass({
-  getInitialState() {
+interface LedgerPageProps {
+  entries: Entry[];
+}
+
+export class LedgerPage extends React.Component<LedgerPageProps, {
+  filters: filter.Filters;
+}> {
+  constructor() {
+    super();
     var params = util.parseURLParams(document.location.search);
     var filters = filter.filterStateFromURL(params);
-    return {filters};
-  },
+    this.state = {filters};
+  }
 
   getEntries() {
     var entries = this.props.entries;
@@ -104,7 +122,7 @@ exports.LedgerPage = React.createClass({
       entries = this.props.entries.filter(f);
     }
     return entries;
-  },
+  }
   
   render() {
     var entries = this.getEntries();
@@ -121,7 +139,7 @@ exports.LedgerPage = React.createClass({
       applyTag = (
         <span>
           Tag: <AutoComplete options={allTags}
-                             onCommit={(t) => this.onTag(entries, t)} />
+                             onCommit={(t) => {this.onTag(entries, t)}} />
         </span>
       );
     }
@@ -133,18 +151,19 @@ exports.LedgerPage = React.createClass({
           <div className="spacer"></div>
           <div>
             <filter.FilterPane entries={entries} filters={this.state.filters}
-                               onFilters={this.onFilters} />
+                               onFilters={(filters) => {this.onFilters(filters)}} />
           </div>
         </header>
         <div className="body">
           <main>
             <Graph entries={entries} />
-            <Ledger entries={entries} tags={allTags} onTag={this.onTag} />
+            <Ledger entries={entries} tags={allTags}
+                    onTag={(e, t) => {this.onTag(e, t)}} />
           </main>
         </div>
       </div>
     );
-  },
+  }
 
   onTag(entries, text) {
     var json = {
@@ -152,13 +171,13 @@ exports.LedgerPage = React.createClass({
       ids: entries.map((e) => e.id),
     };
 
-    req = new XMLHttpRequest();
+    var req = new XMLHttpRequest();
     req.onload = () => window.location.reload();
     req.open('post', '/');
     req.send(JSON.stringify(json))
 
     return false;
-  },
+  }
 
   onFilters(filters) {
     var search = filter.filterStateToURL(filters);
@@ -166,5 +185,5 @@ exports.LedgerPage = React.createClass({
     history.replaceState({}, null,
                          util.urlWithQuery(location.href,
                                            filter.filterStateToURL(filters)));
-  },
-});
+  }
+}
