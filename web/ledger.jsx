@@ -16,7 +16,6 @@ require('./ledger.scss');
 var Page = require('./page');
 var util = require('./util');
 var filter = require('./filter');
-var taglib = require('./tags');
 var AutoComplete = require('./autocomplete');
 var Graph = require('./graph');
 
@@ -115,7 +114,7 @@ exports.LedgerPage = React.createClass({
 
     // Use this.props.entries (not entries) here so that we see all
     // tags in the autocomplete.
-    var allTags = Object.keys(taglib.gatherTags(this.props.entries));
+    var allTags = Object.keys(util.gatherTags(this.props.entries));
 
     var applyTag = null;
     if (this.state.filters.query) {
