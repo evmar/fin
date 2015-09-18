@@ -163,13 +163,17 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
       );
     }
 
+    var topTags = d3.entries(util.gatherTags(entries));
+    topTags.sort(util.sortOnBy(
+      (t) => Math.abs(t.value), d3.descending));
+
     return (
       <div>
         <header>
           <h1 className="title">fin</h1>
           <div className="spacer"></div>
           <div>
-            <filter.FilterPane entries={entries} filters={this.state.filters}
+            <filter.FilterPane filters={this.state.filters} topTags={topTags}
                                onFilters={(filters) => {this.onFilters(filters)}} />
           </div>
         </header>

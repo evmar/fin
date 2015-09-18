@@ -113,3 +113,9 @@ function smooth(data) {
   var c = conv(kern, (d) => d / 86400000);
   return c(data);
 }
+
+export function sortOnBy(f, c) {
+  return function(a, b) {
+    return c(f(a), f(b));
+  };
+}

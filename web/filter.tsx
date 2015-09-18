@@ -17,12 +17,6 @@ import util = require('./util');
 import types = require('./types');
 type Entry = types.Entry;
 
-function sortOnBy(f, c) {
-  return function(a, b) {
-    return c(f(a), f(b));
-  };
-}
-
 export interface Filters {
   hiddenTags: {[tag:string]:boolean};
   query: string;
@@ -62,7 +56,7 @@ export function filtersToQuery(filters: Filters) {
 
 interface FilterPaneProps extends React.Props<any> {
   filters: Filters;
-  entries: Entry[];
+  topTags: {key: string; value: number}[];
   onFilters: {(filters:Filters)};
 }
 
@@ -90,7 +84,7 @@ export class FilterPane extends React.Component<FilterPaneProps, {
               <SearchInput onSearch={(q) => {this.onSearch(q)}}
                            initialText={this.props.filters.query} />
             </label>
-            <TagList entries={this.props.entries}
+            <TagList topTags={this.props.topTags}
                      hiddenTags={this.props.filters.hiddenTags}
                      onToggle={(t, on) => {this.onToggleTag(t, on)}} />
           </div>
@@ -128,22 +122,20 @@ export class FilterPane extends React.Component<FilterPaneProps, {
 }
 
 interface TagListProps {
-  entries: Entry[];
+  topTags: {key: string; value: number}[];
   hiddenTags: {[tag:string]:boolean};
   onToggle: {(tag: string, on: boolean)};
 }
 
 export class TagList extends React.Component<TagListProps, {}> {
   render() {
-    var tags = d3.entries(util.gatherTags(this.props.entries));
-    tags = tags.sort(sortOnBy((t) => Math.abs(t.value), d3.descending));
     var hiddenTags = this.props.hiddenTags;
 
     var showTags = [];
     for (let tag in this.props.hiddenTags) {
       showTags.push({tag:tag});
     }
-    for (var tag of tags) {
+    for (let tag of this.props.topTags) {
       if (tag.key in hiddenTags)
         continue;
       showTags.push({tag:tag.key, amount:tag.value});
