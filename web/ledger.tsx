@@ -67,20 +67,24 @@ export class Ledger extends React.Component<LedgerProps, {
       }
       var sel = this.state.sel != null && i == this.state.sel;
       var className = 'ledger-entry';
-      if (sel)
+      var editControls = null;
+      if (sel) {
         className += ' sel';
+        editControls = <div>
+          tag: <AutoComplete options={this.props.tags}
+                             onCommit={(t) => {
+                                       this.onTag(i == 0 ? entries : [e], t)
+                                       }}
+                             initialText={(e.tags || []).join(' ')} />
+        </div>;
+      }
       return (
         <div className={className} key={i}
              onClick={() => {this.onSel(i)}}>
           <div className="ledger-date">{date}</div>
           <div className="ledger-body" title={e.date}>
             <div className="ledger-payee">{e.payee}</div>
-            {sel ? <div>
-             tag: <AutoComplete options={this.props.tags}
-             onCommit={(t) => {this.onTag(i == 0 ? entries : [e], t)}}
-             initialText={(e.tags || []).join(' ')} />
-             </div> :
-             <div className="ledger-tags">{tags}</div>}
+            {sel ? editControls : <div className="ledger-tags">{tags}</div>}
           </div>
           <div className="ledger-money">{util.formatAmount(e.amount)}</div>
         </div>
