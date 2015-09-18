@@ -19,50 +19,7 @@ type Entry = types.Entry;
 
 var margin = {top:5, right:10, bottom:30, left:70};
 
-function epanKernel(scale) {
-  return function(u) {
-    return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
-  };
-}
-
-function norm(k) {
-  var s = d3.sum(k);
-  return k.map((v) => v / s);
-}
-
-function conv(k, distf) {
-  var w = Math.floor(k.length / 2);
-  return function(data) {
-    return data.map((x, i) => {
-      var s = 0;
-      for (var j = -w; j <= w; j++) {
-        var x1 = data[i+j];
-        if (!x1)
-          continue;
-        var ki = distf(x1[0] - x[0]) + w;
-        if (!k[ki])
-          continue;
-        s += k[ki] * x1[1];
-      }
-      return [x[0], s];
-    });
-  };
-}
-
-function smooth(data) {
-  var kern = [];
-  var window = 1;
-  for (var j = -window; j <= window; j++) {
-    kern.push(epanKernel(1)(j / window));
-  }
-
-  kern = norm(kern);
-
-  var c = conv(kern, (d) => d / 86400000);
-  return c(data);
-}
-
-function dayOfYear(date) {
+function dayOfYear(date: Date): number {
   var start = new Date();
   start.setMonth(0, 0);
   return (date.valueOf() - start.valueOf())/8.64e7;
@@ -84,7 +41,7 @@ function leastSquares(data: Value[]) {
   return {slope, intercept, yMean};
 }
 
-function chooseFirstMatch(tags, entryTags): string {
+function chooseFirstMatch(tags: string[], entryTags: string[]): string {
   for (var t of tags) {
     for (var t2 of entryTags) {
       if (t == t2) {
