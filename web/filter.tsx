@@ -228,10 +228,10 @@ export class SearchInput extends React.Component<SearchInputProps, {}> {
   componentDidMount() {
     var i = (this.refs['i'] as any).getDOMNode();
     i.incremental = true;
-    i.addEventListener('search', this.search);
+    i.addEventListener('search', () => this.onSearch());
   }
 
-  search() {
+  onSearch() {
     var query = (this.refs['i'] as any).getDOMNode().value;
     this.props.onSearch(query);
   }
