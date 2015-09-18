@@ -179,7 +179,7 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
         </header>
         <div className="body">
           <main>
-            <Graph entries={entries} />
+            <Graph entries={entries} topTags={topTags} />
             <Ledger entries={entries} tags={allTags}
                     onTag={(e, t) => {this.onTag(e, t)}} />
           </main>

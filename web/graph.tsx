@@ -53,30 +53,30 @@ function chooseFirstMatch(tags: string[], entryTags: string[]): string {
 }
 
 interface GraphOpts {
-  stack: boolean;
+  stack: string[];
 }
 
 class GraphOptsPane extends React.Component<{
   opts: GraphOpts;
-  tags: {[tag:string]:number};
+  topTags: {key:string; value:number}[];
   onChange: {(opts: GraphOpts)}
 }, {}> {
   render() {
     var opts = this.props.opts;
+    var tags = this.props.topTags.slice(0, 6).map((t) =>
+      ({tag:t.key, stack:false}));
     return (
       <div>
+        {tags.map((t) =>
         <label>
-          <input type="checkbox" checked={opts.stack}
-                 onChange={() => {this.onStack()}} /> stack
-        </label>
+          <input type="checkbox" checked={t.stack}
+          onChange={() => {this.onStack()}} /> {t.tag}
+        </label>)}
       </div>
     );
   }
 
   onStack() {
-    var opts = this.props.opts;
-    opts.stack = !opts.stack;
-    this.props.onChange(opts);
   }
 }
 
@@ -146,12 +146,8 @@ class Graph extends React.Component<{
       .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
       .range([0, this.width]);
 
-    var stack = this.props.opts.stack;
-    
-    var stackTags = ['travel', 'restaurant', 'grocery'];
-    if (!stack) {
-      stackTags = [];
-    }
+    var stackTags = this.props.opts.stack;
+    var stack = stackTags.length > 0;
     
     var nest = d3.nest<EI>()
       .key((e) => (
@@ -283,21 +279,21 @@ class Graph extends React.Component<{
   }
 }
 
-export = class GraphPane extends React.Component<
-{entries:Entry[]},
-    {opts:GraphOpts}> {
+export = class GraphPane extends React.Component<{
+  entries: Entry[];
+  topTags: {key: string, value: number}[];
+}, {opts:GraphOpts}> {
   constructor() {
     super();
-    this.state = {opts: {stack:false}};
+    this.state = {opts: {stack:[]}};
   }
   
   render() {
     var entries = this.props.entries;
-    var tags = util.gatherTags(entries);
     return (
       <div>
         <GraphOptsPane opts={this.state.opts}
-                       tags={tags}
+                       topTags={this.props.topTags}
                        onChange={(opts) => this.setState({opts})} />
         <Graph entries={entries} opts={this.state.opts}
                width={10*64} height={3*64} />
