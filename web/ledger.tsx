@@ -21,6 +21,47 @@ import Graph = require('./graph');
 import types = require('./types');
 type Entry = types.Entry;
 
+class LedgerRow extends React.Component<{
+  key: any;
+  date: string;
+  entry: Entry;
+  selected: boolean;
+  allTags: string[];
+  onTag: {(tags: string)};
+  onSel: {()};
+}, {}> {
+  render() {
+    var e = this.props.entry;
+    var tags = null;
+    if (e.tags) {
+      tags = e.tags.map((t) => ' #' + t);
+      tags = <span>{tags}</span>;
+    }
+    var className = 'ledger-entry';
+    var editControls = null;
+    if (this.props.selected) {
+      className += ' sel';
+      editControls = <div>
+        tag: <AutoComplete options={this.props.allTags}
+                           onCommit={(t) => {this.props.onTag(t)}}
+                           initialText={(e.tags || []).join(' ')} />
+      </div>;
+    }
+    return (
+      <div className={className}
+           onClick={() => {this.props.onSel()}}>
+        <div className="ledger-date">{this.props.date}</div>
+        <div className="ledger-body" title={e.date}>
+          <div className="ledger-payee">{e.payee}</div>
+          {this.props.selected ? editControls
+           : <div className="ledger-tags">{tags}</div>}
+        </div>
+        <div className="ledger-money">{util.formatAmount(e.amount)}</div>
+      </div>
+    );
+  }
+}
+
 interface LedgerProps {
   entries: Entry[];
   tags: string[];
@@ -60,47 +101,21 @@ export class Ledger extends React.Component<LedgerProps, {
       }
       last = next;
 
-      var tags = null;
-      if (e.tags) {
-        tags = e.tags.map((t) => ' #' + t);
-        tags = <span>{tags}</span>;
-      }
-      var sel = this.state.sel != null && i == this.state.sel;
-      var className = 'ledger-entry';
-      var editControls = null;
-      if (sel) {
-        className += ' sel';
-        editControls = <div>
-          tag: <AutoComplete options={this.props.tags}
-                             onCommit={(t) => {
-                                       this.onTag(i == 0 ? entries : [e], t)
-                                       }}
-                             initialText={(e.tags || []).join(' ')} />
-        </div>;
-      }
-      return (
-        <div className={className} key={i}
-             onClick={() => {this.onSel(i)}}>
-          <div className="ledger-date">{date}</div>
-          <div className="ledger-body" title={e.date}>
-            <div className="ledger-payee">{e.payee}</div>
-            {sel ? editControls : <div className="ledger-tags">{tags}</div>}
-          </div>
-          <div className="ledger-money">{util.formatAmount(e.amount)}</div>
-        </div>
-      );
+      return <LedgerRow key={i}
+                        date={date} entry={e}
+                        selected={this.state.sel != null &&
+                                  i == this.state.sel}
+                        allTags={this.props.tags}
+                        onTag={(t) => {
+                               this.props.onTag(i == 0 ? entries : [e],
+                                                t);
+                               }}
+                        onSel={() => {this.setState({sel:i})}}
+             />;
     });
     return (
       <div className="ledger">{rEntries}</div>
     );
-  }
-
-  onSel(i) {
-    this.setState({sel: i});
-  }
-
-  onTag(entries, tags) {
-    this.props.onTag(entries, tags);
   }
 }
 
