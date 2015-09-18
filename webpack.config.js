@@ -13,7 +13,6 @@ module.exports = {
   },
   module: {
     loaders: [
-      { test: /\.jsx$/, loader: 'jsx-loader?harmony' },
       { test: /\.tsx?$/, loader: 'ts-loader' },
       { test: /\.scss$/,
         loader: ExtractTextPlugin.extract('style-loader',
@@ -21,7 +20,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['', '.js', '.jsx', '.ts', '.tsx', '.scss']
+    extensions: ['', '.ts', '.tsx', '.scss']
   },
   plugins: [
     /* new webpack.optimize.UglifyJsPlugin({minimize:true}), */
