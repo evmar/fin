@@ -17,7 +17,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export = class Page extends React.Component<Props, {}> {
+export default class Page extends React.Component<Props, {}> {
   render() {
     return (
       <div>

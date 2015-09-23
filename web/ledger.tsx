@@ -13,13 +13,12 @@
 // limitations under the License.
 
 require('./ledger.scss');
-import Page = require('./page');
-import util = require('./util');
-import filter = require('./filter');
-import AutoComplete = require('./autocomplete');
-import Graph = require('./graph');
-import types = require('./types');
-type Entry = types.Entry;
+import Page from './page';
+import * as util from './util';
+import * as filter from './filter';
+import AutoComplete from './autocomplete';
+import Graph from './graph';
+import {Entry} from './types';
 
 class LedgerRow extends React.Component<{
   key: any;

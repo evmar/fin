@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import types = require('./types');
-type Entry = types.Entry;
+import {Entry} from './types';
 
 export function formatAmount(a: number): string {
   return d3.format('$,.2f')(a/100);

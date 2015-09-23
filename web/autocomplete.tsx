@@ -20,7 +20,7 @@ interface Props {
   onCommit?: {(string)};
 }
 
-export = class AutoComplete extends React.Component<Props, {
+export default class AutoComplete extends React.Component<Props, {
   sel?: number;
   focus?: boolean;
   text?: string;

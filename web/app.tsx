@@ -13,9 +13,9 @@
 // limitations under the License.
 
 require('./style.scss');
-import ledger = require('./ledger');
-import types = require('./types');
-type Entry = types.Entry;
+
+import {Entry} from "./types";
+import * as ledger from "./ledger";
 
 class AppShell extends React.Component<{}, {
   entries: Entry[];

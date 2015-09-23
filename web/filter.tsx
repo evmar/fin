@@ -13,9 +13,8 @@
 // limitations under the License.
 
 require('./filter.scss');
-import util = require('./util');
-import types = require('./types');
-type Entry = types.Entry;
+import * as util from './util';
+import {Entry} from './types';
 
 export interface Filters {
   hiddenTags: {[tag:string]:boolean};

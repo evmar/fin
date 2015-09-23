@@ -13,9 +13,8 @@
 // limitations under the License.
 
 require('./graph.scss');
-import util = require('./util');
-import types = require('./types');
-type Entry = types.Entry;
+import * as util from './util';
+import {Entry} from './types';
 
 var margin = {top:5, right:10, bottom:30, left:70};
 
@@ -279,7 +278,7 @@ class Graph extends React.Component<{
   }
 }
 
-export = class GraphPane extends React.Component<{
+export default class GraphPane extends React.Component<{
   entries: Entry[];
   topTags: {key: string, value: number}[];
 }, {opts:GraphOpts}> {
