@@ -68,7 +68,7 @@ class GraphOptsPane extends React.Component<{
     return (
       <div>
         {tags.map((t) =>
-        <label>
+        <label key={t.tag}>
           <input type="checkbox" checked={t.stack}
           onChange={() => {this.onStack()}} /> {t.tag}
         </label>)}
