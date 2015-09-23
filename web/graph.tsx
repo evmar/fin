@@ -92,7 +92,7 @@ class Graph extends React.Component<{
   g: d3.Selection<any>;
   regLine: d3.Selection<any>;
   regText: d3.Selection<any>;
-  
+
   componentDidMount() {
     this.create();
     this.update();
@@ -145,9 +145,9 @@ class Graph extends React.Component<{
       .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
       .range([0, this.width]);
 
-    var stackTags = this.props.opts.stack;
+    var stackTags = this.props.opts.stack.slice();
     var stack = stackTags.length > 0;
-    
+
     var nest = d3.nest<EI>()
       .key((e) => (
         (stack ? chooseFirstMatch(stackTags, e.tags || [])
@@ -162,7 +162,7 @@ class Graph extends React.Component<{
       .map(entries);
 
     stackTags.push('other');
-      
+
     interface Layer {
       tag: string;
       values: Value[];
@@ -229,7 +229,7 @@ class Graph extends React.Component<{
                    .x((d) => x(d.x))
                    .y((d) => y(d.y))
                    .interpolate('step');
-      
+
       this.g.selectAll('path.stack')
           .data([])
           .exit().remove();
@@ -286,7 +286,7 @@ export default class GraphPane extends React.Component<{
     super();
     this.state = {opts: {stack:[]}};
   }
-  
+
   render() {
     var entries = this.props.entries;
     return (

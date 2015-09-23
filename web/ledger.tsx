@@ -141,7 +141,7 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     }
     return entries;
   }
-  
+
   render() {
     var entries = this.getEntries();
 
