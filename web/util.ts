@@ -118,3 +118,9 @@ export function sortOnBy(f, c) {
     return c(f(a), f(b));
   };
 }
+
+export function setToArray<T>(s: Set<T>): T[] {
+  var arr = [];
+  s.forEach((e) => arr.push(e));
+  return arr;
+}

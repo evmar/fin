@@ -40,19 +40,17 @@ function leastSquares(data: Value[]) {
   return {slope, intercept, yMean};
 }
 
-function chooseFirstMatch(tags: string[], entryTags: string[]): string {
-  for (var t of tags) {
-    for (var t2 of entryTags) {
-      if (t == t2) {
-        return t;
-      }
+function chooseFirstMatch(tags: Set<string>, entryTags: string[]): string {
+  for (var t of entryTags) {
+    if (tags.has(t)) {
+      return t;
     }
   }
   return null;
 }
 
 interface GraphOpts {
-  stack: string[];
+  stack: Set<string>;
 }
 
 class GraphOptsPane extends React.Component<{
@@ -62,20 +60,24 @@ class GraphOptsPane extends React.Component<{
 }, {}> {
   render() {
     var opts = this.props.opts;
-    var tags = this.props.topTags.slice(0, 6).map((t) =>
-      ({tag:t.key, stack:false}));
+    var tags = this.props.topTags.slice(0, 6).map((t) => t.key);
     return (
       <div>
-        {tags.map((t) =>
-        <label key={t.tag}>
-          <input type="checkbox" checked={t.stack}
-          onChange={() => {this.onStack()}} /> {t.tag}
+        {tags.map((tag) =>
+        <label key={tag}>
+          <input type="checkbox" checked={opts.stack.has(tag)}
+          onChange={() => {this.onStack(tag)}} /> {tag}
         </label>)}
       </div>
     );
   }
 
-  onStack() {
+  onStack(tag: string) {
+    var opts = this.props.opts;
+    if (!opts.stack.delete(tag)) {
+      opts.stack.add(tag);
+    }
+    this.props.onChange(opts);
   }
 }
 
@@ -145,12 +147,12 @@ class Graph extends React.Component<{
       .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
       .range([0, this.width]);
 
-    var stackTags = this.props.opts.stack.slice();
-    var stack = stackTags.length > 0;
+    var stackTagSet = this.props.opts.stack;
+    var stack = stackTagSet.size > 0;
 
     var nest = d3.nest<EI>()
       .key((e) => (
-        (stack ? chooseFirstMatch(stackTags, e.tags || [])
+        (stack ? chooseFirstMatch(stackTagSet, e.tags || [])
          : null)
           || 'other'))
       .key((e) => e.mdate.valueOf().toString())
@@ -161,6 +163,7 @@ class Graph extends React.Component<{
       }))
       .map(entries);
 
+    var stackTags = util.setToArray(stackTagSet);
     stackTags.push('other');
 
     interface Layer {
@@ -212,13 +215,13 @@ class Graph extends React.Component<{
                    .y1((d) => y(d.y0 + d.y))
                    .interpolate('step');
       var color = d3.scale.category10();
-      this.g.selectAll('path.line')
-          .data([])
-          .exit().remove();
-      var stackSel = this.g.selectAll('path.stack').data(data);
+      this.g.selectAll('path.line').remove();
+      var stackSel = this.g.selectAll('path.stack')
+                         .data(data, (d) => d.tag);
       stackSel.enter()
               .append('path')
               .attr('class', 'stack');
+      stackSel.exit().remove();
       stackSel
         .style('fill', (d) => color(d.tag))
         .transition()
@@ -230,9 +233,7 @@ class Graph extends React.Component<{
                    .y((d) => y(d.y))
                    .interpolate('step');
 
-      this.g.selectAll('path.stack')
-          .data([])
-          .exit().remove();
+      this.g.selectAll('path.stack').remove();
       var lineSel = this.g.selectAll('path.line').data([values]);
       lineSel.enter()
              .append('path')
@@ -284,7 +285,7 @@ export default class GraphPane extends React.Component<{
 }, {opts:GraphOpts}> {
   constructor() {
     super();
-    this.state = {opts: {stack:[]}};
+    this.state = {opts: {stack:new Set<string>()}};
   }
 
   render() {
