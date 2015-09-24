@@ -150,41 +150,35 @@ class Graph extends React.Component<{
     var stackTagSet = this.props.opts.stack;
     var stack = stackTagSet.size > 0;
 
-    var nest = d3.nest<EI>()
+    interface Nest {
+      [date:string]: {[tag:string]: number}
+    }
+    var nest: Nest = d3.nest<EI>()
+      .key((e) => e.mdate.valueOf().toString())
       .key((e) => (
         (stack ? chooseFirstMatch(stackTagSet, e.tags || [])
          : null)
           || 'other'))
-      .key((e) => e.mdate.valueOf().toString())
       .sortKeys(d3.ascending)
-      .rollup((es) => ({
-        x: es[0].mdate,
-        y: d3.sum(es, (e) => e.amount)
-      }))
+      .rollup((es) => d3.sum(es, (e) => e.amount))
       .map(entries);
 
     var stackTags = util.setToArray(stackTagSet);
     stackTags.push('other');
 
-    interface Layer {
-      tag: string;
-      values: Value[];
-    }
-    var data = stackTags.map((tag) => ({
-      tag: tag,
-      values: x.ticks(d3.time.month).map((m) => {
-        var amount = 0;
-        var key = +m;
-        if (tag in nest && key in nest[tag]) {
-          amount = nest[tag][key].y;
-        }
-        return {x:m, y:amount, y0:0};
-      })
-    }));
-
-    d3.layout.stack<Layer, Value>()
-      .values((d) => d.values)
-      (data);
+    var data = x.ticks(d3.time.month).map((m) => {
+      var key = +m;
+      var bars: {y0:number, y:number}[] = [];
+      if (key in nest) {
+        var y = 0;
+        bars = stackTags.map((tag) => {
+          var y0 = y;
+          y += nest[key][tag] || 0;
+          return {y0:Math.min(y, y0), y:Math.max(y, y0)};
+        });
+      }
+      return {x:m, bars};
+    });
 
     var xAxis = d3.svg.axis()
                   .scale(x)
@@ -193,8 +187,10 @@ class Graph extends React.Component<{
     var svg = this.g;
     svg.select('g.x').transition().call(xAxis);
 
-    var yext;
-    yext = d3.extent(data[data.length - 1].values, (d) => d.y0+d.y);
+    var yext = [
+      d3.min(data, (d) => d3.min(d.bars, (d) => d.y0)),
+      d3.max(data, (d) => d3.max(d.bars, (d) => d.y)),
+    ];
     yext[0] = Math.min(yext[0], 0);
     yext[1] = Math.max(yext[1], 0);
     var y = d3.scale.linear()
@@ -209,71 +205,77 @@ class Graph extends React.Component<{
     svg.select('g.y').transition().call(yAxis);
 
     if (stack) {
-      var area = d3.svg.area<Value>()
-                   .x((d) => x(d.x))
-                   .y0((d) => y(d.y0))
-                   .y1((d) => y(d.y0 + d.y))
-                   .interpolate('step');
-      var color = d3.scale.category10();
-      this.g.selectAll('rect.line').remove();
-      var stackSel = this.g.selectAll('path.stack')
-                         .data(data, (d) => d.tag);
-      stackSel.enter()
-              .append('path')
-              .attr('class', 'stack');
-      stackSel.exit().remove();
-      stackSel
-        .style('fill', (d) => color(d.tag))
-        .transition()
-        .attr('d', (d) => area(d.values));
+      /* var area = d3.svg.area<Value>()
+         .x((d) => x(d.x))
+         .y0((d) => y(d.y0))
+         .y1((d) => y(d.y0 + d.y))
+         .interpolate('step');
+         var color = d3.scale.category10();
+         this.g.selectAll('rect.line').remove();
+         var stackSel = this.g.selectAll('path.stack')
+         .data(data, (d) => d.tag);
+         stackSel.enter()
+         .append('path')
+         .attr('class', 'stack');
+         stackSel.exit().remove();
+         stackSel
+         .style('fill', (d) => color(d.tag))
+         .transition()
+         .attr('d', (d) => area(d.values)); */
     } else {
-      var values = data[0].values;
-
       this.g.selectAll('path.stack').remove();
-      var rect = this.g.selectAll('rect.line')
-                     .data(values, (d) => d.x.valueOf().toString());
+      var g = this.g.selectAll('g.month')
+                  .data(data, (d) => d.x.valueOf().toString());
+      g.enter()
+       .append('g')
+       .attr('class', 'month')
+       .attr('transform', (d) => 'translate(' + x(d.x) + ',0)')
+        ;
+      g.exit().remove();
+        
+      var barWidth = x(data[1].x) - x(data[0].x) - 2;
+      var rect = g.selectAll('rect')
+                  .data((d) => d.bars)
+        ;
       rect.enter()
           .append('rect')
-          .attr('class', 'line');
-      var barWidth = x(values[1].x) - x(values[0].x) - 2;
-      rect
-        .style('fill', '#3879D9')
-        .attr('x', (d) => x(d.x))
-        .attr('width', barWidth)
-        .transition()
-        .attr('y', (d) => y(d.y))
-        .attr('height', (d) => y(0) - y(d.y))
+          .style('fill', '#3879D9')
+          .attr('width', barWidth)
+        ;
+      rect.transition()
+          .attr('y', (d) => y(d.y))
+          .attr('height', (d) => y(d.y0) - y(d.y))
         ;
       rect.exit().remove();
 
-      if (values.length > 0) {
-        var regression = leastSquares(values);
-        var t1 = values[values.length-1].x;
-        var t2 = values[0].x;
-        this.regLine.datum(regression)
-          .transition()
-          .attr('x1', (r) => x(t1))
-          .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
-          .attr('x2', (r) => x(t2))
-          .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
+      /* if (values.length > 0) {
+         var regression = leastSquares(values);
+         var t1 = values[values.length-1].x;
+         var t2 = values[0].x;
+         this.regLine.datum(regression)
+         .transition()
+         .attr('x1', (r) => x(t1))
+         .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
+         .attr('x2', (r) => x(t2))
+         .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
 
-        // Regression slope is amount per millisecond; adjust to months.
-        var perMonthDelta = regression.slope*8.64e7 * 30;
-        // Round to nearest dollar amount.
-        perMonthDelta = Math.round(perMonthDelta / 100);
-        var deltaLabel = '';
-        if (perMonthDelta != 0) {
-          deltaLabel = d3.format('$,d')(perMonthDelta);
-          if (perMonthDelta > 0) {
-            deltaLabel = '+' + deltaLabel;
-          }
-        }
-        var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
-        this.regText
-            .attr('x', this.props.width - margin.left - margin.right - 100)
-            .attr('y', y(0) - 10)
-            .text(text);
-      }
+         // Regression slope is amount per millisecond; adjust to months.
+         var perMonthDelta = regression.slope*8.64e7 * 30;
+         // Round to nearest dollar amount.
+         perMonthDelta = Math.round(perMonthDelta / 100);
+         var deltaLabel = '';
+         if (perMonthDelta != 0) {
+         deltaLabel = d3.format('$,d')(perMonthDelta);
+         if (perMonthDelta > 0) {
+         deltaLabel = '+' + deltaLabel;
+         }
+         }
+         var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
+         this.regText
+         .attr('x', this.props.width - margin.left - margin.right - 100)
+         .attr('y', y(0) - 10)
+         .text(text);
+         } */
     }
   }
 
