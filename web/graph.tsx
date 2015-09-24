@@ -191,7 +191,7 @@ class Graph extends React.Component<{
                   .ticks(4)
                   .orient('bottom');
     var svg = this.g;
-    svg.select('g.x').call(xAxis);
+    svg.select('g.x').transition().call(xAxis);
 
     var yext;
     yext = d3.extent(data[data.length - 1].values, (d) => d.y0+d.y);
