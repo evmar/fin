@@ -199,81 +199,64 @@ class Graph extends React.Component<{
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
     svg.select('g.y').transition().call(yAxis);
 
-    if (stack) {
-      /* var area = d3.svg.area<Value>()
-         .x((d) => x(d.x))
-         .y0((d) => y(d.y0))
-         .y1((d) => y(d.y0 + d.y))
-         .interpolate('step');
-         var color = d3.scale.category10();
-         this.g.selectAll('rect.line').remove();
-         var stackSel = this.g.selectAll('path.stack')
-         .data(data, (d) => d.tag);
-         stackSel.enter()
-         .append('path')
-         .attr('class', 'stack');
-         stackSel.exit().remove();
-         stackSel
-         .style('fill', (d) => color(d.tag))
-         .transition()
-         .attr('d', (d) => area(d.values)); */
-    } else {
-      this.g.selectAll('path.stack').remove();
-      var g = this.g.selectAll('g.month')
-                  .data(data, (d) => d.x.valueOf().toString());
-      g.enter()
-       .append('g')
-       .attr('class', 'month')
-       .attr('transform', (d) => 'translate(' + x(d.x) + ',0)')
-        ;
-      g.exit().remove();
-        
-      var barWidth = x(data[1].x) - x(data[0].x) - 2;
-      var rect = g.selectAll('rect')
-                  .data((d) => d.bars)
-        ;
-      rect.enter()
-          .append('rect')
-          .style('fill', '#3879D9')
-          .attr('width', barWidth)
-        ;
-      rect.transition()
-          .attr('y', (d) => y(d.y1))
-          .attr('height', (d) => y(d.y0) - y(d.y1))
-        ;
-      rect.exit().remove();
+    var color = d3.scale.category10();
+    this.g.selectAll('path.stack').remove();
+    var g = this.g.selectAll('g.month')
+                .data(data, (d) => d.x.valueOf().toString());
+    g.enter()
+     .append('g')
+     .attr('class', 'month')
+     .attr('transform', (d) => 'translate(' + x(d.x) + ',0)')
+      ;
+    g.exit().remove();
+    
+    var barWidth = x(data[1].x) - x(data[0].x) - 2;
+    var rect = g.selectAll('rect')
+                .data((d) => d.bars)
+      ;
+    rect.enter()
+        .append('rect')
+      ;
+    rect
+         .style('fill', (d, i) => color('' + i))
+         .attr('width', barWidth)
+      ;
+    rect.transition()
+        .attr('y', (d) => y(d.y1))
+        .attr('height', (d) => y(d.y0) - y(d.y1))
+      ;
+    rect.exit().remove();
 
-      if (data.length > 0) {
-        var regData = data.map((d) => (
-          {x:d.x, y:d.bars[d.bars.length-1].y}
-        ));
-        var regression = leastSquares(regData);
-        var t1 = regData[regData.length-1].x;
-        var t2 = regData[0].x;
-        this.regLine.datum(regression)
-            .transition()
-            .attr('x1', (r) => x(t1))
-            .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
-            .attr('x2', (r) => x(t2))
-            .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
+    if (!stack && data.length > 0) {
+      var regData = data.map((d) => (
+        {x:d.x, y:d.bars[d.bars.length-1].y}
+      ));
+      var regression = leastSquares(regData);
+      var t1 = regData[regData.length-1].x;
+      var t2 = regData[0].x;
+      this.regLine.datum(regression)
+          .transition()
+          .attr('x1', (r) => x(t1))
+          .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
+          .attr('x2', (r) => x(t2))
+          .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
 
-        // Regression slope is amount per millisecond; adjust to months.
-        var perMonthDelta = regression.slope*8.64e7 * 30;
-        // Round to nearest dollar amount.
-        perMonthDelta = Math.round(perMonthDelta / 100);
-        var deltaLabel = '';
-        if (perMonthDelta != 0) {
-          deltaLabel = d3.format('$,d')(perMonthDelta);
-          if (perMonthDelta > 0) {
-            deltaLabel = '+' + deltaLabel;
-          }
+      // Regression slope is amount per millisecond; adjust to months.
+      var perMonthDelta = regression.slope*8.64e7 * 30;
+      // Round to nearest dollar amount.
+      perMonthDelta = Math.round(perMonthDelta / 100);
+      var deltaLabel = '';
+      if (perMonthDelta != 0) {
+        deltaLabel = d3.format('$,d')(perMonthDelta);
+        if (perMonthDelta > 0) {
+          deltaLabel = '+' + deltaLabel;
         }
-        var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
-        this.regText
-            .attr('x', this.props.width - margin.left - margin.right - 100)
-            .attr('y', y(0) - 10)
-            .text(text);
       }
+      var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
+      this.regText
+          .attr('x', this.props.width - margin.left - margin.right - 100)
+          .attr('y', y(0) - 10)
+          .text(text);
     }
   }
 
