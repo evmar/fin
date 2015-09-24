@@ -215,7 +215,7 @@ class Graph extends React.Component<{
                    .y1((d) => y(d.y0 + d.y))
                    .interpolate('step');
       var color = d3.scale.category10();
-      this.g.selectAll('path.line').remove();
+      this.g.selectAll('rect.line').remove();
       var stackSel = this.g.selectAll('path.stack')
                          .data(data, (d) => d.tag);
       stackSel.enter()
@@ -228,20 +228,23 @@ class Graph extends React.Component<{
         .attr('d', (d) => area(d.values));
     } else {
       var values = data[0].values;
-      var line = d3.svg.line<Value>()
-                   .x((d) => x(d.x))
-                   .y((d) => y(d.y))
-                   .interpolate('step');
 
       this.g.selectAll('path.stack').remove();
-      var lineSel = this.g.selectAll('path.line').data([values]);
-      lineSel.enter()
-             .append('path')
-             .attr('class', 'line');
-      lineSel
-        .style('fill', 'none')
+      var rect = this.g.selectAll('rect.line')
+                     .data(values, (d) => d.x.valueOf().toString());
+      rect.enter()
+          .append('rect')
+          .attr('class', 'line');
+      var barWidth = x(values[1].x) - x(values[0].x) - 2;
+      rect
+        .style('fill', '#3879D9')
+        .attr('x', (d) => x(d.x))
+        .attr('width', barWidth)
         .transition()
-        .attr('d', line);
+        .attr('y', (d) => y(d.y))
+        .attr('height', (d) => y(0) - y(d.y))
+        ;
+      rect.exit().remove();
 
       if (values.length > 0) {
         var regression = leastSquares(values);
