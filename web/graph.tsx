@@ -24,13 +24,7 @@ function dayOfYear(date: Date): number {
   return (date.valueOf() - start.valueOf())/8.64e7;
 }
 
-interface Value {
-  x: Date;
-  y: number;
-  y0?: number;
-}
-
-function leastSquares(data: Value[]) {
+function leastSquares(data: {x:Date, y:number}[]) {
   var xMean = d3.mean(data, (d) => +d.x);
   var yMean = d3.mean(data, (d) => d.y);
   var ssXX = d3.sum(data, (d) => Math.pow(+d.x - xMean, 2));
@@ -168,13 +162,14 @@ class Graph extends React.Component<{
 
     var data = x.ticks(d3.time.month).map((m) => {
       var key = +m;
-      var bars: {y0:number, y:number}[] = [];
+      var bars: {y0:number, y1:number, y:number}[] = [];
       if (key in nest) {
         var y = 0;
         bars = stackTags.map((tag) => {
           var y0 = y;
           y += nest[key][tag] || 0;
-          return {y0:Math.min(y, y0), y:Math.max(y, y0)};
+          var ext = d3.extent([y0, y]);
+          return {y0:ext[0], y1:ext[1], y};
         });
       }
       return {x:m, bars};
@@ -189,7 +184,7 @@ class Graph extends React.Component<{
 
     var yext = [
       d3.min(data, (d) => d3.min(d.bars, (d) => d.y0)),
-      d3.max(data, (d) => d3.max(d.bars, (d) => d.y)),
+      d3.max(data, (d) => d3.max(d.bars, (d) => d.y1)),
     ];
     yext[0] = Math.min(yext[0], 0);
     yext[1] = Math.max(yext[1], 0);
@@ -243,39 +238,42 @@ class Graph extends React.Component<{
           .attr('width', barWidth)
         ;
       rect.transition()
-          .attr('y', (d) => y(d.y))
-          .attr('height', (d) => y(d.y0) - y(d.y))
+          .attr('y', (d) => y(d.y1))
+          .attr('height', (d) => y(d.y0) - y(d.y1))
         ;
       rect.exit().remove();
 
-      /* if (values.length > 0) {
-         var regression = leastSquares(values);
-         var t1 = values[values.length-1].x;
-         var t2 = values[0].x;
-         this.regLine.datum(regression)
-         .transition()
-         .attr('x1', (r) => x(t1))
-         .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
-         .attr('x2', (r) => x(t2))
-         .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
+      if (data.length > 0) {
+        var regData = data.map((d) => (
+          {x:d.x, y:d.bars[d.bars.length-1].y}
+        ));
+        var regression = leastSquares(regData);
+        var t1 = regData[regData.length-1].x;
+        var t2 = regData[0].x;
+        this.regLine.datum(regression)
+            .transition()
+            .attr('x1', (r) => x(t1))
+            .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
+            .attr('x2', (r) => x(t2))
+            .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
 
-         // Regression slope is amount per millisecond; adjust to months.
-         var perMonthDelta = regression.slope*8.64e7 * 30;
-         // Round to nearest dollar amount.
-         perMonthDelta = Math.round(perMonthDelta / 100);
-         var deltaLabel = '';
-         if (perMonthDelta != 0) {
-         deltaLabel = d3.format('$,d')(perMonthDelta);
-         if (perMonthDelta > 0) {
-         deltaLabel = '+' + deltaLabel;
-         }
-         }
-         var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
-         this.regText
-         .attr('x', this.props.width - margin.left - margin.right - 100)
-         .attr('y', y(0) - 10)
-         .text(text);
-         } */
+        // Regression slope is amount per millisecond; adjust to months.
+        var perMonthDelta = regression.slope*8.64e7 * 30;
+        // Round to nearest dollar amount.
+        perMonthDelta = Math.round(perMonthDelta / 100);
+        var deltaLabel = '';
+        if (perMonthDelta != 0) {
+          deltaLabel = d3.format('$,d')(perMonthDelta);
+          if (perMonthDelta > 0) {
+            deltaLabel = '+' + deltaLabel;
+          }
+        }
+        var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
+        this.regText
+            .attr('x', this.props.width - margin.left - margin.right - 100)
+            .attr('y', y(0) - 10)
+            .text(text);
+      }
     }
   }
 
