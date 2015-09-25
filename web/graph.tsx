@@ -238,7 +238,9 @@ class Graph extends React.Component<{
       ;
     g.exit().remove();
     
-    var barWidth = x(data[1].x) - x(data[0].x) - 2;
+    var barWidth = data.length > 0
+                 ? x(data[1].x) - x(data[0].x) - 2
+                 : 0;
     var rect = g.selectAll('rect')
                 .data((d) => d.bars, (d) => d.tag)
       ;
