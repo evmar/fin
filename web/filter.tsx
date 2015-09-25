@@ -208,6 +208,8 @@ interface SearchInputProps extends React.Props<any> {
   onSearch: {(query: string)};
 }
 
+// TypeScript/React don't know about <input type=search> so we have to
+// hook it up more manually than usual.
 export class SearchInput extends React.Component<SearchInputProps, {}> {
   render() {
     return (
@@ -216,14 +218,18 @@ export class SearchInput extends React.Component<SearchInputProps, {}> {
     );
   }
 
+  getInput(): HTMLInputElement {
+    return React.findDOMNode<HTMLInputElement>(this.refs['i']);
+  }
+
   componentDidMount() {
-    var i = (this.refs['i'] as any).getDOMNode();
-    i.incremental = true;
+    var i = this.getInput();
+    (i as any).incremental = true;
     i.addEventListener('search', () => this.onSearch());
   }
 
   onSearch() {
-    var query = (this.refs['i'] as any).getDOMNode().value;
+    var query = this.getInput().value;
     this.props.onSearch(query);
   }
 }

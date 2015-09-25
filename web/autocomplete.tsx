@@ -66,7 +66,7 @@ export default class AutoComplete extends React.Component<Props, {
   }
 
   onChange() {
-    var text = (this.refs['input'] as any).getDOMNode().value
+    var text = React.findDOMNode<HTMLInputElement>(this.refs['input']).value;
     this.setState({text});
   }
 
