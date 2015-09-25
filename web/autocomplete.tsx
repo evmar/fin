@@ -47,7 +47,11 @@ export default class AutoComplete extends React.Component<Props, {
           if (i == this.state.sel)
             className += ' sel';
           return <div key={i} className={className}
-          onMouseDown={() => {this.complete(o)}}>{o}</div>;
+          onMouseDown={(e) => {
+            if (e.button == 0) {
+              this.complete(o);
+            }
+          }}>{o}</div>;
          })
         }
       </div>);

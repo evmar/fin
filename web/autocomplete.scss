@@ -5,13 +5,12 @@
 .dropdown {
   box-sizing: border-box;
   position: absolute;
-  top: 2em;
   width: 100%;
   border: solid 1px #666;
   background: white;
 }
 .dropdown .item {
-  padding: 2px 4px;
+  padding: 2px;
   cursor: pointer;
 }
 .dropdown .item.sel {
