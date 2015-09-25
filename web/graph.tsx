@@ -115,11 +115,11 @@ class Graph extends React.Component<{
 
     var el = React.findDOMNode(this);
     this.svg = d3.select(el).append('svg')
-                .attr('width', this.props.width)
-                .attr('height', this.props.height);
+                 .attr('width', this.props.width)
+                 .attr('height', this.props.height);
     this.g = this.svg
-                .append('g')
-                .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+                 .append('g')
+                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     this.g.append('g')
         .attr('class', 'x axis')
@@ -149,8 +149,8 @@ class Graph extends React.Component<{
     }));
 
     var x = d3.time.scale()
-      .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
-      .range([0, this.width]);
+              .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
+              .range([0, this.width]);
 
     var stackTagSet = this.props.opts.stack;
     var stack = stackTagSet.size > 0;
