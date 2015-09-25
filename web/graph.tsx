@@ -45,6 +45,7 @@ function chooseFirstMatch(tags: Set<string>, entryTags: string[]): string {
 
 interface GraphOpts {
   stack: Set<string>;
+  normalize: boolean;
 }
 
 class GraphOptsPane extends React.Component<{
@@ -57,6 +58,9 @@ class GraphOptsPane extends React.Component<{
     var tags = this.props.topTags.slice(0, 6).map((t) => t.key);
     return (
       <div>
+        <label><input type="checkbox" checked={opts.normalize}
+                      onChange={() => {this.onNorm()}} /> normalize</label>
+        <br />
         {tags.map((tag) =>
         <label key={tag}>
           <input type="checkbox" checked={opts.stack.has(tag)}
@@ -71,6 +75,12 @@ class GraphOptsPane extends React.Component<{
     if (!opts.stack.delete(tag)) {
       opts.stack.add(tag);
     }
+    this.props.onChange(opts);
+  }
+
+  onNorm() {
+    var opts = this.props.opts;
+    opts.normalize = !opts.normalize;
     this.props.onChange(opts);
   }
 }
@@ -173,6 +183,13 @@ class Graph extends React.Component<{
           var ext = d3.extent([y0, y]);
           return {tag, y0:ext[0], y1:ext[1], y};
         });
+        if (this.props.opts.normalize) {
+          bars.forEach((b) => {
+            b.y0 /= y;
+            b.y1 /= y;
+            b.y /= y;
+          });
+        }
       }
       return {x:m, bars};
     });
@@ -198,7 +215,12 @@ class Graph extends React.Component<{
                   .scale(y)
                   .orient('left')
                   .ticks(5)
-                  .tickFormat((d) => '$' + d3.format(',d')(d/100));
+      ;
+    if (this.props.opts.normalize) {
+      yAxis.tickFormat(d3.format('%'));
+    } else {
+      yAxis.tickFormat((d) => '$' + d3.format(',d')(d/100));
+    }
     svg.select('g.y').transition().call(yAxis);
 
     var tags = this.props.tags.slice(0, 9);
@@ -268,6 +290,8 @@ class Graph extends React.Component<{
           .attr('x', this.props.width - margin.left - margin.right - 100)
           .attr('y', y(0) - 10)
           .text(text);
+    } else {
+      // TODO: hide regression info.
     }
   }
 
@@ -282,7 +306,12 @@ export default class GraphPane extends React.Component<{
 }, {opts:GraphOpts}> {
   constructor() {
     super();
-    this.state = {opts: {stack:new Set<string>()}};
+    this.state = {
+      opts: {
+        stack: new Set<string>(),
+        normalize: false,
+      },
+    };
   }
 
   render() {
