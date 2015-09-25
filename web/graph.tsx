@@ -16,7 +16,7 @@ require('./graph.scss');
 import * as util from './util';
 import {Entry} from './types';
 
-var margin = {top:5, right:10, bottom:30, left:70};
+var margin = {top:5, right:200, bottom:30, left:70};
 
 function dayOfYear(date: Date): number {
   var start = new Date();
@@ -122,8 +122,8 @@ class Graph extends React.Component<{
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     this.g.append('g')
-       .attr('class', 'x axis')
-       .attr('transform', 'translate(0,' + this.height + ')');
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + this.height + ')');
 
     this.g.append('g')
         .attr('class', 'y axis');
@@ -268,14 +268,16 @@ class Graph extends React.Component<{
         return {x:d.x, y};
       });
       var regression = leastSquares(regData);
-      var t1 = regData[regData.length-1].x;
-      var t2 = regData[0].x;
+      var t1 = regData[0].x;
+      var t2 = regData[regData.length-1].x;
+      var x2 = x(t2);
+      var y2 = y(+t2 * regression.slope + regression.intercept);
       this.regLine.datum(regression)
           .transition()
-          .attr('x1', (r) => x(t1))
-          .attr('y1', (r) => y(+t1 * regression.slope + regression.intercept))
-          .attr('x2', (r) => x(t2))
-          .attr('y2', (r) => y(+t2 * regression.slope + regression.intercept));
+          .attr('x1', x(t1))
+          .attr('y1', y(+t1 * regression.slope + regression.intercept))
+          .attr('x2', x2)
+          .attr('y2', y2);
 
       // Regression slope is amount per millisecond; adjust to months.
       var perMonthDelta = regression.slope*8.64e7 * 30;
@@ -290,8 +292,9 @@ class Graph extends React.Component<{
       }
       var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
       this.regText
-          .attr('x', this.props.width - margin.left - margin.right - 100)
-          .attr('y', y(0) - 10)
+          .attr('x', x2 + 5)
+          .attr('y', y2)
+          .attr('dy', '0.3em')  // vertical center
           .text(text);
     } else {
       // TODO: hide regression info.
