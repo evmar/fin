@@ -261,9 +261,10 @@ class Graph extends React.Component<{
         .remove();
 
     if (!stack && data.length > 0) {
-      var regData = data.map((d) => (
-        {x:d.x, y:d.bars[d.bars.length-1].y}
-      ));
+      var regData = data.map((d) => {
+        var y = d.bars.length > 0 ? d.bars[d.bars.length-1].y : 0;
+        return {x:d.x, y};
+      });
       var regression = leastSquares(regData);
       var t1 = regData[regData.length-1].x;
       var t2 = regData[0].x;
