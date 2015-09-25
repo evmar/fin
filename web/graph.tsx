@@ -80,6 +80,7 @@ class Graph extends React.Component<{
   opts: GraphOpts;
   width: number;
   height: number;
+  tags: string[];
 }, {}> {
   width: number;
   height: number;
@@ -158,18 +159,19 @@ class Graph extends React.Component<{
       .map(entries);
 
     var stackTags = util.setToArray(stackTagSet);
+    stackTags.sort();
     stackTags.push('other');
 
     var data = x.ticks(d3.time.month).map((m) => {
       var key = +m;
-      var bars: {y0:number, y1:number, y:number}[] = [];
+      var bars: {tag:string, y0:number, y1:number, y:number}[] = [];
       if (key in nest) {
         var y = 0;
         bars = stackTags.map((tag) => {
           var y0 = y;
           y += nest[key][tag] || 0;
           var ext = d3.extent([y0, y]);
-          return {y0:ext[0], y1:ext[1], y};
+          return {tag, y0:ext[0], y1:ext[1], y};
         });
       }
       return {x:m, bars};
@@ -199,7 +201,11 @@ class Graph extends React.Component<{
                   .tickFormat((d) => '$' + d3.format(',d')(d/100));
     svg.select('g.y').transition().call(yAxis);
 
+    var tags = this.props.tags.slice(0, 9);
+    tags.unshift('other');
     var color = d3.scale.category10();
+    color.domain(tags);
+
     this.g.selectAll('path.stack').remove();
     var g = this.g.selectAll('g.month')
                 .data(data, (d) => d.x.valueOf().toString());
@@ -212,20 +218,25 @@ class Graph extends React.Component<{
     
     var barWidth = x(data[1].x) - x(data[0].x) - 2;
     var rect = g.selectAll('rect')
-                .data((d) => d.bars)
+                .data((d) => d.bars, (d) => d.tag)
       ;
     rect.enter()
         .append('rect')
+        .attr('height', 0)
+        .attr('y', (d) => y(d.y0))
       ;
     rect
-         .style('fill', (d, i) => color('' + i))
+         .style('fill', (d) => color(d.tag))
          .attr('width', barWidth)
       ;
     rect.transition()
         .attr('y', (d) => y(d.y1))
         .attr('height', (d) => y(d.y0) - y(d.y1))
       ;
-    rect.exit().remove();
+    rect.exit().transition()
+        .attr('y', (d) => y(d.y0))
+        .attr('height', 0)
+        .remove();
 
     if (!stack && data.length > 0) {
       var regData = data.map((d) => (
@@ -276,12 +287,14 @@ export default class GraphPane extends React.Component<{
 
   render() {
     var entries = this.props.entries;
+    var tags = this.props.topTags.map((t) => t.key);
     return (
       <div>
         <GraphOptsPane opts={this.state.opts}
                        topTags={this.props.topTags}
                        onChange={(opts) => this.setState({opts})} />
         <Graph entries={entries} opts={this.state.opts}
+               tags={tags}
                width={10*64} height={3*64} />
       </div>
     );
