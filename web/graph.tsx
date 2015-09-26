@@ -65,9 +65,6 @@ export class GraphOptsPane extends React.Component<{
   render() {
     var opts = this.props.opts;
     var tags = this.props.tags;
-    if (!this.state.expand) {
-      tags = tags.slice(0, 10);
-    }
     var that = this;
 
     function tagRow(tag: string): JSX.Element {
@@ -94,13 +91,18 @@ export class GraphOptsPane extends React.Component<{
         </div>
       );
     }
+
+    var rows = tags.map(tagRow).filter((t) => t != null);
+    if (!this.state.expand) {
+      rows = rows.slice(0, 10);
+    }
     
     return (
       <div className="controls">
         <label><input type="checkbox" checked={opts.normalize}
                       onChange={() => {this.onNorm()}} /> normalize</label>
         <br />
-        {tags.map(tagRow)}
+        {rows}
         <button onClick={() => {
                         this.setState({expand:!this.state.expand});
                          }}>
