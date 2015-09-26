@@ -16,17 +16,20 @@ html, body {
   margin: 0;
 }
 body {
-  margin: 0 128px;
+  margin: 16px 128px;
   display: flex;
 }
 
-h1, h2 {
+h1 {
   font-family: 'PT Serif';
   font-weight: normal;
   margin: 0;
 }
 h1 {
   font-size: 34px;
+  position: absolute;
+  left: 0.5ex;
+  top: 0.25ex;
 }
 
 header {
@@ -42,7 +45,6 @@ header {
 }
 
 main {
-  margin: 16px 0;
   flex: 1;
 }
 

@@ -26,3 +26,28 @@
     fill: blue;
   }
 }
+
+.controls {
+  font-size: 80%;
+  .row {
+    cursor: pointer;
+  }
+  span.legend {
+    display: inline-block;
+    vertical-align: middle;
+    width: 10px;
+    height: 10px;
+    margin-right: 4px;
+    border: solid 1px #666;
+  }
+  span.hidden {
+    background: #aaa;
+  }
+  span.stack {
+    background: red;
+  }
+  span.tag {
+    display: inline-block;
+    width: 12ex;
+  }
+}

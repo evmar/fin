@@ -15,6 +15,7 @@
 require('./graph.scss');
 import * as util from './util';
 import {Entry} from './types';
+import {Filters} from './filter';
 
 var margin = {top:5, right:200, bottom:30, left:70};
 
@@ -43,39 +44,74 @@ function chooseFirstMatch(tags: Set<string>, entryTags: string[]): string {
   return null;
 }
 
-interface GraphOpts {
+export interface GraphOpts {
   stack: Set<string>;
   normalize: boolean;
 }
 
-class GraphOptsPane extends React.Component<{
+export class GraphOptsPane extends React.Component<{
+  filters: Filters,
   opts: GraphOpts;
-  topTags: {key:string; value:number}[];
+  tags: string[];
+  tagAmounts: {[tag:string]: number};
+  onFilters: {(Filters)}
   onChange: {(opts: GraphOpts)}
 }, {}> {
   render() {
     var opts = this.props.opts;
-    var tags = this.props.topTags.slice(0, 6).map((t) => t.key);
+    var tags = this.props.tags;
+    var that = this;
+
+    function tagRow(tag: string): JSX.Element {
+      var className = "legend";
+      if (tag in that.props.filters.hiddenTags) {
+        className += " hidden";
+      } else if (opts.stack.has(tag)) {
+        className += " stack";
+      }
+      return (
+        <div key={tag} className="row"
+             onClick={(e) => {
+                      if (e.button == 0) {
+                        that.onLegend(tag);
+                      }}}>
+          <span className={className}>&nbsp;</span>
+          <span className="tag">{tag}</span>
+          {tag in that.props.tagAmounts
+           ? util.formatAmount(that.props.tagAmounts[tag])
+             : ""}
+        </div>
+      );
+    }
+    
     return (
       <div>
         <label><input type="checkbox" checked={opts.normalize}
                       onChange={() => {this.onNorm()}} /> normalize</label>
         <br />
-        {tags.map((tag) =>
-        <label key={tag}>
-          <input type="checkbox" checked={opts.stack.has(tag)}
-          onChange={() => {this.onStack(tag)}} /> {tag}
-        </label>)}
+        <div className="controls" style={{WebkitColumnCount:4}}>
+          {tags.map(tagRow)}
+        </div>
       </div>
     );
   }
 
-  onStack(tag: string) {
-    var opts = this.props.opts;
-    if (!opts.stack.delete(tag)) {
-      opts.stack.add(tag);
+  onLegend(tag: string) {
+    var filtered = tag in this.props.filters.hiddenTags;
+    var stacked = this.props.opts.stack.has(tag);
+    
+    if (!filtered && !stacked) {
+      this.props.filters.hiddenTags[tag] = true;
+      this.props.onFilters(this.props.filters);
+    } else if (filtered) {
+      delete this.props.filters.hiddenTags[tag];
+      this.props.onFilters(this.props.filters);
+      this.props.opts.stack.add(tag);
+      this.props.onChange(this.props.opts);
+    } else {
+      this.props.opts.stack.delete(tag);
+      this.props.onChange(this.props.opts);
     }
-    this.props.onChange(opts);
   }
 
   onNorm() {
@@ -225,7 +261,7 @@ class Graph extends React.Component<{
 
     var tags = this.props.tags.slice(0, 9);
     tags.unshift('other');
-    var color = d3.scale.category10();
+    var color = d3.scale.category20();
     color.domain(tags);
 
     this.g.selectAll('path.stack').remove();
@@ -306,30 +342,28 @@ class Graph extends React.Component<{
   }
 }
 
-export default class GraphPane extends React.Component<{
+export class GraphPane extends React.Component<{
+  filters: Filters;
+  opts: GraphOpts;
   entries: Entry[];
-  topTags: {key: string, value: number}[];
-}, {opts:GraphOpts}> {
-  constructor() {
-    super();
-    this.state = {
-      opts: {
-        stack: new Set<string>(),
-        normalize: false,
-      },
-    };
-  }
-
+  tags: string[];
+  onFilters: {(Filters)};
+  onGraphOpts: {(GraphOpts)};
+}, {}> {
   render() {
     var entries = this.props.entries;
-    var tags = this.props.topTags.map((t) => t.key);
+    var tags = this.props.tags.slice(0, 12);
+    var tagAmounts = util.gatherTags(entries);
     return (
       <div>
-        <GraphOptsPane opts={this.state.opts}
-                       topTags={this.props.topTags}
-                       onChange={(opts) => this.setState({opts})} />
-        <Graph entries={entries} opts={this.state.opts}
-               tags={tags}
+        <GraphOptsPane opts={this.props.opts}
+                       onChange={(opts) => this.props.onGraphOpts(opts)}
+                       filters={this.props.filters}
+                       onFilters={(filters) => this.props.onFilters(filters)}
+                       tags={tags} tagAmounts={tagAmounts}
+                       />
+        <Graph entries={entries} opts={this.props.opts}
+               tags={this.props.tags}
                width={10*64} height={3*64} />
       </div>
     );
