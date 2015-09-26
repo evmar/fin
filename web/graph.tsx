@@ -56,10 +56,18 @@ export class GraphOptsPane extends React.Component<{
   tagAmounts: {[tag:string]: number};
   onFilters: {(Filters)}
   onChange: {(opts: GraphOpts)}
-}, {}> {
+}, {expand: boolean}> {
+  constructor() {
+    super();
+    this.state = {expand:false};
+  }
+
   render() {
     var opts = this.props.opts;
     var tags = this.props.tags;
+    if (!this.state.expand) {
+      tags = tags.slice(0, 10);
+    }
     var that = this;
 
     function tagRow(tag: string): JSX.Element {
@@ -85,13 +93,16 @@ export class GraphOptsPane extends React.Component<{
     }
     
     return (
-      <div>
+      <div className="controls">
         <label><input type="checkbox" checked={opts.normalize}
                       onChange={() => {this.onNorm()}} /> normalize</label>
         <br />
-        <div className="controls">
-          {tags.map(tagRow)}
-        </div>
+        {tags.map(tagRow)}
+        <button onClick={() => {
+                        this.setState({expand:!this.state.expand});
+                         }}>
+          {this.state.expand ? "less" : "more"}
+        </button>
       </div>
     );
   }
@@ -121,7 +132,7 @@ export class GraphOptsPane extends React.Component<{
   }
 }
 
-class Graph extends React.Component<{
+export class Graph extends React.Component<{
   entries: Entry[];
   opts: GraphOpts;
   width: number;
@@ -339,25 +350,5 @@ class Graph extends React.Component<{
 
   render() {
     return <div className="graph" />;
-  }
-}
-
-export class GraphPane extends React.Component<{
-  filters: Filters;
-  opts: GraphOpts;
-  entries: Entry[];
-  tags: string[];
-  onFilters: {(Filters)};
-  onGraphOpts: {(GraphOpts)};
-}, {}> {
-  render() {
-    var entries = this.props.entries;
-    var tags = this.props.tags.slice(0, 12);
-    var tagAmounts = util.gatherTags(entries);
-    return (
-      <Graph entries={entries} opts={this.props.opts}
-             tags={this.props.tags}
-             width={10*64} height={3*64} />
-    );
   }
 }

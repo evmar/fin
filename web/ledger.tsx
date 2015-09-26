@@ -181,11 +181,10 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
           />
         </header>
         <main>
-          <graph.GraphPane entries={entries} tags={tags}
-                           filters={this.state.filters}
-                           opts={this.state.graphOpts}
-                           onFilters={(filters) => this.onFilters(filters)}
-                           onGraphOpts={(opts) => this.setState({graphOpts: opts})}/>
+          <graph.Graph entries={entries} tags={tags}
+                       opts={this.state.graphOpts}
+                       width={10*64} height={3*64}
+          />
           <Ledger entries={entries} tags={tags}
                   onTag={(e, t) => {this.onTag(e, t)}} />
         </main>
