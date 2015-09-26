@@ -76,6 +76,9 @@ export class GraphOptsPane extends React.Component<{
         className += " hidden";
       } else if (opts.stack.has(tag)) {
         className += " stack";
+      } else if (!(tag in that.props.tagAmounts)) {
+        // Tag with no data and no special status; skip.
+        return null;
       }
       return (
         <div key={tag} className="row"
