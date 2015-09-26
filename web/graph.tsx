@@ -16,6 +16,7 @@ require('./graph.scss');
 import * as util from './util';
 import {Entry} from './types';
 import {Filters} from './filter';
+import SearchInput from './search';
 
 var margin = {top:5, right:100, bottom:30, left:70};
 
@@ -99,6 +100,8 @@ export class GraphOptsPane extends React.Component<{
     
     return (
       <div className="controls">
+        <SearchInput onSearch={(q) => {this.onSearch(q)}}
+                     initialText={this.props.filters.query} />
         <label><input type="checkbox" checked={opts.normalize}
                       onChange={() => {this.onNorm()}} /> normalize</label>
         <br />
@@ -134,6 +137,11 @@ export class GraphOptsPane extends React.Component<{
     var opts = this.props.opts;
     opts.normalize = !opts.normalize;
     this.props.onChange(opts);
+  }
+
+  onSearch(query) {
+    this.props.filters.query = query;
+    this.props.onFilters(this.props.filters);
   }
 }
 

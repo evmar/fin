@@ -14,7 +14,6 @@
 
 require('./filter.scss');
 import * as util from './util';
-import {Entry} from './types';
 
 export interface Filters {
   hiddenTags: {[tag:string]:boolean};
@@ -51,73 +50,6 @@ export function filtersToQuery(filters: Filters) {
     query.push(filters.query);
   }
   return query.join(' ');
-}
-
-interface FilterPaneProps extends React.Props<any> {
-  filters: Filters;
-  topTags: {key: string; value: number}[];
-  onFilters: {(filters:Filters)};
-}
-
-export class FilterPane extends React.Component<FilterPaneProps, {
-  showing: boolean;
-}> {
-  constructor() {
-    super();
-    this.state = {showing: false};
-  }
-
-  render() {
-    var hiddenTags = Object.keys(this.props.filters.hiddenTags);
-    hiddenTags.sort();
-    var query = this.props.filters.query;
-
-    var popup = null;
-    if (this.state.showing) {
-      popup = (
-        <div>
-          <div className='filter-click-catch'
-               onClick={()=>this.setState({showing:false})}></div>
-          <div className='filter-pane-popup'>
-            <label>filter:&nbsp;
-              <SearchInput onSearch={(q) => {this.onSearch(q)}}
-                           initialText={this.props.filters.query} />
-            </label>
-            <TagList topTags={this.props.topTags}
-                     hiddenTags={this.props.filters.hiddenTags}
-                     onToggle={(t, on) => {this.onToggleTag(t, on)}} />
-          </div>
-        </div>
-      );
-    }
-    
-    return (
-      <div className='filter-pane'>
-        {popup}
-        <div className='filter-pane-popdown'
-             onClick={()=>this.setState({showing:true})}>
-          filter &gt;
-          {hiddenTags.length > 0 ? <div>hiding: {hiddenTags.join(', ')}</div> : null}
-          {query ? <div>filter: {query}</div> : null}
-        </div>
-      </div>
-    );
-  }
-
-  onToggleTag(tag, hide) {
-    var hiddenTags = this.props.filters.hiddenTags;
-    if (tag in hiddenTags) {
-      delete hiddenTags[tag];
-    } else {
-      hiddenTags[tag] = true;
-    }
-    this.props.onFilters(this.props.filters);
-  }
-
-  onSearch(query) {
-    this.props.filters.query = query;
-    this.props.onFilters(this.props.filters);
-  }
 }
 
 interface TagListProps {
@@ -203,33 +135,3 @@ export function parseQuery(query) {
   return (e) => terms.every((term) => term(e));
 }
 
-interface SearchInputProps extends React.Props<any> {
-  initialText: string;
-  onSearch: {(query: string)};
-}
-
-// TypeScript/React don't know about <input type=search> so we have to
-// hook it up more manually than usual.
-export class SearchInput extends React.Component<SearchInputProps, {}> {
-  render() {
-    return (
-      <input ref="i" type="search" autoFocus
-             defaultValue={this.props.initialText || ''} />
-    );
-  }
-
-  getInput(): HTMLInputElement {
-    return React.findDOMNode<HTMLInputElement>(this.refs['i']);
-  }
-
-  componentDidMount() {
-    var i = this.getInput();
-    (i as any).incremental = true;
-    i.addEventListener('search', () => this.onSearch());
-  }
-
-  onSearch() {
-    var query = this.getInput().value;
-    this.props.onSearch(query);
-  }
-}
