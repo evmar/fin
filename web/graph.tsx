@@ -17,7 +17,7 @@ import * as util from './util';
 import {Entry} from './types';
 import {Filters} from './filter';
 
-var margin = {top:5, right:200, bottom:30, left:70};
+var margin = {top:5, right:100, bottom:30, left:70};
 
 function dayOfYear(date: Date): number {
   var start = new Date();
@@ -78,7 +78,7 @@ export class GraphOptsPane extends React.Component<{
           <span className={className}>&nbsp;</span>
           <span className="tag">{tag}</span>
           {tag in that.props.tagAmounts
-           ? util.formatAmount(that.props.tagAmounts[tag])
+           ? util.formatAmount(that.props.tagAmounts[tag], true)
              : ""}
         </div>
       );
@@ -89,7 +89,7 @@ export class GraphOptsPane extends React.Component<{
         <label><input type="checkbox" checked={opts.normalize}
                       onChange={() => {this.onNorm()}} /> normalize</label>
         <br />
-        <div className="controls" style={{WebkitColumnCount:4}}>
+        <div className="controls">
           {tags.map(tagRow)}
         </div>
       </div>
@@ -355,17 +355,9 @@ export class GraphPane extends React.Component<{
     var tags = this.props.tags.slice(0, 12);
     var tagAmounts = util.gatherTags(entries);
     return (
-      <div>
-        <GraphOptsPane opts={this.props.opts}
-                       onChange={(opts) => this.props.onGraphOpts(opts)}
-                       filters={this.props.filters}
-                       onFilters={(filters) => this.props.onFilters(filters)}
-                       tags={tags} tagAmounts={tagAmounts}
-                       />
-        <Graph entries={entries} opts={this.props.opts}
-               tags={this.props.tags}
-               width={10*64} height={3*64} />
-      </div>
+      <Graph entries={entries} opts={this.props.opts}
+             tags={this.props.tags}
+             width={10*64} height={3*64} />
     );
   }
 }

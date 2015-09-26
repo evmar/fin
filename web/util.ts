@@ -14,8 +14,13 @@
 
 import {Entry} from './types';
 
-export function formatAmount(a: number): string {
-  return d3.format('$,.2f')(a/100);
+export function formatAmount(a: number, dollars?: boolean): string {
+  a /= 100;
+  if (dollars) {
+    return d3.format('$,.0f')(a);
+  } else {
+    return d3.format('$,.2f')(a);
+  }
 }
 
 interface URLParams {

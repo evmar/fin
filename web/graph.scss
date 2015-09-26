@@ -30,6 +30,7 @@
 .controls {
   font-size: 80%;
   .row {
+    display: flex;
     cursor: pointer;
   }
   span.legend {
@@ -47,7 +48,7 @@
     background: red;
   }
   span.tag {
+    flex: 1;
     display: inline-block;
-    width: 12ex;
   }
 }

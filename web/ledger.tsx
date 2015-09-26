@@ -148,13 +148,16 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
   }
 
   render() {
-    var entries = this.getEntries();
-
-    // Use this.props.entries (not entries) here so that we see all
-    // tags in the autocomplete.
+    // Use this.props.entries (not filtered entries) here so that we
+    // always sort tags by total volume and so we see all of them in
+    // the autocomplete.
     var tagAmounts = util.gatherTags(this.props.entries);
     var tags = Object.keys(tagAmounts);
     tags.sort(util.sortOnBy((t) => Math.abs(tagAmounts[t]), d3.descending));
+
+    // Regather entries and tag amounts after filtering.
+    var entries = this.getEntries();
+    tagAmounts = util.gatherTags(entries);
 
     var applyTag = null;
     if (this.state.filters.query) {
@@ -167,19 +170,25 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     }
 
     return (
-      <div>
-        <h1>fin</h1>
-        <div className="body">
-          <main>
-            <graph.GraphPane entries={entries} tags={tags}
-                             filters={this.state.filters}
-                             opts={this.state.graphOpts}
-                             onFilters={(filters) => this.onFilters(filters)}
-                             onGraphOpts={(opts) => this.setState({graphOpts: opts})}/>
-            <Ledger entries={entries} tags={tags}
-                    onTag={(e, t) => {this.onTag(e, t)}} />
-          </main>
-        </div>
+      <div className="body">
+        <header>
+          <h1>fin</h1>
+          <graph.GraphOptsPane opts={this.state.graphOpts}
+                               onChange={(opts) => this.setState({graphOpts:opts})}
+                               filters={this.state.filters}
+                               onFilters={(filters) => this.onFilters(filters)}
+                               tags={tags} tagAmounts={tagAmounts}
+          />
+        </header>
+        <main>
+          <graph.GraphPane entries={entries} tags={tags}
+                           filters={this.state.filters}
+                           opts={this.state.graphOpts}
+                           onFilters={(filters) => this.onFilters(filters)}
+                           onGraphOpts={(opts) => this.setState({graphOpts: opts})}/>
+          <Ledger entries={entries} tags={tags}
+                  onTag={(e, t) => {this.onTag(e, t)}} />
+        </main>
       </div>
     );
   }
