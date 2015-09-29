@@ -24,7 +24,8 @@ export default class SearchInput extends React.Component<SearchInputProps, {}> {
   render() {
     return (
       <input ref="i" type="search" autoFocus
-             defaultValue={this.props.initialText || ''} />
+             placeholder="search"
+             defaultValue={this.props.initialText} />
     );
   }
 
