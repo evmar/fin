@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('./filter.scss');
 import * as util from './util';
 
 export interface Filters {
