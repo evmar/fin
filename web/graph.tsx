@@ -234,7 +234,7 @@ export class Graph extends React.Component<{
 
     var data = x.ticks(d3.time.month).map((m) => {
       var key = +m;
-      var bars: {tag:string, x:number, y0:number, y1:number, y:number}[] = [];
+      var bars: {tag:string, x:Date, y0:number, y1:number, y:number}[] = [];
       if (key in nest) {
         var y = 0;
         bars = stackTags.map((tag) => {
@@ -319,7 +319,7 @@ export class Graph extends React.Component<{
         .attr('height', 0)
         .remove();
 
-    if (!stack && data.length > 0) {
+    if (this.props.opts.stack.size == 0 && data.length > 0) {
       var regData = data.map((d) => {
         var y = d.bars.length > 0 ? d.bars[d.bars.length-1].y : 0;
         return {x:d.x, y};
