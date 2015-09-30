@@ -64,15 +64,14 @@ export function urlWithQuery(url: string, query: string): string {
 }
 
 export function gatherTags(entries: Entry[]): {[tag:string]:number} {
-  var tags: {[tag:string]:number} = {};
+  var tagCounts: {[tag:string]:number} = {};
   entries.forEach((entry) => {
-    if (entry.tags) {
-      entry.tags.forEach((tag) => {
-        tags[tag] = (tags[tag] || 0) + entry.amount;
-      });
-    }
+    var tags: string[] = entry.tags || [''];
+    tags.forEach((tag) => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + entry.amount;
+    });
   });
-  return tags;
+  return tagCounts;
 }
 
 function epanKernel(scale) {

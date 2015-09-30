@@ -85,7 +85,9 @@ export class GraphOptsPane extends React.Component<{
                         that.onLegend(tag);
                       }}}>
           <span className={className}>&nbsp;</span>
-          <span className="tag">{tag}</span>
+          {tag == ''
+           ? <span className="tag"><em>(untagged)</em></span>
+           : <span className="tag">{tag}</span>}
           {tag in that.props.tagAmounts
            ? util.formatAmount(that.props.tagAmounts[tag], true)
              : ""}
