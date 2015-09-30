@@ -85,7 +85,6 @@ func (web *web) updateTagsFromPost(r io.Reader) {
 func (web *web) guessTags(w http.ResponseWriter, r *http.Request) {
 	desc, err := ioutil.ReadAll(r.Body)
 	check(err)
-	log.Printf("guess %s", desc)
 	tags := guessTags(string(desc), web.entries, web.tags)
 
 	w.Header().Add("Content-Type", "text/json")
