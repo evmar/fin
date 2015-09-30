@@ -234,14 +234,14 @@ export class Graph extends React.Component<{
 
     var data = x.ticks(d3.time.month).map((m) => {
       var key = +m;
-      var bars: {tag:string, y0:number, y1:number, y:number}[] = [];
+      var bars: {tag:string, x:number, y0:number, y1:number, y:number}[] = [];
       if (key in nest) {
         var y = 0;
         bars = stackTags.map((tag) => {
           var y0 = y;
           y += nest[key][tag] || 0;
           var ext = d3.extent([y0, y]);
-          return {tag, y0:ext[0], y1:ext[1], y};
+          return {tag, x:m, y0:ext[0], y1:ext[1], y};
         });
         if (this.props.opts.normalize) {
           bars.forEach((b) => {
@@ -294,12 +294,8 @@ export class Graph extends React.Component<{
      .append('g')
      .attr('class', 'month')
       ;
-    g.attr('transform', (d) => 'translate(' + x(d.x) + ',0)')
     g.exit().remove();
     
-    var barWidth = data.length > 0
-                 ? x(data[1].x) - x(data[0].x) - 2
-                 : 0;
     var rect = g.selectAll('rect')
                 .data((d) => d.bars, (d) => d.tag)
       ;
@@ -310,9 +306,11 @@ export class Graph extends React.Component<{
       ;
     rect
          .style('fill', (d) => color(d.tag))
-         .attr('width', barWidth)
+         .attr('width', (d) => (
+           x(d3.time.month.offset(d.x, 1)) - x(d.x) - 2))
       ;
     rect.transition()
+        .attr('x', (d) => x(d.x))
         .attr('y', (d) => y(d.y1))
         .attr('height', (d) => y(d.y0) - y(d.y1))
       ;
