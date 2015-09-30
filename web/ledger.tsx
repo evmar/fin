@@ -123,7 +123,7 @@ export class Ledger extends React.Component<LedgerProps, {
       }
       last = next;
 
-      return <LedgerRow key={e.id + i}
+      return <LedgerRow key={e.id.substr(0,7) + i}
                         date={date} entry={e}
                         selected={this.state.sel != null &&
                                   e.id == this.state.sel}
