@@ -90,7 +90,7 @@ interface LedgerProps {
 }
 
 export class Ledger extends React.Component<LedgerProps, {
-  sel: number;
+  sel: string;
 }> {
   constructor() {
     super();
@@ -126,13 +126,13 @@ export class Ledger extends React.Component<LedgerProps, {
       return <LedgerRow key={e.id + i}
                         date={date} entry={e}
                         selected={this.state.sel != null &&
-                                  i == this.state.sel}
+                                  e.id == this.state.sel}
                         allTags={this.props.tags}
                         onTag={(t) => {
                                this.props.onTag(i == 0 ? entries : [e],
                                                 t);
                                }}
-                        onSel={() => {this.setState({sel:i})}}
+                        onSel={() => {this.setState({sel:e.id})}}
              />;
     });
     return (
