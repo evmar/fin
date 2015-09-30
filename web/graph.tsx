@@ -288,14 +288,13 @@ export class Graph extends React.Component<{
     var color = d3.scale.category20();
     color.domain(tags);
 
-    this.g.selectAll('path.stack').remove();
     var g = this.g.selectAll('g.month')
                 .data(data, (d) => d.x.valueOf().toString());
     g.enter()
      .append('g')
      .attr('class', 'month')
-     .attr('transform', (d) => 'translate(' + x(d.x) + ',0)')
       ;
+    g.attr('transform', (d) => 'translate(' + x(d.x) + ',0)')
     g.exit().remove();
     
     var barWidth = data.length > 0
