@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export interface Entry {
-  id?: string;
+  id: string;
   addr?: string;
   amount: number;
   date: string;

@@ -34,7 +34,9 @@ class AppShell extends React.Component<{}, {
       return <div></div>;
     }
     return (
-      <ledger.LedgerPage entries={this.state.entries} />
+      <ledger.LedgerPage entries={this.state.entries}
+                         onReload={() => {this.reload();}}
+      />
     );
   }
 

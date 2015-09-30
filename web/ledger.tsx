@@ -102,6 +102,7 @@ export class Ledger extends React.Component<LedgerProps, {
 
     // Make a row for total.
     var total = {
+      id:'total',
       date:'',
       payee:'Total of ' + entries.length + ' entries',
       amount:0
@@ -122,7 +123,7 @@ export class Ledger extends React.Component<LedgerProps, {
       }
       last = next;
 
-      return <LedgerRow key={i}
+      return <LedgerRow key={e.id + i}
                         date={date} entry={e}
                         selected={this.state.sel != null &&
                                   i == this.state.sel}
@@ -142,6 +143,7 @@ export class Ledger extends React.Component<LedgerProps, {
 
 interface LedgerPageProps {
   entries: Entry[];
+  onReload: {()};
 }
 
 export class LedgerPage extends React.Component<LedgerPageProps, {
@@ -211,7 +213,7 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     };
 
     var req = new XMLHttpRequest();
-    req.onload = () => window.location.reload();
+    req.onload = () => {this.props.onReload();};
     req.open('post', '/');
     req.send(JSON.stringify(json))
 
