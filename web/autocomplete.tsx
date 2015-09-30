@@ -17,6 +17,7 @@ require('./autocomplete.scss');
 interface Props {
   options: string[];
   initialText?: string;
+  placeholder?: string;
   onCommit?: {(string)};
 }
 
@@ -60,6 +61,7 @@ export default class AutoComplete extends React.Component<Props, {
     return (
       <span className='autoc'>
         <input ref='input' autoComplete={false} value={this.state.text}
+               placeholder={this.props.placeholder}
                onChange={() => {this.onChange()}}
                onKeyDown={(e) => {this.onKeyDown(e)}}
                onFocus={() => {this.onFocus()}}
@@ -137,4 +139,4 @@ export default class AutoComplete extends React.Component<Props, {
     text = words.join(' ') + ' ';
     this.setState({text});
   }
-};
+}

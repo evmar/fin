@@ -15,7 +15,6 @@
 package main
 
 import (
-	"log"
 	"regexp"
 	"sort"
 
@@ -66,9 +65,6 @@ func neighbors(desc string, entries []*qif.Entry, n int) []*qif.Entry {
 func guessTags(desc string, entries []*qif.Entry, allTags Tags) []string {
 	n := 5
 	ns := neighbors(desc, entries, n)
-	for i, n := range ns {
-		log.Printf("%d: %#v", i, n)
-	}
 
 	tagCounts := map[string]int{}
 	for _, e := range ns {
@@ -79,9 +75,8 @@ func guessTags(desc string, entries []*qif.Entry, allTags Tags) []string {
 	}
 
 	thresh := 0.3
-	var guess []string
+	guess := []string{}
 	for t, c := range tagCounts {
-		log.Printf("%s: %d", t, c)
 		score := float64(c) / float64(n)
 		if score > thresh {
 			guess = append(guess, t)

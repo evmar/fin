@@ -28,7 +28,13 @@ class LedgerRow extends React.Component<{
   allTags: string[];
   onTag: {(tags: string)};
   onSel: {()};
-}, {}> {
+}, {
+  tagSuggestions?: string[];
+}> {
+  constructor() {
+    super();
+    this.state = {tagSuggestions:null};
+  }
   render() {
     var e = this.props.entry;
     var tags = null;
@@ -39,11 +45,27 @@ class LedgerRow extends React.Component<{
     var className = 'ledger-entry';
     var editControls = null;
     if (this.props.selected) {
+      if (!this.state.tagSuggestions) {
+        var req = new XMLHttpRequest();
+        req.onload = (e) => {
+          var resp = JSON.parse(req.responseText);
+          if ('tags' in resp) {
+            this.setState({tagSuggestions:resp.tags});
+          }
+        };
+        req.open('post', '/guess');
+        req.send(e.payee);
+      }
       className += ' sel';
       editControls = <div>
-        tag: <AutoComplete options={this.props.allTags}
-                           onCommit={(t) => {this.props.onTag(t)}}
-                           initialText={(e.tags || []).join(' ')} />
+        tag:&nbsp;
+        <AutoComplete options={this.props.allTags}
+                      onCommit={(t) => {this.props.onTag(t)}}
+                      initialText={(e.tags || []).join(' ')}
+                      placeholder={this.state.tagSuggestions
+                                   ? this.state.tagSuggestions.join(' ')
+                                     : ''}
+        />
       </div>;
     }
     return (
@@ -158,16 +180,6 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     // Regather entries and tag amounts after filtering.
     var entries = this.getEntries();
     tagAmounts = util.gatherTags(entries);
-
-    var applyTag = null;
-    if (this.state.filters.query) {
-      applyTag = (
-        <span>
-          Tag: <AutoComplete options={tags}
-                             onCommit={(t) => {this.onTag(entries, t)}} />
-        </span>
-      );
-    }
 
     return (
       <div className="body">
