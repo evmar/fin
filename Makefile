@@ -5,9 +5,9 @@ WEBPACK ?= $(JS)/webpack
 JSFILES = d3 react code
 HTMLFILES = autocomplete view
 
-.PHONY: all test clean watch
+.PHONY: all bin test clean watch
 
-all: $(JSFILES:%=build/%.js) build/code.css $(HTMLFILES:%=build/%.html) fin
+all: $(JSFILES:%=build/%.js) build/code.css $(HTMLFILES:%=build/%.html) bin
 
 build:
 	mkdir -p build
@@ -25,14 +25,14 @@ build/code%js build/code%css: webpack.config.js web/* | build
 build/%.html: web/%.html
 	cp $^ $@
 
-fin: src/* src/*/*
-	GOPATH=`pwd` go build fin
+bin: bank/* cmd/fin/*
+	go install ./cmd/fin
 
 test:
-	GOPATH=`pwd` go test fin/... bank/...
+	go test ./...
 
 clean:
-	rm -rf build fin
+	rm -rf build
 
 watch:
 	$(JS)/webpack --watch

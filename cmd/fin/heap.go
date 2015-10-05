@@ -1,6 +1,6 @@
 package main
 
-import "bank/qif"
+import "github.com/martine/fin/bank/qif"
 
 type EntryHeap struct {
 	entries []*qif.Entry

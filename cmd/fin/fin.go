@@ -24,8 +24,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	qifcsv "bank/csv"
-	"bank/qif"
+	qifcsv "github.com/martine/fin/bank/csv"
+	"github.com/martine/fin/bank/qif"
 )
 
 func check(err error) {

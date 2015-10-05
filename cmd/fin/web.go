@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"sort"
 
-	"bank/qif"
+	"github.com/martine/fin/bank/qif"
 )
 
 type web struct {
