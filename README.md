@@ -5,5 +5,5 @@ Copyright 2014 Google Inc. All Rights Reserved.
 
 # Build instructions
 
-1. Download JS dependencies by running `npm install`.
+1. Download JS dependencies by running `cd web && npm install`.
 2. Build web bundles and server binary by running `make`.
