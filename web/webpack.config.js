@@ -3,8 +3,8 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: {
-    code: './web/app.tsx',
-    /* 'autocomplete-demo': './web/autocomplete-demo.tsx', */
+    code: './app.tsx',
+    /* 'autocomplete-demo': './autocomplete-demo.tsx', */
   },
   // devtool: 'source-map',
   output: {

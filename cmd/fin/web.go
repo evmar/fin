@@ -94,7 +94,7 @@ func (web *web) guessTags(w http.ResponseWriter, r *http.Request) {
 }
 
 func (web *web) start() {
-	fs := http.FileServer(http.Dir("build"))
+	fs := http.FileServer(http.Dir("web/build"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
 			if r.Method == "POST" {
@@ -103,7 +103,7 @@ func (web *web) start() {
 				return
 			}
 
-			http.ServeFile(w, r, "build/view.html")
+			http.ServeFile(w, r, "web/build/view.html")
 			return
 		}
 
@@ -114,7 +114,7 @@ func (web *web) start() {
 		web.toJson(w)
 	})
 	http.HandleFunc("/guess", web.guessTags)
-	http.Handle("/static/", http.FileServer(http.Dir("build")))
+	http.Handle("/static/", fs)
 
 	addr := ":8080"
 	log.Printf("listening on %s", addr)
