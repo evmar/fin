@@ -26,8 +26,8 @@ class LedgerRow extends React.Component<{
   entry: Entry;
   selected: boolean;
   allTags: string[];
-  onTag: {(tags: string)};
-  onSel: {()};
+  onTag: (tags: string) => void;
+  onSel: () => void;
 }, {
   tagSuggestions?: string[];
 }> {
@@ -37,13 +37,12 @@ class LedgerRow extends React.Component<{
   }
   render() {
     var e = this.props.entry;
-    var tags = null;
+    var tags: JSX.Element = null;
     if (e.tags) {
-      tags = e.tags.map((t) => ' #' + t);
-      tags = <span>{tags}</span>;
+      tags = <span>{e.tags.map((t) => ' #' + t)}</span>;
     }
     var className = 'ledger-entry';
-    var editControls = null;
+    var editControls: JSX.Element = null;
     if (this.props.selected) {
       if (!this.state.tagSuggestions) {
         var req = new XMLHttpRequest();
@@ -86,7 +85,7 @@ class LedgerRow extends React.Component<{
 interface LedgerProps {
   entries: Entry[];
   tags: string[];
-  onTag: {(entries: Entry[], tag: string)};
+  onTag: (entries: Entry[], tag: string) => void;
 }
 
 export class Ledger extends React.Component<LedgerProps, {
@@ -112,7 +111,7 @@ export class Ledger extends React.Component<LedgerProps, {
     entries = entries.slice(0, 200);
     entries.unshift(total);
 
-    var last = null;
+    var last: string = null;
     var rEntries = entries.map((e, i) => {
       var date = e.date.slice(0, 7);
       var next = date;
@@ -143,7 +142,7 @@ export class Ledger extends React.Component<LedgerProps, {
 
 interface LedgerPageProps {
   entries: Entry[];
-  onReload: {()};
+  onReload: () => void;
 }
 
 export class LedgerPage extends React.Component<LedgerPageProps, {
@@ -206,7 +205,7 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     );
   }
 
-  onTag(entries, text) {
+  onTag(entries: Entry[], text: string) {
     var json = {
       tags: text.split(/\s+/).filter((t) => /\w/.test(t)),
       ids: entries.map((e) => e.id),
@@ -220,7 +219,7 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     return false;
   }
 
-  onFilters(filters) {
+  onFilters(filters: filter.Filters) {
     var search = filter.filterStateToURL(filters);
     this.setState({filters: filters});
     history.replaceState({}, null,

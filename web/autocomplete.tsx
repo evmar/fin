@@ -18,7 +18,7 @@ interface Props {
   options: string[];
   initialText?: string;
   placeholder?: string;
-  onCommit?: {(string)};
+  onCommit?: (text:string)=>void;
 }
 
 export default class AutoComplete extends React.Component<Props, {
@@ -40,7 +40,7 @@ export default class AutoComplete extends React.Component<Props, {
 
   render() {
     var options = this.getOptions();
-    var dropdown = null;
+    var dropdown: JSX.Element = null;
     if (options.length > 0 && this.state.focus) {
       dropdown = (<div className='dropdown'>
         {options.map((o, i) => {
@@ -76,7 +76,7 @@ export default class AutoComplete extends React.Component<Props, {
     this.setState({text});
   }
 
-  onKeyDown(e) {
+  onKeyDown(e: __React.KeyboardEvent) {
     if (e.shiftKey || e.altKey || e.metaKey)
       return;
 
@@ -133,7 +133,7 @@ export default class AutoComplete extends React.Component<Props, {
     this.setState({sel:null, focus:false});
   }
 
-  complete(text) {
+  complete(text: string) {
     var words = this.state.text.split(/\s+/);
     words[words.length - 1] = text;
     text = words.join(' ') + ' ';

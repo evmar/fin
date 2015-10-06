@@ -55,8 +55,8 @@ export class GraphOptsPane extends React.Component<{
   opts: GraphOpts;
   tags: string[];
   tagAmounts: {[tag:string]: number};
-  onFilters: {(Filters)}
-  onChange: {(opts: GraphOpts)}
+  onFilters: (f: Filters) => void;
+  onChange: (opts: GraphOpts) => void;
 }, {expand: boolean}> {
   constructor() {
     super();
@@ -141,7 +141,7 @@ export class GraphOptsPane extends React.Component<{
     this.props.onChange(opts);
   }
 
-  onSearch(query) {
+  onSearch(query: string) {
     this.props.filters.query = query;
     this.props.onFilters(this.props.filters);
   }

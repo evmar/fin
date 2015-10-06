@@ -13,22 +13,23 @@
 // limitations under the License.
 
 import * as util from './util';
+import {Entry} from './types';
 
 export interface Filters {
   hiddenTags: {[tag:string]:boolean};
   query: string;
 }
 
-export function filterStateFromURL(params): Filters {
+export function filterStateFromURL(params: util.URLParams): Filters {
   var hiddenTags: {[tag:string]:boolean} = {};
   if ('h' in params) {
-    for (var t of params.h) {
+    for (var t of params['h']) {
       hiddenTags[t] = true;
     }
   }
-  var query = null;
+  var query: string = null;
   if ('q' in params) {
-    query = params.q;
+    query = params['q'][0];
   }
   return {hiddenTags, query};
 }
@@ -40,8 +41,8 @@ export function filterStateToURL(state: Filters) {
   });
 }
 
-export function filtersToQuery(filters: Filters) {
-  var query = [];
+export function filtersToQuery(filters: Filters): string {
+  var query: string[] = [];
   for (var t in filters.hiddenTags) {
     query.push('-t:' + t);
   }
@@ -54,14 +55,14 @@ export function filtersToQuery(filters: Filters) {
 interface TagListProps {
   topTags: {key: string; value: number}[];
   hiddenTags: {[tag:string]:boolean};
-  onToggle: {(tag: string, on: boolean)};
+  onToggle: (tag: string, on: boolean)=>void;
 }
 
 export class TagList extends React.Component<TagListProps, {}> {
   render() {
     var hiddenTags = this.props.hiddenTags;
 
-    var showTags = [];
+    var showTags: {tag:string, amount?:number}[] = [];
     for (let tag in this.props.hiddenTags) {
       showTags.push({tag:tag});
     }
@@ -87,16 +88,16 @@ export class TagList extends React.Component<TagListProps, {}> {
     );
   }
 
-  onToggle(tag, on) {
+  onToggle(tag: string, on: boolean) {
     this.props.onToggle(tag, on);
   }
 }
 
-export function parseQuery(query) {
+export function parseQuery(query: string) {
   var tokens = query.split(/\s+/).filter((t) => t != '');
   var terms = tokens.map((tok) => {
     var negate = false;
-    var f = null;
+    var f: (e:Entry) => boolean = null;
     if (/^-/.test(tok)) {
       negate = true
       tok = tok.substr(1)
@@ -131,6 +132,6 @@ export function parseQuery(query) {
   if (!terms.length) {
     return null;
   }
-  return (e) => terms.every((term) => term(e));
+  return (e: Entry) => terms.every((term) => term(e));
 }
 

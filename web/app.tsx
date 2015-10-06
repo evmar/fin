@@ -49,7 +49,7 @@ class AppShell extends React.Component<{}, {
     req.send();
   }
 
-  load(data) {
+  load(data: {entries:Entry[]}) {
     var entries = data.entries;
     entries = entries.filter((e) => e.amount != 0);
     entries = entries.sort((a, b) => d3.descending(a.date, b.date));

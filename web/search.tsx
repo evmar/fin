@@ -17,7 +17,7 @@
 
 interface SearchInputProps extends React.Props<any> {
   initialText: string;
-  onSearch: {(query: string)};
+  onSearch: (query: string) => void;
 }
 
 export default class SearchInput extends React.Component<SearchInputProps, {}> {

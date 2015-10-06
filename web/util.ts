@@ -23,7 +23,7 @@ export function formatAmount(a: number, dollars?: boolean): string {
   }
 }
 
-interface URLParams {
+export interface URLParams {
   [key: string]: string[];
 }
 
@@ -40,7 +40,7 @@ export function parseURLParams(search: string): URLParams {
 }
 
 export function makeURLParams(params: URLParams): string {
-  var query = [];
+  var query: string[] = [];
   for (var key in params) {
     var vals = params[key];
     if (vals == null)
@@ -74,57 +74,14 @@ export function gatherTags(entries: Entry[]): {[tag:string]:number} {
   return tagCounts;
 }
 
-function epanKernel(scale) {
-  return function(u) {
-    return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
-  };
-}
-
-function norm(k) {
-  var s = d3.sum(k);
-  return k.map((v) => v / s);
-}
-
-function conv(k, distf) {
-  var w = Math.floor(k.length / 2);
-  return function(data) {
-    return data.map((x, i) => {
-      var s = 0;
-      for (var j = -w; j <= w; j++) {
-        var x1 = data[i+j];
-        if (!x1)
-          continue;
-        var ki = distf(x1[0] - x[0]) + w;
-        if (!k[ki])
-          continue;
-        s += k[ki] * x1[1];
-      }
-      return [x[0], s];
-    });
-  };
-}
-
-function smooth(data) {
-  var kern = [];
-  var window = 1;
-  for (var j = -window; j <= window; j++) {
-    kern.push(epanKernel(1)(j / window));
-  }
-
-  kern = norm(kern);
-
-  var c = conv(kern, (d) => d / 86400000);
-  return c(data);
-}
-
-export function sortOnBy(f, c) {
-  return function(a, b) {
+export function sortOnBy(f:(t:string)=>number, c:(a:number,b:number)=>number) {
+  return function(a:string, b:string) {
     return c(f(a), f(b));
   };
 }
 
 export function setToArray<T>(s: Set<T>): T[] {
-  var arr = [];
+  var arr: T[] = [];
   s.forEach((e) => arr.push(e));
   return arr;
 }
