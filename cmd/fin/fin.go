@@ -104,15 +104,6 @@ func main() {
 	flag.StringVar(&tagsPath, "tags", "", "path to read/write tag list")
 	flag.Parse()
 
-	if tagsPath == "" {
-		fmt.Println("must specify tags path")
-		flag.PrintDefaults()
-		return
-	}
-
-	tags, err := LoadTags(tagsPath)
-	check(err)
-
 	mode := ""
 	if len(flag.Args()) > 0 {
 		mode = flag.Arg(0)
@@ -121,19 +112,30 @@ func main() {
 		log.Fatalf("must specify mode")
 	}
 
-	var entries []*qif.Entry
-	for _, arg := range flag.Args()[1:] {
-		entries = parse(arg, entries)
-	}
-
 	switch mode {
 	case "web":
+		if tagsPath == "" {
+			fmt.Println("must specify tags path")
+			flag.PrintDefaults()
+			return
+		}
+
+		tags, err := LoadTags(tagsPath)
+		check(err)
+
+		var entries []*qif.Entry
+		for _, arg := range flag.Args()[1:] {
+			entries = parse(arg, entries)
+		}
+
 		w := web{
 			entries:  entries,
 			tags:     tags,
 			tagsPath: tagsPath,
 		}
 		w.start()
+	case "gen":
+		genRandomData()
 	default:
 		log.Fatalf("unknown mode %q", mode)
 	}
