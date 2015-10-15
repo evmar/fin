@@ -25,7 +25,7 @@ accounts or security.
 
 ## Input data
 
-First, you'll download a bunch of bank statements from your financial
+Start by downloading a bunch of bank statements from your financial
 institutions.  Unfortunately there are many different formats with
 different tradeoffs, so it's probably best to download a few different
 formats and compare the files in a text editor.
