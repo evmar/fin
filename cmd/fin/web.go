@@ -102,7 +102,6 @@ func (web *web) start(addr string) {
 		if r.URL.Path == "/" {
 			if r.Method == "POST" {
 				web.updateTagsFromPost(r.Body)
-				http.Redirect(w, r, "/", 303)
 				return
 			}
 

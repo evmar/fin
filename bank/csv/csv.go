@@ -47,9 +47,6 @@ func (cr *CSVReader) ReadEntry() (*qif.Entry, error) {
 	amount := row[cr.fields["Credit"]]
 	if amount == "" {
 		amount = row[cr.fields["Debit"]]
-		if amount != "" {
-			amount = "-" + amount
-		}
 	}
 	amount = strings.Replace(amount, ",", "", -1)
 	if amount != "" {

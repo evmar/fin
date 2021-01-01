@@ -98,9 +98,7 @@ export default class AutoComplete extends React.Component<Props, {
         this.complete(options[sel]);
         sel = null;
       } else if (this.props.onCommit) {
-        if (this.props.onCommit(this.state.text)) {
-          this.setState({text:''});
-        }
+        this.props.onCommit(this.state.text);
       }
       break;
     default:

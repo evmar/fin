@@ -210,7 +210,7 @@ func (r *Reader) Read() {
 		case tCloseTag:
 			top := stack[len(stack)-1]
 			if string(data) != top {
-				log.Printf("stack mismatch: got %q, stack %v")
+				log.Printf("stack mismatch: got %q, stack %v", data, stack)
 			}
 			stack = stack[0 : len(stack)-1]
 			fmt.Printf("</%s>", data)

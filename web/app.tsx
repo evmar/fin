@@ -51,7 +51,6 @@ class AppShell extends React.Component<{}, {
     var entries = data.entries;
     entries = entries.filter((e) => e.amount != 0);
     entries = entries.sort((a, b) => d3.descending(a.date, b.date));
-    entries.forEach((e) => e.amount = -e.amount);
 
     (window as any).data = {entries:entries};
     this.setState({entries});
