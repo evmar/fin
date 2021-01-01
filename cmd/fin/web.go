@@ -93,7 +93,7 @@ func (web *web) guessTags(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (web *web) start() {
+func (web *web) start(addr string) {
 	fs := http.FileServer(http.Dir("web/build"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
@@ -116,7 +116,6 @@ func (web *web) start() {
 	http.HandleFunc("/guess", web.guessTags)
 	http.Handle("/static/", fs)
 
-	addr := ":8080"
 	log.Printf("listening on %s", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }

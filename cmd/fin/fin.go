@@ -133,7 +133,7 @@ func main() {
 			tags:     tags,
 			tagsPath: tagsPath,
 		}
-		w.start()
+		w.start(":8888")
 	default:
 		log.Fatalf("unknown mode %q", mode)
 	}
