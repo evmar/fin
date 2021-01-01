@@ -10,7 +10,7 @@ input, button {
   font-family: inherit;
   font-size: inherit;
 }
-// center checkboxes relative to their text.
+/* center checkboxes relative to their text. */
 input[type=checkbox] {
   vertical-align: middle;
 }
@@ -33,3 +33,7 @@ header {
   width: 128px;
   margin-right: 32px;
 }
+
+@import './autocomplete.css';
+@import './graph.css';
+@import './ledger.css';

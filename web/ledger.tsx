@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('./ledger.scss');
 import Page from './page';
 import * as util from './util';
 import * as filter from './filter';

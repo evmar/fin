@@ -32,7 +32,7 @@ type web struct {
 }
 
 func (web *web) toJson(w io.Writer) {
-	var jentries []map[string]interface{}
+	jentries := []map[string]interface{}{}
 	for _, e := range web.entries {
 		je := make(map[string]interface{})
 		id := qifId(e)
@@ -47,9 +47,12 @@ func (web *web) toJson(w io.Writer) {
 		}
 		jentries = append(jentries, je)
 	}
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	data := map[string]interface{}{
 		"entries": jentries,
-	})
+	}
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("encode json: %s", err)
+	}
 }
 
 func (web *web) updateTagsFromPost(r io.Reader) {
@@ -110,7 +113,7 @@ func (web *web) start(addr string) {
 		fs.ServeHTTP(w, r)
 	})
 	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "text/javascript")
+		w.Header().Add("Content-Type", "application/json")
 		web.toJson(w)
 	})
 	http.HandleFunc("/guess", web.guessTags)

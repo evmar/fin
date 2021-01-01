@@ -1,6 +1,4 @@
-JS := node_modules/.bin
-COFFEE ?= $(JS)/coffee
-WEBPACK ?= $(JS)/webpack
+BIN := node_modules/.bin
 
 JSFILES = d3 react code
 HTMLFILES = autocomplete view
@@ -20,7 +18,8 @@ build/react.js: node_modules/react/dist/react.js | build
 	cp $^ $@
 
 build/code%js build/code%css: * | build
-	$(WEBPACK) --progress
+	$(BIN)/esbuild --bundle app.tsx --outfile=build/code.js
+	$(BIN)/esbuild --bundle style.css --outfile=build/code.css
 
 build/%.html: %.html
 	cp $^ $@

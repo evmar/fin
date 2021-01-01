@@ -1,0 +1,49 @@
+.graph text {
+  font-size: 12px;
+}
+.graph line, .graph path {
+  stroke: black;
+  stroke-width: 1px;
+}
+.graph .axis path,
+.graph .axis line {
+  fill: none;
+}
+
+.graph line.regression {
+  stroke: blue;
+  stroke-width: 1px;
+}
+.graph g.regression {
+  background: white;
+}
+.graph .regression text {
+  fill: blue;
+}
+
+
+.controls {
+  font-size: 80%;
+}
+.controls .row {
+  display: flex;
+  cursor: pointer;
+}
+.controls span.legend {
+  display: inline-block;
+  vertical-align: middle;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  border: solid 1px #666;
+}
+.controls span.hidden {
+  background: #aaa;
+}
+.controls span.stack {
+  background: red;
+}
+.controls span.tag {
+  flex: 1;
+  display: inline-block;
+}
