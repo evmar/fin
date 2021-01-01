@@ -4,14 +4,14 @@
   "description": "some tools for playing around with bank statements.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/martine/fin.git"
+    "url": "https://github.com/evmar/fin.git"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/martine/fin/issues"
+    "url": "https://github.com/evmar/fin/issues"
   },
-  "homepage": "https://github.com/martine/fin",
+  "homepage": "https://github.com/evmar/fin",
   "dependencies": {
     "css-loader": "^0.9.1",
     "d3": "^3.5.6",

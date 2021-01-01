@@ -24,8 +24,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	qifcsv "github.com/martine/fin/bank/csv"
-	"github.com/martine/fin/bank/qif"
+	qifcsv "github.com/evmar/fin/bank/csv"
+	"github.com/evmar/fin/bank/qif"
 )
 
 func check(err error) {
@@ -134,8 +134,6 @@ func main() {
 			tagsPath: tagsPath,
 		}
 		w.start()
-	case "gen":
-		genRandomData()
 	default:
 		log.Fatalf("unknown mode %q", mode)
 	}

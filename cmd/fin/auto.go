@@ -18,7 +18,7 @@ import (
 	"regexp"
 	"sort"
 
-	"github.com/martine/fin/bank/qif"
+	"github.com/evmar/fin/bank/qif"
 )
 
 var indexRe = regexp.MustCompile(`\w+`)

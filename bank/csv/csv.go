@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/martine/fin/bank/qif"
+	"github.com/evmar/fin/bank/qif"
 )
 
 type CSVReader struct {

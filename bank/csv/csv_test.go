@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/martine/fin/bank/qif"
+	"github.com/evmar/fin/bank/qif"
 )
 
 const input = `"Status","Date","Description","Debit","Credit"` + "\r\n" +

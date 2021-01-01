@@ -6,7 +6,7 @@ web:
 	make -C web
 
 bin: bank/* cmd/fin/*
-	go install ./cmd/fin
+	go install ./...
 
 test:
 	go test ./...
