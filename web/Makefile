@@ -27,5 +27,5 @@ build/%.html: %.html
 clean:
 	rm -rf build
 
-watch:
-	$(JS)/webpack --watch
+fmt:
+	$(BIN)/prettier --write *.tsx *.css

@@ -17,22 +17,25 @@ import * as util from './util';
 import * as filter from './filter';
 import AutoComplete from './autocomplete';
 import * as graph from './graph';
-import {Entry} from './types';
+import { Entry } from './types';
 
-class LedgerRow extends React.Component<{
-  key: any;
-  date: string;
-  entry: Entry;
-  selected: boolean;
-  allTags: string[];
-  onTag: (tags: string) => void;
-  onSel: () => void;
-}, {
-  tagSuggestions?: string[];
-}> {
+class LedgerRow extends React.Component<
+  {
+    key: any;
+    date: string;
+    entry: Entry;
+    selected: boolean;
+    allTags: string[];
+    onTag: (tags: string) => void;
+    onSel: () => void;
+  },
+  {
+    tagSuggestions?: string[];
+  }
+> {
   constructor() {
     super();
-    this.state = {tagSuggestions:null};
+    this.state = { tagSuggestions: null };
   }
   render() {
     var e = this.props.entry;
@@ -48,32 +51,46 @@ class LedgerRow extends React.Component<{
         req.onload = (e) => {
           var resp = JSON.parse(req.responseText);
           if ('tags' in resp) {
-            this.setState({tagSuggestions:resp.tags});
+            this.setState({ tagSuggestions: resp.tags });
           }
         };
         req.open('post', '/guess');
         req.send(e.payee);
       }
       className += ' sel';
-      editControls = <div>
-        tag:&nbsp;
-        <AutoComplete options={this.props.allTags}
-                      onCommit={(t) => {this.props.onTag(t)}}
-                      initialText={(e.tags || []).join(' ')}
-                      placeholder={this.state.tagSuggestions
-                                   ? this.state.tagSuggestions.join(' ')
-                                     : ''}
-        />
-      </div>;
+      editControls = (
+        <div>
+          tag:&nbsp;
+          <AutoComplete
+            options={this.props.allTags}
+            onCommit={(t) => {
+              this.props.onTag(t);
+            }}
+            initialText={(e.tags || []).join(' ')}
+            placeholder={
+              this.state.tagSuggestions
+                ? this.state.tagSuggestions.join(' ')
+                : ''
+            }
+          />
+        </div>
+      );
     }
     return (
-      <div className={className}
-           onClick={() => {this.props.onSel()}}>
+      <div
+        className={className}
+        onClick={() => {
+          this.props.onSel();
+        }}
+      >
         <div className="ledger-date">{this.props.date}</div>
         <div className="ledger-body" title={e.date}>
           <div className="ledger-payee">{e.payee}</div>
-          {this.props.selected ? editControls
-           : <div className="ledger-tags">{tags}</div>}
+          {this.props.selected ? (
+            editControls
+          ) : (
+            <div className="ledger-tags">{tags}</div>
+          )}
         </div>
         <div className="ledger-money">{util.formatAmount(e.amount)}</div>
       </div>
@@ -87,12 +104,15 @@ interface LedgerProps {
   onTag: (entries: Entry[], tag: string) => void;
 }
 
-export class Ledger extends React.Component<LedgerProps, {
-  sel: string;
-}> {
+export class Ledger extends React.Component<
+  LedgerProps,
+  {
+    sel: string;
+  }
+> {
   constructor() {
     super();
-    this.state = {sel:null};
+    this.state = { sel: null };
   }
 
   render() {
@@ -100,12 +120,12 @@ export class Ledger extends React.Component<LedgerProps, {
 
     // Make a row for total.
     var total = {
-      id:'total',
-      date:'',
-      payee:'Total of ' + entries.length + ' entries',
-      amount:0
+      id: 'total',
+      date: '',
+      payee: 'Total of ' + entries.length + ' entries',
+      amount: 0,
     };
-    entries.forEach((e) => total.amount += e.amount);
+    entries.forEach((e) => (total.amount += e.amount));
 
     entries = entries.slice(0, 200);
     entries.unshift(total);
@@ -121,21 +141,23 @@ export class Ledger extends React.Component<LedgerProps, {
       }
       last = next;
 
-      return <LedgerRow key={e.id.substr(0,7) + i}
-                        date={date} entry={e}
-                        selected={this.state.sel != null &&
-                                  e.id == this.state.sel}
-                        allTags={this.props.tags}
-                        onTag={(t) => {
-                               this.props.onTag(i == 0 ? entries : [e],
-                                                t);
-                               }}
-                        onSel={() => {this.setState({sel:e.id})}}
-             />;
+      return (
+        <LedgerRow
+          key={e.id.substr(0, 7) + i}
+          date={date}
+          entry={e}
+          selected={this.state.sel != null && e.id == this.state.sel}
+          allTags={this.props.tags}
+          onTag={(t) => {
+            this.props.onTag(i == 0 ? entries : [e], t);
+          }}
+          onSel={() => {
+            this.setState({ sel: e.id });
+          }}
+        />
+      );
     });
-    return (
-      <div className="ledger">{rEntries}</div>
-    );
+    return <div className="ledger">{rEntries}</div>;
   }
 }
 
@@ -144,10 +166,13 @@ interface LedgerPageProps {
   onReload: () => void;
 }
 
-export class LedgerPage extends React.Component<LedgerPageProps, {
-  filters?: filter.Filters;
-  graphOpts?: graph.GraphOpts;
-}> {
+export class LedgerPage extends React.Component<
+  LedgerPageProps,
+  {
+    filters?: filter.Filters;
+    graphOpts?: graph.GraphOpts;
+  }
+> {
   constructor() {
     super();
     var params = util.parseURLParams(document.location.search);
@@ -156,7 +181,7 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
       stack: new Set<string>(),
       normalize: false,
     };
-    this.state = {filters, graphOpts};
+    this.state = { filters, graphOpts };
   }
 
   getEntries() {
@@ -185,20 +210,30 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
       <div className="body">
         <header>
           <h1>fin</h1>
-          <graph.GraphOptsPane opts={this.state.graphOpts}
-                               onChange={(opts) => this.setState({graphOpts:opts})}
-                               filters={this.state.filters}
-                               onFilters={(filters) => this.onFilters(filters)}
-                               tags={tags} tagAmounts={tagAmounts}
+          <graph.GraphOptsPane
+            opts={this.state.graphOpts}
+            onChange={(opts) => this.setState({ graphOpts: opts })}
+            filters={this.state.filters}
+            onFilters={(filters) => this.onFilters(filters)}
+            tags={tags}
+            tagAmounts={tagAmounts}
           />
         </header>
         <main>
-          <graph.Graph entries={entries} tags={tags}
-                       opts={this.state.graphOpts}
-                       width={10*64} height={3*64}
+          <graph.Graph
+            entries={entries}
+            tags={tags}
+            opts={this.state.graphOpts}
+            width={10 * 64}
+            height={3 * 64}
           />
-          <Ledger entries={entries} tags={tags}
-                  onTag={(e, t) => {this.onTag(e, t)}} />
+          <Ledger
+            entries={entries}
+            tags={tags}
+            onTag={(e, t) => {
+              this.onTag(e, t);
+            }}
+          />
         </main>
       </div>
     );
@@ -211,18 +246,22 @@ export class LedgerPage extends React.Component<LedgerPageProps, {
     };
 
     var req = new XMLHttpRequest();
-    req.onload = () => {this.props.onReload();};
+    req.onload = () => {
+      this.props.onReload();
+    };
     req.open('post', '/');
-    req.send(JSON.stringify(json))
+    req.send(JSON.stringify(json));
 
     return false;
   }
 
   onFilters(filters: filter.Filters) {
     var search = filter.filterStateToURL(filters);
-    this.setState({filters: filters});
-    history.replaceState({}, null,
-                         util.urlWithQuery(location.href,
-                                           filter.filterStateToURL(filters)));
+    this.setState({ filters: filters });
+    history.replaceState(
+      {},
+      null,
+      util.urlWithQuery(location.href, filter.filterStateToURL(filters))
+    );
   }
 }

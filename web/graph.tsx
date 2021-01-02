@@ -13,26 +13,26 @@
 // limitations under the License.
 
 import * as util from './util';
-import {Entry} from './types';
-import {Filters} from './filter';
+import { Entry } from './types';
+import { Filters } from './filter';
 import SearchInput from './search';
 
-var margin = {top:5, right:100, bottom:30, left:70};
+var margin = { top: 5, right: 100, bottom: 30, left: 70 };
 
 function dayOfYear(date: Date): number {
   var start = new Date();
   start.setMonth(0, 0);
-  return (date.valueOf() - start.valueOf())/8.64e7;
+  return (date.valueOf() - start.valueOf()) / 8.64e7;
 }
 
-function leastSquares(data: {x:Date, y:number}[]) {
+function leastSquares(data: { x: Date; y: number }[]) {
   var xMean = d3.mean(data, (d) => +d.x);
   var yMean = d3.mean(data, (d) => d.y);
   var ssXX = d3.sum(data, (d) => Math.pow(+d.x - xMean, 2));
   var ssXY = d3.sum(data, (d) => (+d.x - xMean) * (d.y - yMean));
-  var slope = ssXY/ssXX;
-  var intercept = yMean - (xMean * slope);
-  return {slope, intercept, yMean};
+  var slope = ssXY / ssXX;
+  var intercept = yMean - xMean * slope;
+  return { slope, intercept, yMean };
 }
 
 function chooseFirstMatch(tags: Set<string>, entryTags: string[]): string {
@@ -49,17 +49,20 @@ export interface GraphOpts {
   normalize: boolean;
 }
 
-export class GraphOptsPane extends React.Component<{
-  filters: Filters,
-  opts: GraphOpts;
-  tags: string[];
-  tagAmounts: {[tag:string]: number};
-  onFilters: (f: Filters) => void;
-  onChange: (opts: GraphOpts) => void;
-}, {expand: boolean}> {
+export class GraphOptsPane extends React.Component<
+  {
+    filters: Filters;
+    opts: GraphOpts;
+    tags: string[];
+    tagAmounts: { [tag: string]: number };
+    onFilters: (f: Filters) => void;
+    onChange: (opts: GraphOpts) => void;
+  },
+  { expand: boolean }
+> {
   constructor() {
     super();
-    this.state = {expand:false};
+    this.state = { expand: false };
   }
 
   render() {
@@ -68,28 +71,36 @@ export class GraphOptsPane extends React.Component<{
     var that = this;
 
     function tagRow(tag: string): JSX.Element {
-      var className = "legend";
+      var className = 'legend';
       if (tag in that.props.filters.hiddenTags) {
-        className += " hidden";
+        className += ' hidden';
       } else if (opts.stack.has(tag)) {
-        className += " stack";
+        className += ' stack';
       } else if (!(tag in that.props.tagAmounts)) {
         // Tag with no data and no special status; skip.
         return null;
       }
       return (
-        <div key={tag} className="row"
-             onClick={(e) => {
-                      if (e.button == 0) {
-                        that.onLegend(tag);
-                      }}}>
+        <div
+          key={tag}
+          className="row"
+          onClick={(e) => {
+            if (e.button == 0) {
+              that.onLegend(tag);
+            }
+          }}
+        >
           <span className={className}>&nbsp;</span>
-          {tag == ''
-           ? <span className="tag"><em>(untagged)</em></span>
-           : <span className="tag">{tag}</span>}
+          {tag == '' ? (
+            <span className="tag">
+              <em>(untagged)</em>
+            </span>
+          ) : (
+            <span className="tag">{tag}</span>
+          )}
           {tag in that.props.tagAmounts
-           ? util.formatAmount(that.props.tagAmounts[tag], true)
-             : ""}
+            ? util.formatAmount(that.props.tagAmounts[tag], true)
+            : ''}
         </div>
       );
     }
@@ -98,19 +109,33 @@ export class GraphOptsPane extends React.Component<{
     if (!this.state.expand) {
       rows = rows.slice(0, 10);
     }
-    
+
     return (
       <div className="controls">
-        <SearchInput onSearch={(q) => {this.onSearch(q)}}
-                     initialText={this.props.filters.query} />
-        <label><input type="checkbox" checked={opts.normalize}
-                      onChange={() => {this.onNorm()}} /> normalize</label>
+        <SearchInput
+          onSearch={(q) => {
+            this.onSearch(q);
+          }}
+          initialText={this.props.filters.query}
+        />
+        <label>
+          <input
+            type="checkbox"
+            checked={opts.normalize}
+            onChange={() => {
+              this.onNorm();
+            }}
+          />{' '}
+          normalize
+        </label>
         <br />
         {rows}
-        <button onClick={() => {
-                        this.setState({expand:!this.state.expand});
-                         }}>
-          {this.state.expand ? "less" : "more"}
+        <button
+          onClick={() => {
+            this.setState({ expand: !this.state.expand });
+          }}
+        >
+          {this.state.expand ? 'less' : 'more'}
         </button>
       </div>
     );
@@ -119,7 +144,7 @@ export class GraphOptsPane extends React.Component<{
   onLegend(tag: string) {
     var filtered = tag in this.props.filters.hiddenTags;
     var stacked = this.props.opts.stack.has(tag);
-    
+
     if (!filtered && !stacked) {
       this.props.filters.hiddenTags[tag] = true;
       this.props.onFilters(this.props.filters);
@@ -146,13 +171,16 @@ export class GraphOptsPane extends React.Component<{
   }
 }
 
-export class Graph extends React.Component<{
-  entries: Entry[];
-  opts: GraphOpts;
-  width: number;
-  height: number;
-  tags: string[];
-}, {}> {
+export class Graph extends React.Component<
+  {
+    entries: Entry[];
+    opts: GraphOpts;
+    width: number;
+    height: number;
+    tags: string[];
+  },
+  {}
+> {
   width: number;
   height: number;
 
@@ -175,56 +203,59 @@ export class Graph extends React.Component<{
     this.height = this.props.height - margin.top - margin.bottom;
 
     var el = React.findDOMNode(this);
-    this.svg = d3.select(el).append('svg')
-                 .attr('width', this.props.width)
-                 .attr('height', this.props.height);
+    this.svg = d3
+      .select(el)
+      .append('svg')
+      .attr('width', this.props.width)
+      .attr('height', this.props.height);
     this.g = this.svg
-                 .append('g')
-                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    this.g.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + this.height + ')');
+    this.g
+      .append('g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(0,' + this.height + ')');
 
-    this.g.append('g')
-        .attr('class', 'y axis');
+    this.g.append('g').attr('class', 'y axis');
 
-    this.regLine = this.g.append('line')
-                       .attr('class', 'regression');
-    var g = this.g.append('g')
-                .attr('class', 'regression');
+    this.regLine = this.g.append('line').attr('class', 'regression');
+    var g = this.g.append('g').attr('class', 'regression');
     this.regText = g.append('text');
   }
 
   update() {
-    var format = d3.time.format("%Y/%m/%d");
+    var format = d3.time.format('%Y/%m/%d');
     interface EI {
       mdate: Date;
       amount: number;
       tags: string[];
     }
     var entries: EI[] = this.props.entries.map((e) => ({
-      mdate: format.parse(e.date.substr(0, 8) + "01"),
+      mdate: format.parse(e.date.substr(0, 8) + '01'),
       amount: e.amount,
       tags: e.tags,
     }));
 
-    var x = d3.time.scale()
-              .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
-              .range([0, this.width]);
+    var x = d3.time
+      .scale()
+      .domain(d3.extent(entries, (e) => e.mdate.valueOf()))
+      .range([0, this.width]);
 
     var stackTagSet = this.props.opts.stack;
     var stack = stackTagSet.size > 0;
 
     interface Nest {
-      [date:string]: {[tag:string]: number}
+      [date: string]: { [tag: string]: number };
     }
-    var nest: Nest = d3.nest<EI>()
+    var nest: Nest = d3
+      .nest<EI>()
       .key((e) => e.mdate.valueOf().toString())
-      .key((e) => (
-        (stack ? chooseFirstMatch(stackTagSet, e.tags || [])
-         : null)
-          || 'other'))
+      .key(
+        (e) =>
+          (stack ? chooseFirstMatch(stackTagSet, e.tags || []) : null) ||
+          'other'
+      )
       .sortKeys(d3.ascending)
       .rollup((es) => d3.sum(es, (e) => e.amount))
       .map(entries);
@@ -235,14 +266,20 @@ export class Graph extends React.Component<{
 
     var data = x.ticks(d3.time.month).map((m) => {
       var key = +m;
-      var bars: {tag:string, x:Date, y0:number, y1:number, y:number}[] = [];
+      var bars: {
+        tag: string;
+        x: Date;
+        y0: number;
+        y1: number;
+        y: number;
+      }[] = [];
       if (key in nest) {
         var y = 0;
         bars = stackTags.map((tag) => {
           var y0 = y;
           y += nest[key][tag] || 0;
           var ext = d3.extent([y0, y]);
-          return {tag, x:m, y0:ext[0], y1:ext[1], y};
+          return { tag, x: m, y0: ext[0], y1: ext[1], y };
         });
         if (this.props.opts.normalize) {
           bars.forEach((b) => {
@@ -252,13 +289,10 @@ export class Graph extends React.Component<{
           });
         }
       }
-      return {x:m, bars};
+      return { x: m, bars };
     });
 
-    var xAxis = d3.svg.axis()
-                  .scale(x)
-                  .ticks(4)
-                  .orient('bottom');
+    var xAxis = d3.svg.axis().scale(x).ticks(4).orient('bottom');
     var svg = this.g;
     svg.select('g.x').transition().call(xAxis);
 
@@ -268,19 +302,13 @@ export class Graph extends React.Component<{
     ];
     yext[0] = Math.min(yext[0], 0);
     yext[1] = Math.max(yext[1], 0);
-    var y = d3.scale.linear()
-              .domain(yext)
-              .range([this.height, 0]);
+    var y = d3.scale.linear().domain(yext).range([this.height, 0]);
 
-    var yAxis = d3.svg.axis()
-                  .scale(y)
-                  .orient('left')
-                  .ticks(5)
-      ;
+    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(5);
     if (this.props.opts.normalize) {
       yAxis.tickFormat(d3.format('%'));
     } else {
-      yAxis.tickFormat((d) => '$' + d3.format(',d')(d/100));
+      yAxis.tickFormat((d) => '$' + d3.format(',d')(d / 100));
     }
     svg.select('g.y').transition().call(yAxis);
 
@@ -289,56 +317,56 @@ export class Graph extends React.Component<{
     var color = d3.scale.category20();
     color.domain(tags);
 
-    var g = this.g.selectAll('g.month')
-                .data(data, (d) => d.x.valueOf().toString());
-    g.enter()
-     .append('g')
-     .attr('class', 'month')
-      ;
+    var g = this.g
+      .selectAll('g.month')
+      .data(data, (d) => d.x.valueOf().toString());
+    g.enter().append('g').attr('class', 'month');
     g.exit().remove();
-    
-    var rect = g.selectAll('rect')
-                .data((d) => d.bars, (d) => d.tag)
-      ;
-    rect.enter()
-        .append('rect')
-        .attr('height', 0)
-        .attr('y', (d) => y(d.y0))
-      ;
+
+    var rect = g.selectAll('rect').data(
+      (d) => d.bars,
+      (d) => d.tag
+    );
     rect
-         .style('fill', (d) => color(d.tag))
-         .attr('width', (d) => (
-           x(d3.time.month.offset(d.x, 1)) - x(d.x) - 2))
-      ;
-    rect.transition()
-        .attr('x', (d) => x(d.x))
-        .attr('y', (d) => y(d.y1))
-        .attr('height', (d) => y(d.y0) - y(d.y1))
-      ;
-    rect.exit().transition()
-        .attr('y', (d) => y(d.y0))
-        .attr('height', 0)
-        .remove();
+      .enter()
+      .append('rect')
+      .attr('height', 0)
+      .attr('y', (d) => y(d.y0));
+    rect
+      .style('fill', (d) => color(d.tag))
+      .attr('width', (d) => x(d3.time.month.offset(d.x, 1)) - x(d.x) - 2);
+    rect
+      .transition()
+      .attr('x', (d) => x(d.x))
+      .attr('y', (d) => y(d.y1))
+      .attr('height', (d) => y(d.y0) - y(d.y1));
+    rect
+      .exit()
+      .transition()
+      .attr('y', (d) => y(d.y0))
+      .attr('height', 0)
+      .remove();
 
     if (this.props.opts.stack.size == 0 && data.length > 0) {
       var regData = data.map((d) => {
-        var y = d.bars.length > 0 ? d.bars[d.bars.length-1].y : 0;
-        return {x:d.x, y};
+        var y = d.bars.length > 0 ? d.bars[d.bars.length - 1].y : 0;
+        return { x: d.x, y };
       });
       var regression = leastSquares(regData);
       var t1 = regData[0].x;
-      var t2 = regData[regData.length-1].x;
+      var t2 = regData[regData.length - 1].x;
       var x2 = x(t2);
       var y2 = y(+t2 * regression.slope + regression.intercept);
-      this.regLine.datum(regression)
-          .transition()
-          .attr('x1', x(t1))
-          .attr('y1', y(+t1 * regression.slope + regression.intercept))
-          .attr('x2', x2)
-          .attr('y2', y2);
+      this.regLine
+        .datum(regression)
+        .transition()
+        .attr('x1', x(t1))
+        .attr('y1', y(+t1 * regression.slope + regression.intercept))
+        .attr('x2', x2)
+        .attr('y2', y2);
 
       // Regression slope is amount per millisecond; adjust to months.
-      var perMonthDelta = regression.slope*8.64e7 * 30;
+      var perMonthDelta = regression.slope * 8.64e7 * 30;
       // Round to nearest dollar amount.
       perMonthDelta = Math.round(perMonthDelta / 100);
       var deltaLabel = '';
@@ -350,10 +378,10 @@ export class Graph extends React.Component<{
       }
       var text = util.formatAmount(regression.yMean) + deltaLabel + '/mo';
       this.regText
-          .attr('x', x2 + 5)
-          .attr('y', y2)
-          .attr('dy', '0.3em')  // vertical center
-          .text(text);
+        .attr('x', x2 + 5)
+        .attr('y', y2)
+        .attr('dy', '0.3em') // vertical center
+        .text(text);
     } else {
       // TODO: hide regression info.
     }

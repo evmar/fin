@@ -16,54 +16,77 @@ interface Props {
   options: string[];
   initialText?: string;
   placeholder?: string;
-  onCommit?: (text:string)=>void;
+  onCommit?: (text: string) => void;
 }
 
-export default class AutoComplete extends React.Component<Props, {
-  sel?: number;
-  focus?: boolean;
-  text?: string;
-}> {
+export default class AutoComplete extends React.Component<
+  Props,
+  {
+    sel?: number;
+    focus?: boolean;
+    text?: string;
+  }
+> {
   constructor(props: Props) {
     super();
-    this.state = {sel:null, text:props.initialText || '', focus:false};
+    this.state = { sel: null, text: props.initialText || '', focus: false };
   }
 
   getOptions() {
     var words = this.state.text.split(/\s+/);
     var word = words[words.length - 1];
-    return this.props.options.filter((opt) =>
-      word.length > 0 && opt.indexOf(word) == 0);
+    return this.props.options.filter(
+      (opt) => word.length > 0 && opt.indexOf(word) == 0
+    );
   }
 
   render() {
     var options = this.getOptions();
     var dropdown: JSX.Element = null;
     if (options.length > 0 && this.state.focus) {
-      dropdown = (<div className='dropdown'>
-        {options.map((o, i) => {
-          var className = 'item';
-          if (i == this.state.sel)
-            className += ' sel';
-          return <div key={i} className={className}
-          onMouseDown={(e) => {
-            if (e.button == 0) {
-              this.complete(o);
-            }
-          }}>{o}</div>;
-         })
-        }
-      </div>);
+      dropdown = (
+        <div className="dropdown">
+          {options.map((o, i) => {
+            var className = 'item';
+            if (i == this.state.sel) className += ' sel';
+            return (
+              <div
+                key={i}
+                className={className}
+                onMouseDown={(e) => {
+                  if (e.button == 0) {
+                    this.complete(o);
+                  }
+                }}
+              >
+                {o}
+              </div>
+            );
+          })}
+        </div>
+      );
     }
 
     return (
-      <span className='autoc'>
-        <input ref='input' autoComplete={false} value={this.state.text}
-               placeholder={this.props.placeholder}
-               onChange={() => {this.onChange()}}
-               onKeyDown={(e) => {this.onKeyDown(e)}}
-               onFocus={() => {this.onFocus()}}
-               onBlur={() => {this.onBlur()}} />
+      <span className="autoc">
+        <input
+          ref="input"
+          autoComplete={false}
+          value={this.state.text}
+          placeholder={this.props.placeholder}
+          onChange={() => {
+            this.onChange();
+          }}
+          onKeyDown={(e) => {
+            this.onKeyDown(e);
+          }}
+          onFocus={() => {
+            this.onFocus();
+          }}
+          onBlur={() => {
+            this.onBlur();
+          }}
+        />
         {dropdown}
       </span>
     );
@@ -71,38 +94,36 @@ export default class AutoComplete extends React.Component<Props, {
 
   onChange() {
     var text = React.findDOMNode<HTMLInputElement>(this.refs['input']).value;
-    this.setState({text});
+    this.setState({ text });
   }
 
   onKeyDown(e: __React.KeyboardEvent) {
-    if (e.shiftKey || e.altKey || e.metaKey)
-      return;
+    if (e.shiftKey || e.altKey || e.metaKey) return;
 
     var options = this.getOptions();
     var sel = this.state.sel;
     switch (e.key) {
-    case 'ArrowDown':
-    case 'Tab':
-      if (sel == null || sel == options.length - 1) {
-        sel = 0;
-      } else {
-        sel++;
-      }
-      break;
-    case 'ArrowUp':
-      if (sel)
-        sel--;
-      break;
-    case 'Enter':
-      if (sel != null) {
-        this.complete(options[sel]);
-        sel = null;
-      } else if (this.props.onCommit) {
-        this.props.onCommit(this.state.text);
-      }
-      break;
-    default:
-      return;
+      case 'ArrowDown':
+      case 'Tab':
+        if (sel == null || sel == options.length - 1) {
+          sel = 0;
+        } else {
+          sel++;
+        }
+        break;
+      case 'ArrowUp':
+        if (sel) sel--;
+        break;
+      case 'Enter':
+        if (sel != null) {
+          this.complete(options[sel]);
+          sel = null;
+        } else if (this.props.onCommit) {
+          this.props.onCommit(this.state.text);
+        }
+        break;
+      default:
+        return;
     }
 
     e.preventDefault();
@@ -118,21 +139,21 @@ export default class AutoComplete extends React.Component<Props, {
         sel = options.length - 1;
       }
     }
-    this.setState({sel:sel});
+    this.setState({ sel: sel });
   }
 
   onFocus() {
-    this.setState({focus:true});
+    this.setState({ focus: true });
   }
 
   onBlur() {
-    this.setState({sel:null, focus:false});
+    this.setState({ sel: null, focus: false });
   }
 
   complete(text: string) {
     var words = this.state.text.split(/\s+/);
     words[words.length - 1] = text;
     text = words.join(' ') + ' ';
-    this.setState({text});
+    this.setState({ text });
   }
 }

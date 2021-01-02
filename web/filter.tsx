@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import * as util from './util';
-import {Entry} from './types';
+import { Entry } from './types';
 
 export interface Filters {
-  hiddenTags: {[tag:string]:boolean};
+  hiddenTags: { [tag: string]: boolean };
   query: string;
 }
 
 export function filterStateFromURL(params: util.URLParams): Filters {
-  var hiddenTags: {[tag:string]:boolean} = {};
+  var hiddenTags: { [tag: string]: boolean } = {};
   if ('h' in params) {
     for (var t of params['h']) {
       hiddenTags[t] = true;
@@ -31,7 +31,7 @@ export function filterStateFromURL(params: util.URLParams): Filters {
   if ('q' in params) {
     query = params['q'][0];
   }
-  return {hiddenTags, query};
+  return { hiddenTags, query };
 }
 
 export function filterStateToURL(state: Filters) {
@@ -53,37 +53,41 @@ export function filtersToQuery(filters: Filters): string {
 }
 
 interface TagListProps {
-  topTags: {key: string; value: number}[];
-  hiddenTags: {[tag:string]:boolean};
-  onToggle: (tag: string, on: boolean)=>void;
+  topTags: { key: string; value: number }[];
+  hiddenTags: { [tag: string]: boolean };
+  onToggle: (tag: string, on: boolean) => void;
 }
 
 export class TagList extends React.Component<TagListProps, {}> {
   render() {
     var hiddenTags = this.props.hiddenTags;
 
-    var showTags: {tag:string, amount?:number}[] = [];
+    var showTags: { tag: string; amount?: number }[] = [];
     for (let tag in this.props.hiddenTags) {
-      showTags.push({tag:tag});
+      showTags.push({ tag: tag });
     }
     for (let tag of this.props.topTags) {
-      if (tag.key in hiddenTags)
-        continue;
-      showTags.push({tag:tag.key, amount:tag.value});
+      if (tag.key in hiddenTags) continue;
+      showTags.push({ tag: tag.key, amount: tag.value });
     }
     showTags = showTags.slice(0, 15);
 
     return (
-      <div style={{WebkitColumnCount:3}}>
+      <div style={{ WebkitColumnCount: 3 }}>
         {showTags.map((t) => (
           <div key={t.tag}>
-          <label>
-          <input type="checkbox"
-          checked={!(t.tag in hiddenTags)}
-          onChange={() => {this.onToggle(t.tag, !(t.tag in hiddenTags))}} />
-          {t.tag} {t.amount ? '(' + util.formatAmount(t.amount) + ')' : ""}
-          </label></div>
-         ))}
+            <label>
+              <input
+                type="checkbox"
+                checked={!(t.tag in hiddenTags)}
+                onChange={() => {
+                  this.onToggle(t.tag, !(t.tag in hiddenTags));
+                }}
+              />
+              {t.tag} {t.amount ? '(' + util.formatAmount(t.amount) + ')' : ''}
+            </label>
+          </div>
+        ))}
       </div>
     );
   }
@@ -97,10 +101,10 @@ export function parseQuery(query: string) {
   var tokens = query.split(/\s+/).filter((t) => t != '');
   var terms = tokens.map((tok) => {
     var negate = false;
-    var f: (e:Entry) => boolean = null;
+    var f: (e: Entry) => boolean = null;
     if (/^-/.test(tok)) {
-      negate = true
-      tok = tok.substr(1)
+      negate = true;
+      tok = tok.substr(1);
     }
     if (/^t:/.test(tok)) {
       var tag = tok.substr(2);
@@ -134,4 +138,3 @@ export function parseQuery(query: string) {
   }
   return (e: Entry) => terms.every((term) => term(e));
 }
-

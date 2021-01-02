@@ -1,7 +1,8 @@
 .graph text {
   font-size: 12px;
 }
-.graph line, .graph path {
+.graph line,
+.graph path {
   stroke: black;
   stroke-width: 1px;
 }
@@ -20,7 +21,6 @@
 .graph .regression text {
   fill: blue;
 }
-
 
 .controls {
   font-size: 80%;

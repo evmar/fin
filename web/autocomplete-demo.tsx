@@ -16,16 +16,14 @@ import AutoComplete from './autocomplete';
 
 class Demo extends React.Component<{}, {}> {
   render() {
-    var options = ["foo", "foox", "bar", "baz", "longlongword"];
+    var options = ['foo', 'foox', 'bar', 'baz', 'longlongword'];
     return (
       <main>
         <h1>AutoComplete demo</h1>
         <AutoComplete options={options} />
-        </main>
+      </main>
     );
   }
 }
 
-React.render(
-  React.createElement(Demo),
-  document.body);
+React.render(React.createElement(Demo), document.body);

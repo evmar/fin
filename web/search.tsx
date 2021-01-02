@@ -23,9 +23,13 @@ interface SearchInputProps extends React.Props<any> {
 export default class SearchInput extends React.Component<SearchInputProps, {}> {
   render() {
     return (
-      <input ref="i" type="search" autoFocus
-             placeholder="search"
-             defaultValue={this.props.initialText} />
+      <input
+        ref="i"
+        type="search"
+        autoFocus
+        placeholder="search"
+        defaultValue={this.props.initialText}
+      />
     );
   }
 

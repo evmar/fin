@@ -12,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Entry} from "./types";
-import * as ledger from "./ledger";
+import { Entry } from './types';
+import * as ledger from './ledger';
 
-class AppShell extends React.Component<{}, {
-  entries: Entry[];
-}> {
+class AppShell extends React.Component<
+  {},
+  {
+    entries: Entry[];
+  }
+> {
   constructor() {
     super();
-    this.state = {entries: null};
+    this.state = { entries: null };
   }
 
   componentDidMount() {
@@ -32,8 +35,11 @@ class AppShell extends React.Component<{}, {
       return <div></div>;
     }
     return (
-      <ledger.LedgerPage entries={this.state.entries}
-                         onReload={() => {this.reload();}}
+      <ledger.LedgerPage
+        entries={this.state.entries}
+        onReload={() => {
+          this.reload();
+        }}
       />
     );
   }
@@ -47,16 +53,14 @@ class AppShell extends React.Component<{}, {
     req.send();
   }
 
-  load(data: {entries:Entry[]}) {
+  load(data: { entries: Entry[] }) {
     var entries = data.entries;
     entries = entries.filter((e) => e.amount != 0);
     entries = entries.sort((a, b) => d3.descending(a.date, b.date));
 
-    (window as any).data = {entries:entries};
-    this.setState({entries});
+    (window as any).data = { entries: entries };
+    this.setState({ entries });
   }
 }
 
-React.render(
-  React.createElement(AppShell),
-  document.body)
+React.render(React.createElement(AppShell), document.body);

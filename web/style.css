@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
 }
 body {
@@ -6,12 +7,13 @@ body {
   font-size: 14px;
 }
 
-input, button {
+input,
+button {
   font-family: inherit;
   font-size: inherit;
 }
 /* center checkboxes relative to their text. */
-input[type=checkbox] {
+input[type='checkbox'] {
   vertical-align: middle;
 }
 

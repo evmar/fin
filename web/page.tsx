@@ -24,14 +24,10 @@ export default class Page extends React.Component<Props, {}> {
         <header>
           <h1 className="title">{this.props.title}</h1>
           <div className="spacer"></div>
-          <div>
-            filter: [TODO here]
-          </div>
+          <div>filter: [TODO here]</div>
         </header>
         <div className="body">
-          <main>
-            {this.props.children}
-          </main>
+          <main>{this.props.children}</main>
         </div>
       </div>
     );
