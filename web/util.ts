@@ -24,7 +24,7 @@ export function formatAmount(a: number, dollars?: boolean): string {
 }
 
 export interface URLParams {
-  [key: string]: string[];
+  [key: string]: string[]|undefined;
 }
 
 export function parseURLParams(search: string): URLParams {
@@ -34,7 +34,7 @@ export function parseURLParams(search: string): URLParams {
     if (!(key in params)) {
       params[key] = [];
     }
-    params[key].push(decodeURIComponent(val));
+    params[key]!.push(decodeURIComponent(val));
   });
   return params;
 }

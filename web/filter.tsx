@@ -17,27 +17,27 @@ import { Entry } from './types';
 
 export interface Filters {
   hiddenTags: { [tag: string]: boolean };
-  query: string;
+  query?: string;
 }
 
 export function filterStateFromURL(params: util.URLParams): Filters {
   var hiddenTags: { [tag: string]: boolean } = {};
   if ('h' in params) {
-    for (var t of params['h']) {
+    for (var t of params['h']!) {
       hiddenTags[t] = true;
     }
   }
-  var query: string = null;
+  var query: string | undefined = undefined;
   if ('q' in params) {
-    query = params['q'][0];
+    query = params['q']![0];
   }
-  return { hiddenTags, query };
+  return { hiddenTags, ...(query && { query }) };
 }
 
 export function filterStateToURL(state: Filters) {
   return util.makeURLParams({
     h: Object.keys(state.hiddenTags),
-    q: state.query ? [state.query] : null,
+    q: state.query ? [state.query] : undefined,
   });
 }
 
@@ -97,11 +97,12 @@ export class TagList extends React.Component<TagListProps, {}> {
   }
 }
 
-export function parseQuery(query: string) {
+type QueryFunc = (e: Entry) => boolean;
+export function parseQuery(query: string): QueryFunc | undefined {
   var tokens = query.split(/\s+/).filter((t) => t != '');
   var terms = tokens.map((tok) => {
     var negate = false;
-    var f: (e: Entry) => boolean = null;
+    var f: QueryFunc | undefined;
     if (/^-/.test(tok)) {
       negate = true;
       tok = tok.substr(1);
@@ -111,7 +112,9 @@ export function parseQuery(query: string) {
       if (tag == '') {
         f = (e) => !!e.tags;
       } else {
-        f = (e) => e.tags && e.tags.filter((t) => t == tag).length > 0;
+        f = (e) => {
+          return e.tags?.includes(tag) ?? false;
+        };
       }
     } else if (/^[><]/.test(tok)) {
       var amount = parseFloat(tok.substr(1)) * 100;
@@ -134,7 +137,7 @@ export function parseQuery(query: string) {
     return f;
   });
   if (!terms.length) {
-    return null;
+    return undefined;
   }
   return (e: Entry) => terms.every((term) => term(e));
 }

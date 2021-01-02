@@ -21,9 +21,9 @@ class AppShell extends React.Component<
     entries: Entry[];
   }
 > {
-  constructor() {
-    super();
-    this.state = { entries: null };
+  constructor(props: {}) {
+    super(props);
+    this.state = { entries: [] };
   }
 
   componentDidMount() {
@@ -63,4 +63,4 @@ class AppShell extends React.Component<
   }
 }
 
-React.render(React.createElement(AppShell), document.body);
+ReactDOM.render(React.createElement(AppShell), document.body);

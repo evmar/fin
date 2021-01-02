@@ -35,7 +35,10 @@ function leastSquares(data: { x: Date; y: number }[]) {
   return { slope, intercept, yMean };
 }
 
-function chooseFirstMatch(tags: Set<string>, entryTags: string[]): string {
+function chooseFirstMatch(
+  tags: Set<string>,
+  entryTags: string[]
+): string | null {
   for (var t of entryTags) {
     if (tags.has(t)) {
       return t;
@@ -49,19 +52,21 @@ export interface GraphOpts {
   normalize: boolean;
 }
 
+interface GraphOptsProps {
+  filters: Filters;
+  opts: GraphOpts;
+  tags: string[];
+  tagAmounts: { [tag: string]: number };
+  onFilters: (f: Filters) => void;
+  onChange: (opts: GraphOpts) => void;
+}
+
 export class GraphOptsPane extends React.Component<
-  {
-    filters: Filters;
-    opts: GraphOpts;
-    tags: string[];
-    tagAmounts: { [tag: string]: number };
-    onFilters: (f: Filters) => void;
-    onChange: (opts: GraphOpts) => void;
-  },
+  GraphOptsProps,
   { expand: boolean }
 > {
-  constructor() {
-    super();
+  constructor(props: GraphOptsProps) {
+    super(props);
     this.state = { expand: false };
   }
 
@@ -70,7 +75,7 @@ export class GraphOptsPane extends React.Component<
     var tags = this.props.tags;
     var that = this;
 
-    function tagRow(tag: string): JSX.Element {
+    function tagRow(tag: string): JSX.Element | null {
       var className = 'legend';
       if (tag in that.props.filters.hiddenTags) {
         className += ' hidden';
@@ -116,7 +121,7 @@ export class GraphOptsPane extends React.Component<
           onSearch={(q) => {
             this.onSearch(q);
           }}
-          initialText={this.props.filters.query}
+          initialText={this.props.filters.query ?? ''}
         />
         <label>
           <input
@@ -171,23 +176,22 @@ export class GraphOptsPane extends React.Component<
   }
 }
 
-export class Graph extends React.Component<
-  {
-    entries: Entry[];
-    opts: GraphOpts;
-    width: number;
-    height: number;
-    tags: string[];
-  },
-  {}
-> {
+interface GraphProps {
+  entries: Entry[];
+  opts: GraphOpts;
   width: number;
   height: number;
+  tags: string[];
+}
 
-  svg: d3.Selection<any>;
-  g: d3.Selection<any>;
-  regLine: d3.Selection<any>;
-  regText: d3.Selection<any>;
+export class Graph extends React.Component<GraphProps> {
+  width!: number;
+  height!: number;
+
+  svg!: d3.Selection<any>;
+  g!: d3.Selection<any>;
+  regLine!: d3.Selection<any>;
+  regText!: d3.Selection<any>;
 
   componentDidMount() {
     this.create();
@@ -202,7 +206,7 @@ export class Graph extends React.Component<
     this.width = this.props.width - margin.left - margin.right;
     this.height = this.props.height - margin.top - margin.bottom;
 
-    var el = React.findDOMNode(this);
+    var el = ReactDOM.findDOMNode(this) as Element;
     this.svg = d3
       .select(el)
       .append('svg')
@@ -229,7 +233,7 @@ export class Graph extends React.Component<
     interface EI {
       mdate: Date;
       amount: number;
-      tags: string[];
+      tags?: string[];
     }
     var entries: EI[] = this.props.entries.map((e) => ({
       mdate: format.parse(e.date.substr(0, 8) + '01'),

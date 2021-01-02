@@ -34,7 +34,7 @@ export default class SearchInput extends React.Component<SearchInputProps, {}> {
   }
 
   getInput(): HTMLInputElement {
-    return React.findDOMNode<HTMLInputElement>(this.refs['i']);
+    return ReactDOM.findDOMNode(this.refs['i']) as HTMLInputElement;
   }
 
   componentDidMount() {

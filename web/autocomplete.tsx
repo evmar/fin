@@ -23,16 +23,20 @@ export default class AutoComplete extends React.Component<
   Props,
   {
     sel?: number;
-    focus?: boolean;
-    text?: string;
+    focus: boolean;
+    text: string;
   }
 > {
   constructor(props: Props) {
-    super();
-    this.state = { sel: null, text: props.initialText || '', focus: false };
+    super(props);
+    this.state = {
+      sel: undefined,
+      text: props.initialText || '',
+      focus: false,
+    };
   }
 
-  getOptions() {
+  getOptions(): string[] {
     var words = this.state.text.split(/\s+/);
     var word = words[words.length - 1];
     return this.props.options.filter(
@@ -42,7 +46,7 @@ export default class AutoComplete extends React.Component<
 
   render() {
     var options = this.getOptions();
-    var dropdown: JSX.Element = null;
+    var dropdown: JSX.Element | null = null;
     if (options.length > 0 && this.state.focus) {
       dropdown = (
         <div className="dropdown">
@@ -71,7 +75,7 @@ export default class AutoComplete extends React.Component<
       <span className="autoc">
         <input
           ref="input"
-          autoComplete={false}
+          autoComplete="1"
           value={this.state.text}
           placeholder={this.props.placeholder}
           onChange={() => {
@@ -93,11 +97,12 @@ export default class AutoComplete extends React.Component<
   }
 
   onChange() {
-    var text = React.findDOMNode<HTMLInputElement>(this.refs['input']).value;
+    var text = (ReactDOM.findDOMNode(this.refs['input']) as HTMLInputElement)
+      .value;
     this.setState({ text });
   }
 
-  onKeyDown(e: __React.KeyboardEvent) {
+  onKeyDown(e: React.KeyboardEvent) {
     if (e.shiftKey || e.altKey || e.metaKey) return;
 
     var options = this.getOptions();
@@ -117,7 +122,7 @@ export default class AutoComplete extends React.Component<
       case 'Enter':
         if (sel != null) {
           this.complete(options[sel]);
-          sel = null;
+          sel = undefined;
         } else if (this.props.onCommit) {
           this.props.onCommit(this.state.text);
         }
@@ -129,7 +134,7 @@ export default class AutoComplete extends React.Component<
     e.preventDefault();
 
     if (!options.length) {
-      sel = null;
+      sel = undefined;
     }
     if (sel != null) {
       if (sel < 0) {
@@ -147,7 +152,7 @@ export default class AutoComplete extends React.Component<
   }
 
   onBlur() {
-    this.setState({ sel: null, focus: false });
+    this.setState({ sel: undefined, focus: false });
   }
 
   complete(text: string) {

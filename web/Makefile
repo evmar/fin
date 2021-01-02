@@ -14,7 +14,7 @@ build:
 build/d3.js: node_modules/d3/d3.min.js | build
 	cp $^ $@
 
-build/react.js: node_modules/react/dist/react.js | build
+build/react.js: node_modules/react/umd/react.production.min.js | build
 	cp $^ $@
 
 build/code%js build/code%css: * | build

@@ -19,32 +19,34 @@ import AutoComplete from './autocomplete';
 import * as graph from './graph';
 import { Entry } from './types';
 
+interface LedgerRowProps {
+  key: any;
+  date: string;
+  entry: Entry;
+  selected: boolean;
+  allTags: string[];
+  onTag: (tags: string) => void;
+  onSel: () => void;
+}
+
 class LedgerRow extends React.Component<
-  {
-    key: any;
-    date: string;
-    entry: Entry;
-    selected: boolean;
-    allTags: string[];
-    onTag: (tags: string) => void;
-    onSel: () => void;
-  },
+  LedgerRowProps,
   {
     tagSuggestions?: string[];
   }
 > {
-  constructor() {
-    super();
-    this.state = { tagSuggestions: null };
+  constructor(props: LedgerRowProps) {
+    super(props);
+    this.state = { tagSuggestions: [] };
   }
   render() {
     var e = this.props.entry;
-    var tags: JSX.Element = null;
+    var tags: JSX.Element | undefined;
     if (e.tags) {
       tags = <span>{e.tags.map((t) => ' #' + t)}</span>;
     }
     var className = 'ledger-entry';
-    var editControls: JSX.Element = null;
+    var editControls: JSX.Element | undefined;
     if (this.props.selected) {
       if (!this.state.tagSuggestions) {
         var req = new XMLHttpRequest();
@@ -107,11 +109,11 @@ interface LedgerProps {
 export class Ledger extends React.Component<
   LedgerProps,
   {
-    sel: string;
+    sel: string | null;
   }
 > {
-  constructor() {
-    super();
+  constructor(props: LedgerProps) {
+    super(props);
     this.state = { sel: null };
   }
 
@@ -130,7 +132,7 @@ export class Ledger extends React.Component<
     entries = entries.slice(0, 200);
     entries.unshift(total);
 
-    var last: string = null;
+    var last: string | null = null;
     var rEntries = entries.map((e, i) => {
       var date = e.date.slice(0, 7);
       var next = date;
@@ -169,12 +171,12 @@ interface LedgerPageProps {
 export class LedgerPage extends React.Component<
   LedgerPageProps,
   {
-    filters?: filter.Filters;
-    graphOpts?: graph.GraphOpts;
+    filters: filter.Filters;
+    graphOpts: graph.GraphOpts;
   }
 > {
-  constructor() {
-    super();
+  constructor(props: LedgerPageProps) {
+    super(props);
     var params = util.parseURLParams(document.location.search);
     var filters = filter.filterStateFromURL(params);
     var graphOpts = {
@@ -260,7 +262,7 @@ export class LedgerPage extends React.Component<
     this.setState({ filters: filters });
     history.replaceState(
       {},
-      null,
+      '',
       util.urlWithQuery(location.href, filter.filterStateToURL(filters))
     );
   }

@@ -26,4 +26,4 @@ class Demo extends React.Component<{}, {}> {
   }
 }
 
-React.render(React.createElement(Demo), document.body);
+ReactDOM.render(React.createElement(Demo), document.body);
