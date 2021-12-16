@@ -43,7 +43,7 @@ func TestCSV(t *testing.T) {
 			t.Errorf("bad desc: %q", e.Payee)
 		}
 		if e.Amount != tcase.amount {
-			t.Errorf("bad amount: %v", e.Amount)
+			t.Errorf("bad amount: got %v, want %v", e.Amount, tcase.amount)
 		}
 		if e.Cleared != tcase.cleared {
 			t.Errorf("bad cleared: %v", e.Cleared)

@@ -22,13 +22,21 @@ func NewCSVReader(r io.Reader) (*CSVReader, error) {
 	cr := &CSVReader{r: csv.NewReader(r), fields: map[string]int{}}
 	header, err := cr.r.Read()
 	if err != nil {
-		panic(err)
 		return nil, err
 	}
 	for i, name := range header {
 		cr.fields[name] = i
 	}
 	return cr, nil
+}
+
+func parseNumber(num string) (int, error) {
+	num = strings.Replace(num, ",", "", -1)
+	numF, err := strconv.ParseFloat(num, 64)
+	if err != nil {
+		return 0, err
+	}
+	return int(numF * 100.0), nil
 }
 
 func (cr *CSVReader) ReadEntry() (*qif.Entry, error) {
@@ -44,17 +52,17 @@ func (cr *CSVReader) ReadEntry() (*qif.Entry, error) {
 		return nil, err
 	}
 
-	amount := row[cr.fields["Credit"]]
-	if amount == "" {
-		amount = row[cr.fields["Debit"]]
-	}
-	amount = strings.Replace(amount, ",", "", -1)
-	if amount != "" {
-		amountF, err := strconv.ParseFloat(amount, 64)
+	if n := row[cr.fields["Credit"]]; n != "" {
+		e.Amount, err = parseNumber(n)
 		if err != nil {
 			return nil, err
 		}
-		e.Amount = int(amountF * 100.0)
+	} else if n := row[cr.fields["Debit"]]; n != "" {
+		e.Amount, err = parseNumber(n)
+		e.Amount = -e.Amount
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	e.Payee = strings.TrimSpace(row[cr.fields["Description"]])
