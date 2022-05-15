@@ -16,6 +16,7 @@ package qif
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"testing"
 	"time"
@@ -96,7 +97,7 @@ func TestTrunc(t *testing.T) {
 	for {
 		_, err := r.ReadEntry()
 		if err != nil {
-			if err == io.ErrUnexpectedEOF {
+			if errors.Is(err, io.ErrUnexpectedEOF) {
 				// Test passed.
 				break
 			}

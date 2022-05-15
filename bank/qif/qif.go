@@ -61,24 +61,36 @@ type Entry struct {
 }
 
 type Reader struct {
-	s *bufio.Scanner
+	s       *bufio.Scanner
+	lineNum int
 }
 
 // NewReader constructs a new Reader for a given io.Reader.
-func NewReader(r io.Reader) Reader {
-	return Reader{bufio.NewScanner(r)}
+func NewReader(r io.Reader) *Reader {
+	return &Reader{bufio.NewScanner(r), 0}
+}
+
+func (r *Reader) line() ([]byte, error) {
+	if !r.s.Scan() {
+		if err := r.s.Err(); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+	r.lineNum++
+	return r.s.Bytes(), nil
 }
 
 // ReadHeader reads the header from the input and returns the value,
 // e.g. "CCard".  It must be called first when reading.
-func (r Reader) ReadHeader() (string, error) {
-	if !r.s.Scan() {
-		if err := r.s.Err(); err != nil {
-			return "", err
-		}
+func (r *Reader) ReadHeader() (string, error) {
+	line, err := r.line()
+	if err != nil {
+		return "", err
+	}
+	if line == nil {
 		return "", io.ErrUnexpectedEOF
 	}
-	line := r.s.Bytes()
 	prefix := []byte("!Type:")
 	if !bytes.HasPrefix(line, prefix) {
 		return "", fmt.Errorf("bad header")
@@ -109,11 +121,17 @@ func isoToUTF(data []byte) string {
 // ReadEntry reads an Entry from the input, and can be called repeatedly.
 // ReadHeader must be called first.  Returns (nil, io.EOF) at the end
 // of the input.
-func (r Reader) ReadEntry() (*Entry, error) {
+func (r *Reader) ReadEntry() (*Entry, error) {
 	e := &Entry{}
 	read := false
-	for r.s.Scan() {
-		line := r.s.Bytes()
+	for {
+		line, err := r.line()
+		if err != nil {
+			return nil, err
+		}
+		if line == nil {
+			break
+		}
 		code := line[0]
 		data := isoToUTF(line[1:])
 		switch code {
@@ -133,7 +151,7 @@ func (r Reader) ReadEntry() (*Entry, error) {
 		case 'D':
 			t, err := time.Parse("01/02/2006", data)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("line %d: %w", r.lineNum, err)
 			}
 			e.Date = t
 		case 'N':
@@ -143,7 +161,7 @@ func (r Reader) ReadEntry() (*Entry, error) {
 		case 'T':
 			f, err := strconv.ParseFloat(data, 32)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("line %d: %w", r.lineNum, err)
 			}
 			e.Amount = int(f * 100)
 		case '^':
@@ -159,12 +177,9 @@ func (r Reader) ReadEntry() (*Entry, error) {
 		}
 		read = true
 	}
-	if err := r.s.Err(); err != nil {
-		return nil, err
-	}
 	if read {
 		// We read some data but didn't read to the end of a record.
-		return nil, io.ErrUnexpectedEOF
+		return nil, fmt.Errorf("line %d: %w", r.lineNum, io.ErrUnexpectedEOF)
 	}
 	return nil, io.EOF
 }
