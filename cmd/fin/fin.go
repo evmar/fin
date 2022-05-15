@@ -28,12 +28,6 @@ import (
 	"github.com/evmar/fin/bank/qif"
 )
 
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func qifId(e *qif.Entry) string {
 	h := sha1.New()
 	io.WriteString(h, e.Number+"\n")
@@ -48,15 +42,19 @@ type QIFRead interface {
 	ReadEntry() (*qif.Entry, error)
 }
 
-func parse(path string, entries []*qif.Entry) []*qif.Entry {
+func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 	f, err := os.Open(path)
-	check(err)
+	if err != nil {
+		return nil, err
+	}
 	defer f.Close()
 
 	fi, err := f.Stat()
-	check(err)
+	if err != nil {
+		return nil, err
+	}
 	if fi.IsDir() {
-		return entries
+		return entries, nil
 	}
 
 	var qr QIFRead
@@ -68,16 +66,14 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 		r := qif.NewReader(f)
 		ttype, err := r.ReadHeader()
 		if err != nil {
-			err = fmt.Errorf("reading %s: %s", path, err.Error())
-			check(err)
+			return nil, fmt.Errorf("reading %s: %s", path, err.Error())
 		}
 		log.Printf("%s: %q", path, ttype)
 		qr = r
 	case ".csv":
 		r, err := qifcsv.NewCSVReader(f)
 		if err != nil {
-			err = fmt.Errorf("reading %s: %s", path, err.Error())
-			check(err)
+			return nil, fmt.Errorf("reading %s: %s", path, err.Error())
 		}
 		log.Printf("%s: csv", path)
 		// CSV came from credit card, where numbers are flipped.
@@ -93,7 +89,7 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 			if err == io.EOF {
 				break
 			}
-			check(err)
+			return nil, err
 		}
 		if invert {
 			entry.Amount = -entry.Amount
@@ -102,10 +98,10 @@ func parse(path string, entries []*qif.Entry) []*qif.Entry {
 		entries = append(entries, entry)
 	}
 
-	return entries
+	return entries, nil
 }
 
-func main() {
+func run() error {
 	var tagsPath string
 	flag.StringVar(&tagsPath, "tags", "", "path to read/write tag list")
 	flag.Parse()
@@ -115,7 +111,7 @@ func main() {
 		mode = flag.Arg(0)
 	}
 	if mode == "" {
-		log.Fatalf("must specify mode")
+		return fmt.Errorf("must specify mode")
 	}
 
 	switch mode {
@@ -123,15 +119,20 @@ func main() {
 		if tagsPath == "" {
 			fmt.Println("must specify tags path")
 			flag.PrintDefaults()
-			return
+			return nil
 		}
 
 		tags, err := LoadTags(tagsPath)
-		check(err)
+		if err != nil {
+			return err
+		}
 
 		var entries []*qif.Entry
 		for _, arg := range flag.Args()[1:] {
-			entries = parse(arg, entries)
+			entries, err = parse(arg, entries)
+			if err != nil {
+				return err
+			}
 		}
 
 		w := web{
@@ -141,6 +142,13 @@ func main() {
 		}
 		w.start(":8888")
 	default:
-		log.Fatalf("unknown mode %q", mode)
+		return fmt.Errorf("unknown mode %q", mode)
+	}
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
 	}
 }

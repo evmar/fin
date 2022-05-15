@@ -55,14 +55,16 @@ func (web *web) toJson(w io.Writer) {
 	}
 }
 
-func (web *web) updateTagsFromPost(r io.Reader) {
+func (web *web) updateTagsFromPost(r io.Reader) error {
 	type tagUpdate struct {
 		Tags []string `json:"tags"`
 		Ids  []string `json:"ids"`
 	}
 
 	var data tagUpdate
-	check(json.NewDecoder(r).Decode(&data))
+	if err := json.NewDecoder(r).Decode(&data); err != nil {
+		return err
+	}
 
 	for _, id := range data.Ids {
 		tagset := NewStringSet()
@@ -83,15 +85,18 @@ func (web *web) updateTagsFromPost(r io.Reader) {
 		web.tags[id] = tags
 	}
 	web.tags.Save(web.tagsPath)
+	return nil
 }
 
-func (web *web) guessTags(w http.ResponseWriter, r *http.Request) {
+func (web *web) guessTags(w http.ResponseWriter, r *http.Request) error {
 	desc, err := ioutil.ReadAll(r.Body)
-	check(err)
+	if err != nil {
+		return err
+	}
 	tags := guessTags(string(desc), web.entries, web.tags)
 
 	w.Header().Add("Content-Type", "text/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	return json.NewEncoder(w).Encode(map[string]interface{}{
 		"tags": tags,
 	})
 }
@@ -101,7 +106,9 @@ func (web *web) start(addr string) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
 			if r.Method == "POST" {
-				web.updateTagsFromPost(r.Body)
+				if err := web.updateTagsFromPost(r.Body); err != nil {
+					http.Error(w, err.Error(), 400)
+				}
 				return
 			}
 
@@ -115,7 +122,11 @@ func (web *web) start(addr string) {
 		w.Header().Add("Content-Type", "application/json")
 		web.toJson(w)
 	})
-	http.HandleFunc("/guess", web.guessTags)
+	http.HandleFunc("/guess", func(w http.ResponseWriter, r *http.Request) {
+		if err := web.guessTags(w, r); err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
 	http.Handle("/static/", fs)
 
 	log.Printf("listening on %s", addr)
