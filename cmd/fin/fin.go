@@ -70,7 +70,7 @@ func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 		}
 		log.Printf("%s: %q", path, ttype)
 		qr = r
-	case ".csv":
+	case ".csv", ".CSV":
 		r, err := qifcsv.NewCSVReader(f)
 		if err != nil {
 			return nil, err
@@ -80,7 +80,7 @@ func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 		invert = true
 		qr = r
 	default:
-		log.Printf("%s: unknown format", path)
+		log.Printf("%s: unknown format %q", path, ext)
 	}
 
 	for {
