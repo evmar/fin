@@ -59,7 +59,6 @@ func (cr *CSVReader) ReadEntry() (*qif.Entry, error) {
 		}
 	} else if n := row[cr.fields["Debit"]]; n != "" {
 		e.Amount, err = parseNumber(n)
-		e.Amount = -e.Amount
 		if err != nil {
 			return nil, err
 		}
