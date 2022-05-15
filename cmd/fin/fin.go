@@ -66,14 +66,14 @@ func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 		r := qif.NewReader(f)
 		ttype, err := r.ReadHeader()
 		if err != nil {
-			return nil, fmt.Errorf("reading %s: %s", path, err.Error())
+			return nil, err
 		}
 		log.Printf("%s: %q", path, ttype)
 		qr = r
 	case ".csv":
 		r, err := qifcsv.NewCSVReader(f)
 		if err != nil {
-			return nil, fmt.Errorf("reading %s: %s", path, err.Error())
+			return nil, err
 		}
 		log.Printf("%s: csv", path)
 		// CSV came from credit card, where numbers are flipped.
@@ -128,10 +128,10 @@ func run() error {
 		}
 
 		var entries []*qif.Entry
-		for _, arg := range flag.Args()[1:] {
-			entries, err = parse(arg, entries)
+		for _, path := range flag.Args()[1:] {
+			entries, err = parse(path, entries)
 			if err != nil {
-				return err
+				return fmt.Errorf("reading %s: %s", path, err.Error())
 			}
 		}
 
