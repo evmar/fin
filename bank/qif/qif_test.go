@@ -30,7 +30,7 @@ C*
 ^
 D12/31/2012
 PCHECKCARD 1117 CITY OF PORTLAND DEPT T PORTLAND OR 2443232690
-T-1.59
+T-1,592.65
 C*
 ^
 `
@@ -68,7 +68,7 @@ func TestParse(t *testing.T) {
 	exp = Entry{
 		Number:  "",
 		Date:    date(2012, 12, 31),
-		Amount:  -159,
+		Amount:  -159265,
 		Payee:   "CHECKCARD 1117 CITY OF PORTLAND DEPT T PORTLAND OR 2443232690",
 		Address: "",
 		Cleared: Cleared,

@@ -23,6 +23,7 @@ import (
 	"io"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -159,6 +160,7 @@ func (r *Reader) ReadEntry() (*Entry, error) {
 		case 'P':
 			e.Payee = data
 		case 'T':
+			data = strings.ReplaceAll(data, ",", "")
 			f, err := strconv.ParseFloat(data, 32)
 			if err != nil {
 				return nil, fmt.Errorf("line %d: %w", r.lineNum, err)
