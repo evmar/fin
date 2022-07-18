@@ -1,7 +1,7 @@
 import { Ledger } from './ledger';
 import { Page } from './page';
 import { Entry } from './types';
-import { URLParams } from './util';
+import { memo, URLParams } from './util';
 
 namespace TagPage {
   export interface Props {
@@ -19,22 +19,14 @@ interface Stats {
 }
 
 export class TagPage extends React.Component<TagPage.Props> {
-  stats: Stats;
-
-  constructor(props: TagPage.Props) {
-    super(props);
-
-    this.stats = this.computeStats();
-  }
-
-  computeStats(): Stats {
+  computeStats(entries: Entry[]): Stats {
     const stats = {
       totalCount: 0,
       totalAmount: 0,
       untaggedCount: 0,
       untaggedAmount: 0,
     };
-    for (const entry of this.props.entries) {
+    for (const entry of entries) {
       if (entry.tags?.includes('transfer')) {
         continue;
       }
@@ -48,6 +40,7 @@ export class TagPage extends React.Component<TagPage.Props> {
     }
     return stats;
   }
+  stats = memo(this.computeStats);
 
   topUntagged(): Entry[] {
     let top = this.props.entries.filter((e) => !e.tags);
@@ -56,23 +49,20 @@ export class TagPage extends React.Component<TagPage.Props> {
   }
 
   render() {
+    const stats = this.stats(this.props.entries);
     return (
       <Page>
-        <div>
-          {this.stats.untaggedCount} of {this.stats.totalCount} (
-          {((this.stats.untaggedCount * 100) / this.stats.totalCount).toFixed(
-            0
-          )}
+        <p>
+          {stats.untaggedCount} of {stats.totalCount} (
+          {((stats.untaggedCount * 100) / stats.totalCount).toFixed(0)}
           %) of entries missing tags.
-        </div>
-        <div>
-          ${(this.stats.untaggedAmount / 100).toFixed(0)} of $
-          {(this.stats.totalAmount / 100).toFixed(0)} (
-          {((this.stats.untaggedAmount * 100) / this.stats.totalAmount).toFixed(
-            0
-          )}
+        </p>
+        <p>
+          ${(stats.untaggedAmount / 100).toFixed(0)} of $
+          {(stats.totalAmount / 100).toFixed(0)} (
+          {((stats.untaggedAmount * 100) / stats.totalAmount).toFixed(0)}
           %) missing tags.
-        </div>
+        </p>
         {<Ledger entries={this.topUntagged()} />}
       </Page>
     );

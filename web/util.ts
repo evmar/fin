@@ -85,3 +85,23 @@ export function setToArray<T>(s: Set<T>): T[] {
   s.forEach((e) => arr.push(e));
   return arr;
 }
+
+function arrayEqual(a: unknown[], b: unknown[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+export function memo<P extends unknown[], R>(f: (...p: P) => R): (...p: P) => R {
+  let lastArgs: P|undefined;
+  let lastRet: R|undefined;
+  return function(...p: P): R {
+    if (lastArgs === undefined || !arrayEqual(lastArgs, p)) {
+      lastArgs = p;
+      lastRet = f(...p);
+    }
+    return lastRet!;
+  };
+}
