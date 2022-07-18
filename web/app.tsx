@@ -15,16 +15,21 @@
 import { Entry } from './types';
 import * as ledger from './ledger';
 
-class AppShell extends React.Component<
-  {},
-  {
+interface DataJSON {
+  entries: Entry[];
+}
+
+namespace App {
+  export interface Props {}
+  export interface State {
     entries: Entry[];
   }
-> {
-  constructor(props: {}) {
-    super(props);
-    this.state = { entries: [] };
-  }
+}
+
+class App extends React.Component<App.Props, App.State> {
+  state = {
+    entries: [],
+  };
 
   componentDidMount() {
     this.reload();
@@ -32,7 +37,7 @@ class AppShell extends React.Component<
 
   render() {
     if (!this.state.entries) {
-      return <div></div>;
+      return <div>loading</div>;
     }
     return (
       <ledger.LedgerPage
@@ -44,23 +49,19 @@ class AppShell extends React.Component<
     );
   }
 
-  reload() {
-    var req = new XMLHttpRequest();
-    req.onload = (e) => {
-      this.load(JSON.parse(req.responseText));
-    };
-    req.open('get', '/data');
-    req.send();
+  async reload() {
+    const entries: DataJSON = await (await fetch('/data')).json();
+    this.load(entries);
   }
 
-  load(data: { entries: Entry[] }) {
-    var entries = data.entries;
+  load(data: DataJSON) {
+    let entries = data.entries;
     entries = entries.filter((e) => e.amount != 0);
     entries = entries.sort((a, b) => d3.descending(a.date, b.date));
 
-    (window as any).data = { entries: entries };
+    (window as any).data = data;
     this.setState({ entries });
   }
 }
 
-ReactDOM.render(React.createElement(AppShell), document.body);
+ReactDOM.render(React.createElement(App), document.body);
