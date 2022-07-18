@@ -27,7 +27,7 @@ func TestCSV(t *testing.T) {
 		amount  int
 		cleared qif.ClearedType
 	}{
-		{"08/04/2015", "FOREIGN TRANSACTION FEE", -311729, qif.Cleared},
+		{"08/04/2015", "FOREIGN TRANSACTION FEE", 311729, qif.Cleared},
 		{"08/03/2015", "GOOGLE *Music          GOOGLE.COM/CH CA", 0, qif.Cleared},
 	}
 	for _, tcase := range tcases {
