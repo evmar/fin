@@ -15,6 +15,7 @@
 import { Entry } from './types';
 import * as ledger from './ledger';
 import * as util from './util';
+import { TagPage } from './tagger';
 
 /** As returned from `/data` endpoint. */
 interface DataJSON {
@@ -26,13 +27,14 @@ namespace App {
     params: util.URLParams;
   }
   export interface State {
-    entries: Entry[];
+    entries?: Entry[];
+    view: 'ledger' | 'tag';
   }
 }
 
 class App extends React.Component<App.Props, App.State> {
-  state = {
-    entries: [],
+  state: App.State = {
+    view: 'tag' as const,
   };
 
   componentDidMount() {
@@ -43,15 +45,21 @@ class App extends React.Component<App.Props, App.State> {
     if (!this.state.entries) {
       return <div>loading</div>;
     }
-    return (
-      <ledger.LedgerPage
-        params={this.props.params}
-        entries={this.state.entries}
-        onReload={() => {
-          this.reload();
-        }}
-      />
-    );
+    if (this.state.view === 'tag') {
+      return (
+        <TagPage params={this.props.params} entries={this.state.entries} />
+      );
+    } else {
+      return (
+        <ledger.LedgerPage
+          params={this.props.params}
+          entries={this.state.entries}
+          onReload={() => {
+            this.reload();
+          }}
+        />
+      );
+    }
   }
 
   async reload() {

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 interface Props {
-  extraHead: React.ReactChild;
+  extraHead?: React.ReactChild;
 }
 
 export class Page extends React.Component<Props, {}> {
