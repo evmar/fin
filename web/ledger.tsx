@@ -18,6 +18,7 @@ import * as filter from './filter';
 import AutoComplete from './autocomplete';
 import * as graph from './graph';
 import { Entry } from './types';
+import { go } from './app';
 
 interface LedgerRowProps {
   key: any;
@@ -26,7 +27,7 @@ interface LedgerRowProps {
   selected: boolean;
   allTags: string[];
   onTag: (tags: string) => void;
-  onSel: () => void;
+  onClick: () => void;
 }
 
 class LedgerRow extends React.Component<
@@ -71,7 +72,7 @@ class LedgerRow extends React.Component<
       <div
         className={className}
         onClick={() => {
-          this.props.onSel();
+          this.props.onClick();
         }}
       >
         <div className="ledger-date">{this.props.date}</div>
@@ -92,6 +93,7 @@ class LedgerRow extends React.Component<
 namespace Ledger {
   export interface Props {
     entries: Entry[];
+    onClick?: (entry: Entry) => void;
 
     /** Used in inline tagging, getting removed soon */
     tags?: string[];
@@ -146,8 +148,12 @@ export class Ledger extends React.Component<
           onTag={(t) => {
             this.props.onTag?.(i == 0 ? entries : [e], t);
           }}
-          onSel={() => {
-            this.setState({ sel: e.id });
+          onClick={() => {
+            if (this.props.onClick) {
+              this.props.onClick(e);
+            } else {
+              this.setState({ sel: e.id });
+            }
           }}
         />
       );
@@ -227,8 +233,8 @@ export class LedgerPage extends React.Component<
         <Ledger
           entries={entries}
           tags={tags}
-          onTag={(e, t) => {
-            this.onTag(e, t);
+          onClick={(e) => {
+            go('tag', { id: e.id });
           }}
         />
       </Page>

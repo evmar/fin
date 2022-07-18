@@ -15,7 +15,23 @@
 import { Entry } from './types';
 import * as ledger from './ledger';
 import * as util from './util';
-import { TagPage } from './tagger';
+import { TaggerPage, UntaggedPage } from './tagger';
+
+let appShell!: AppShell;
+
+interface URLs {
+  ledger: unknown;
+  untagged: unknown;
+  tag: { id: string };
+}
+
+export function go<V extends keyof URLs>(view: V, viewData: URLs[V]) {
+  const params = { view, ...((viewData ?? {}) as {}) };
+  const url = util.urlWithQuery(location.href, util.makeURLParams(params));
+
+  history.pushState(undefined, '', url);
+  appShell.setState({ params });
+}
 
 /** As returned from `/data` endpoint. */
 interface DataJSON {
@@ -25,55 +41,66 @@ interface DataJSON {
 namespace App {
   export interface Props {
     params: util.URLParams;
-  }
-  export interface State {
-    entries?: Entry[];
-    view: 'ledger' | 'tag';
+    entries: Entry[];
   }
 }
 
-class App extends React.Component<App.Props, App.State> {
-  state: App.State = {
-    view: 'tag' as const,
+class App extends React.Component<App.Props> {
+  render() {
+    const { params } = this.props;
+    const view = (params['view'] as string) || 'ledger';
+    switch (view) {
+      case 'untagged':
+        return <UntaggedPage params={params} entries={this.props.entries} />;
+      case 'tag': {
+        const id = params['id']![0];
+        return <TaggerPage entries={this.props.entries} id={id} />;
+      }
+      case 'ledger':
+        return (
+          <ledger.LedgerPage
+            params={params}
+            entries={this.props.entries}
+            onReload={() => {
+              throw new Error('todo');
+            }}
+          />
+        );
+    }
+    throw new Error('unhandled view');
+  }
+}
+
+namespace AppShell {
+  export interface State {
+    params: util.URLParams;
+    entries?: Entry[];
+  }
+}
+
+/** Manages initial load and URL popstate. */
+class AppShell extends React.Component<{}> {
+  state: AppShell.State = {
+    params: {},
   };
 
   componentDidMount() {
-    this.reload();
+    appShell = this;
+    this.stateFromURL();
+    window.onpopstate = () => {
+      this.stateFromURL();
+    };
+    this.load();
   }
 
-  render() {
-    if (!this.state.entries) {
-      return <div>loading</div>;
-    }
-    if (this.state.view === 'tag') {
-      return (
-        <TagPage
-          params={this.props.params}
-          entries={this.state.entries}
-          onReload={() => {
-            this.reload();
-          }}
-        />
-      );
-    } else {
-      return (
-        <ledger.LedgerPage
-          params={this.props.params}
-          entries={this.state.entries}
-          onReload={() => {
-            this.reload();
-          }}
-        />
-      );
-    }
+  stateFromURL() {
+    const params = util.parseURLParams(document.location.search);
+    this.setState({ params });
   }
 
-  async reload() {
-    const entries: DataJSON = await (await fetch('/data')).json();
-    this.load(entries);
-  }
+  async load() {
+    const data: DataJSON = await (await fetch('/data')).json();
 
-  load(data: DataJSON) {
     let entries = data.entries;
     entries = entries.filter((e) => e.amount != 0);
     entries = entries.sort((a, b) => d3.descending(a.date, b.date));
@@ -81,7 +108,14 @@ class App extends React.Component<App.Props, App.State> {
     (window as any).data = data;
     this.setState({ entries });
   }
+
+  render() {
+    if (!this.state.entries) {
+      return <div>loading</div>;
+    }
+
+    return <App params={this.state.params} entries={this.state.entries} />;
+  }
 }
 
-const params = util.parseURLParams(document.location.search);
-ReactDOM.render(<App params={params} />, document.body);
+ReactDOM.render(<AppShell />, document.body);

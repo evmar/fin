@@ -2,12 +2,12 @@ import { Ledger } from './ledger';
 import { Page } from './page';
 import { Entry } from './types';
 import { memo, URLParams } from './util';
+import * as app from './app';
 
-namespace TagPage {
+namespace UntaggedPage {
   export interface Props {
     params: URLParams;
     entries: Entry[];
-    onReload: () => void;
   }
 }
 
@@ -18,7 +18,7 @@ interface Stats {
   untaggedAmount: number;
 }
 
-export class TagPage extends React.Component<TagPage.Props> {
+export class UntaggedPage extends React.Component<UntaggedPage.Props> {
   computeStats(entries: Entry[]): Stats {
     const stats = {
       totalCount: 0,
@@ -63,7 +63,45 @@ export class TagPage extends React.Component<TagPage.Props> {
           {((stats.untaggedAmount * 100) / stats.totalAmount).toFixed(0)}
           %) missing tags.
         </p>
-        {<Ledger entries={this.topUntagged()} />}
+        {
+          <Ledger
+            entries={this.topUntagged()}
+            onClick={(e) => app.go('tag', { id: e.id })}
+          />
+        }
+      </Page>
+    );
+  }
+}
+
+namespace TaggerPage {
+  export interface Props {
+    entries: Entry[];
+    id: string;
+  }
+  export interface State {
+    entry: Entry;
+  }
+}
+
+export class TaggerPage extends React.Component<
+  TaggerPage.Props,
+  TaggerPage.State
+> {
+  constructor(props: TaggerPage.Props) {
+    super(props);
+    const entry = this.props.entries.find((e) => e.id === this.props.id);
+    if (!entry) {
+      throw new Error('no entry');
+    }
+    this.state = { entry };
+  }
+
+  render() {
+    const { entry } = this.state;
+    return (
+      <Page>
+        <Ledger entries={[entry]} />
       </Page>
     );
   }
