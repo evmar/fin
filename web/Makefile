@@ -32,3 +32,5 @@ clean:
 
 fmt:
 	$(BIN)/prettier --write *.tsx *.css
+check-fmt:
+	$(BIN)/prettier --check *.tsx *.css

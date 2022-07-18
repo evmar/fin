@@ -3,4 +3,4 @@
 set -e
 
 make test
-make -C web fmt
+make -C web check-fmt
