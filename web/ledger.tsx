@@ -138,7 +138,7 @@ export class Ledger extends React.Component<
 
       return (
         <LedgerRow
-          key={e.id.substr(0, 7) + i}
+          key={e.id.substring(0, 7) + i}
           date={date}
           entry={e}
           selected={this.state.sel != null && e.id == this.state.sel}

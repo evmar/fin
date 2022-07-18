@@ -236,7 +236,7 @@ export class Graph extends React.Component<GraphProps> {
       tags?: string[];
     }
     var entries: EI[] = this.props.entries.map((e) => ({
-      mdate: format.parse(e.date.substr(0, 8) + '01'),
+      mdate: format.parse(e.date.substring(0, 8) + '01'),
       amount: e.amount,
       tags: e.tags,
     }));

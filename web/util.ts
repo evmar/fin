@@ -29,7 +29,7 @@ export interface URLParams {
 
 export function parseURLParams(search: string): URLParams {
   var params: URLParams = {};
-  search.substr(1).split('&').forEach((p) => {
+  search.substring(1).split('&').forEach((p) => {
     var [key, val] = p.split('=');
     if (!(key in params)) {
       params[key] = [];
@@ -55,7 +55,7 @@ export function makeURLParams(params: URLParams): string {
 export function urlWithQuery(url: string, query: string): string {
   var ofs = url.indexOf('?');
   if (ofs > 0) {
-    url = url.substr(0, ofs);
+    url = url.substring(0, ofs);
   }
   if (query) {
     url += '?' + query;

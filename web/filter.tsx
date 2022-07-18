@@ -105,10 +105,10 @@ export function parseQuery(query: string): QueryFunc | undefined {
     var f: QueryFunc | undefined;
     if (/^-/.test(tok)) {
       negate = true;
-      tok = tok.substr(1);
+      tok = tok.substring(1);
     }
     if (/^t:/.test(tok)) {
-      var tag = tok.substr(2);
+      var tag = tok.substring(2);
       if (tag == '') {
         f = (e) => !!e.tags;
       } else {
@@ -117,15 +117,15 @@ export function parseQuery(query: string): QueryFunc | undefined {
         };
       }
     } else if (/^[><]/.test(tok)) {
-      var amount = parseFloat(tok.substr(1)) * 100;
+      var amount = parseFloat(tok.substring(1)) * 100;
       if (tok[0] == '<') {
         f = (e) => e.amount < amount;
       } else {
         f = (e) => e.amount > amount;
       }
     } else if (/^y:/.test(tok)) {
-      var year = tok.substr(2);
-      f = (e) => e.date.substr(0, 4) == year;
+      var year = tok.substring(2);
+      f = (e) => e.date.substring(0, 4) == year;
     } else {
       var r = new RegExp(tok, 'i');
       f = (e) => r.test(e.payee);
