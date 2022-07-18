@@ -110,7 +110,7 @@ func (web *web) start(addr string) {
 
 		fs.ServeHTTP(w, r)
 	})
-	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/data", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		web.toJson(w)
 	})

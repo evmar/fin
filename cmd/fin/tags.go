@@ -64,7 +64,7 @@ func (t Tags) Save(path string) error {
 	}()
 
 	var keys []string
-	for k, _ := range t {
+	for k := range t {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
