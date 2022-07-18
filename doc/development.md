@@ -9,6 +9,13 @@ website.  To rebuild it you run `make bin` in the root directory.
 
 `web` is the website.  To build you run `make` in the `web/` subdirectory.
 
+## Setup
+
+```sh
+$ cd .git/hooks
+$ ln -s ../../pre-commit.sh pre-commit
+```
+
 ## Hacking the web code
 
 To develop, I bring up the server normally and then run `make watch`
