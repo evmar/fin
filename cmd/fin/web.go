@@ -17,7 +17,6 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"sort"
@@ -67,38 +66,31 @@ func (web *web) updateTagsFromPost(r io.Reader) error {
 	}
 
 	for _, id := range data.Ids {
-		tagset := NewStringSet()
-		tagset.AddMulti(web.tags[id])
+		tagset := map[string]struct{}{}
+		for _, tag := range web.tags[id] {
+			tagset[tag] = struct{}{}
+		}
 		for _, tag := range data.Tags {
 			if len(tag) == 0 {
 				continue
 			}
 			if tag[0] == '-' {
-				tagset.Remove(tag[1:])
+				delete(tagset, tag[1:])
 			} else {
-				tagset.Add(tag)
-				tagset[tag] = true
+				tagset[tag] = struct{}{}
 			}
 		}
-		tags := tagset.Strings()
+
+		tags := []string{}
+		for tag := range tagset {
+			tags = append(tags, tag)
+		}
 		sort.Strings(tags)
+
 		web.tags[id] = tags
 	}
 	web.tags.Save(web.tagsPath)
 	return nil
-}
-
-func (web *web) guessTags(w http.ResponseWriter, r *http.Request) error {
-	desc, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return err
-	}
-	tags := guessTags(string(desc), web.entries, web.tags)
-
-	w.Header().Add("Content-Type", "text/json")
-	return json.NewEncoder(w).Encode(map[string]interface{}{
-		"tags": tags,
-	})
 }
 
 func (web *web) start(addr string) {
@@ -121,11 +113,6 @@ func (web *web) start(addr string) {
 	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		web.toJson(w)
-	})
-	http.HandleFunc("/guess", func(w http.ResponseWriter, r *http.Request) {
-		if err := web.guessTags(w, r); err != nil {
-			http.Error(w, err.Error(), 500)
-		}
 	})
 	http.Handle("/static/", fs)
 
