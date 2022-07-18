@@ -15,6 +15,7 @@
 import { Entry } from './types';
 import * as ledger from './ledger';
 
+/** As returned from `/data` endpoint. */
 interface DataJSON {
   entries: Entry[];
 }
