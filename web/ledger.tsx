@@ -154,6 +154,7 @@ export class Ledger extends React.Component<
 
 namespace LedgerPage {
   export interface Props {
+    params: util.URLParams;
     entries: Entry[];
     onReload: () => void;
   }
@@ -169,9 +170,8 @@ export class LedgerPage extends React.Component<
 > {
   constructor(props: LedgerPage.Props) {
     super(props);
-    var params = util.parseURLParams(document.location.search);
-    var filters = filter.filterStateFromURL(params);
-    var graphOpts = {
+    const filters = filter.filterStateFromURL(this.props.params);
+    const graphOpts = {
       stack: new Set<string>(),
       normalize: false,
     };

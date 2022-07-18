@@ -14,6 +14,7 @@
 
 import { Entry } from './types';
 import * as ledger from './ledger';
+import * as util from './util';
 
 /** As returned from `/data` endpoint. */
 interface DataJSON {
@@ -21,7 +22,9 @@ interface DataJSON {
 }
 
 namespace App {
-  export interface Props {}
+  export interface Props {
+    params: util.URLParams;
+  }
   export interface State {
     entries: Entry[];
   }
@@ -42,6 +45,7 @@ class App extends React.Component<App.Props, App.State> {
     }
     return (
       <ledger.LedgerPage
+        params={this.props.params}
         entries={this.state.entries}
         onReload={() => {
           this.reload();
@@ -65,4 +69,5 @@ class App extends React.Component<App.Props, App.State> {
   }
 }
 
-ReactDOM.render(React.createElement(App), document.body);
+const params = util.parseURLParams(document.location.search);
+ReactDOM.render(<App params={params} />, document.body);
