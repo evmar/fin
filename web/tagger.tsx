@@ -35,6 +35,10 @@ export class TagPage extends React.Component<TagPage.Props> {
       untaggedAmount: 0,
     };
     for (const entry of this.props.entries) {
+      if (entry.tags?.includes('transfer')) {
+        continue;
+      }
+
       stats.totalCount++;
       stats.totalAmount += Math.abs(entry.amount);
       if (!entry.tags) {
@@ -46,7 +50,7 @@ export class TagPage extends React.Component<TagPage.Props> {
   }
 
   topUntagged(): Entry[] {
-    let top = [...this.props.entries];
+    let top = this.props.entries.filter((e) => !e.tags);
     top.sort((a, b) => d3.descending(Math.abs(a.amount), Math.abs(b.amount)));
     return top.slice(0, 50);
   }
@@ -62,14 +66,14 @@ export class TagPage extends React.Component<TagPage.Props> {
           %) of entries missing tags.
         </div>
         <div>
-          ${this.stats.untaggedAmount / 100} of ${this.stats.totalAmount / 100}{' '}
-          (
+          ${(this.stats.untaggedAmount / 100).toFixed(0)} of $
+          {(this.stats.totalAmount / 100).toFixed(0)} (
           {((this.stats.untaggedAmount * 100) / this.stats.totalAmount).toFixed(
             0
           )}
           %) missing tags.
         </div>
-        {/*<Ledger></Ledger>*/}
+        {<Ledger entries={this.topUntagged()} />}
       </Page>
     );
   }

@@ -89,19 +89,23 @@ class LedgerRow extends React.Component<
   }
 }
 
-interface LedgerProps {
-  entries: Entry[];
-  tags: string[];
-  onTag: (entries: Entry[], tag: string) => void;
+namespace Ledger {
+  export interface Props {
+    entries: Entry[];
+
+    /** Used in inline tagging, getting removed soon */
+    tags?: string[];
+    onTag?: (entries: Entry[], tag: string) => void;
+  }
 }
 
 export class Ledger extends React.Component<
-  LedgerProps,
+  Ledger.Props,
   {
     sel: string | null;
   }
 > {
-  constructor(props: LedgerProps) {
+  constructor(props: Ledger.Props) {
     super(props);
     this.state = { sel: null };
   }
@@ -138,9 +142,9 @@ export class Ledger extends React.Component<
           date={date}
           entry={e}
           selected={this.state.sel != null && e.id == this.state.sel}
-          allTags={this.props.tags}
+          allTags={this.props.tags ?? []}
           onTag={(t) => {
-            this.props.onTag(i == 0 ? entries : [e], t);
+            this.props.onTag?.(i == 0 ? entries : [e], t);
           }}
           onSel={() => {
             this.setState({ sel: e.id });
