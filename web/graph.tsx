@@ -148,7 +148,8 @@ export class GraphOptsPane extends React.Component<
 
   onLegend(tag: string) {
     var filtered = tag in this.props.filters.hiddenTags;
-    var stacked = this.props.opts.stack.has(tag);
+    // TODO: stacking feature removed temporarily.
+    var stacked = false; // this.props.opts.stack.has(tag);
 
     if (!filtered && !stacked) {
       this.props.filters.hiddenTags[tag] = true;
@@ -156,11 +157,12 @@ export class GraphOptsPane extends React.Component<
     } else if (filtered) {
       delete this.props.filters.hiddenTags[tag];
       this.props.onFilters(this.props.filters);
-      this.props.opts.stack.add(tag);
-      this.props.onChange(this.props.opts);
-    } else {
-      this.props.opts.stack.delete(tag);
-      this.props.onChange(this.props.opts);
+      // TODO: more stacking here
+      //   this.props.opts.stack.add(tag);
+      //   this.props.onChange(this.props.opts);
+      // } else {
+      //   this.props.opts.stack.delete(tag);
+      // this.props.onChange(this.props.opts);
     }
   }
 
