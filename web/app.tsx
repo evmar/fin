@@ -48,12 +48,12 @@ namespace App {
 class App extends React.Component<App.Props> {
   render() {
     const { params } = this.props;
-    const view = (params['view'] as string) || 'ledger';
+    const view = params['view'] ?? 'ledger';
     switch (view) {
       case 'untagged':
         return <UntaggedPage params={params} entries={this.props.entries} />;
       case 'tag': {
-        const id = params['id']![0];
+        const id = params['id']!;
         return <TaggerPage entries={this.props.entries} id={id} />;
       }
       case 'ledger':

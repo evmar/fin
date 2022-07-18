@@ -21,23 +21,20 @@ export interface Filters {
 }
 
 export function filterStateFromURL(params: util.URLParams): Filters {
-  var hiddenTags: { [tag: string]: boolean } = {};
-  if ('h' in params) {
-    for (var t of params['h']!) {
+  const hiddenTags: { [tag: string]: boolean } = {};
+  if (params['h']) {
+    for (const t of params['h'].split(',')) {
       hiddenTags[t] = true;
     }
   }
-  var query: string | undefined = undefined;
-  if ('q' in params) {
-    query = params['q']![0];
-  }
+  var query: string | undefined = params['q'];
   return { hiddenTags, ...(query && { query }) };
 }
 
 export function filterStateToURL(state: Filters) {
   return util.makeURLParams({
-    h: Object.keys(state.hiddenTags),
-    q: state.query ? [state.query] : undefined,
+    h: Object.keys(state.hiddenTags).join(','),
+    q: state.query,
   });
 }
 

@@ -24,17 +24,14 @@ export function formatAmount(a: number, dollars?: boolean): string {
 }
 
 export interface URLParams {
-  [key: string]: string[]|string|undefined;
+  [key: string]: string|undefined;
 }
 
 export function parseURLParams(search: string): URLParams {
   var params: URLParams = {};
   search.substring(1).split('&').forEach((p) => {
-    var [key, val] = p.split('=');
-    if (!(key in params)) {
-      params[key] = [];
-    }
-    (params[key] as string[]).push(decodeURIComponent(val));
+    const [key, val] = p.split('=');
+    params[key] = decodeURIComponent(val);
   });
   return params;
 }
@@ -42,13 +39,10 @@ export function parseURLParams(search: string): URLParams {
 export function makeURLParams(params: URLParams): string {
   var query: string[] = [];
   for (var key in params) {
-    var vals = params[key];
-    if (vals == null)
+    const val = params[key];
+    if (val == null)
       continue;
-    if (typeof vals === 'string') vals = [vals];
-    for (var val of vals) {
-      query.push(key + '=' + encodeURIComponent(val));
-    }
+    query.push(key + '=' + encodeURIComponent(val));
   }
   return query.join('&');
 }
