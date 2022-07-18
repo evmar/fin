@@ -13,23 +13,19 @@
 // limitations under the License.
 
 interface Props {
-  title: string;
-  children: React.ReactNode;
+  extraHead: React.ReactChild;
 }
 
-export default class Page extends React.Component<Props, {}> {
+export class Page extends React.Component<Props, {}> {
   render() {
     return (
-      <div>
+      <>
         <header>
-          <h1 className="title">{this.props.title}</h1>
-          <div className="spacer"></div>
-          <div>filter: [TODO here]</div>
+          <h1>fin</h1>
+          {this.props.extraHead}
         </header>
-        <div className="body">
-          <main>{this.props.children}</main>
-        </div>
-      </div>
+        <main>{this.props.children}</main>
+      </>
     );
   }
 }

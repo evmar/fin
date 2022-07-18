@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Page from './page';
+import { Page } from './page';
 import * as util from './util';
 import * as filter from './filter';
 import AutoComplete from './autocomplete';
@@ -152,19 +152,22 @@ export class Ledger extends React.Component<
   }
 }
 
-interface LedgerPageProps {
-  entries: Entry[];
-  onReload: () => void;
-}
-
-export class LedgerPage extends React.Component<
-  LedgerPageProps,
-  {
+namespace LedgerPage {
+  export interface Props {
+    entries: Entry[];
+    onReload: () => void;
+  }
+  export interface State {
     filters: filter.Filters;
     graphOpts: graph.GraphOpts;
   }
+}
+
+export class LedgerPage extends React.Component<
+  LedgerPage.Props,
+  LedgerPage.State
 > {
-  constructor(props: LedgerPageProps) {
+  constructor(props: LedgerPage.Props) {
     super(props);
     var params = util.parseURLParams(document.location.search);
     var filters = filter.filterStateFromURL(params);
@@ -197,36 +200,34 @@ export class LedgerPage extends React.Component<
     var entries = this.getEntries();
     tagAmounts = util.gatherTags(entries);
 
+    const opts = (
+      <graph.GraphOptsPane
+        opts={this.state.graphOpts}
+        onChange={(opts) => this.setState({ graphOpts: opts })}
+        filters={this.state.filters}
+        onFilters={(filters) => this.onFilters(filters)}
+        tags={tags}
+        tagAmounts={tagAmounts}
+      />
+    );
+
     return (
-      <>
-        <header>
-          <h1>fin</h1>
-          <graph.GraphOptsPane
-            opts={this.state.graphOpts}
-            onChange={(opts) => this.setState({ graphOpts: opts })}
-            filters={this.state.filters}
-            onFilters={(filters) => this.onFilters(filters)}
-            tags={tags}
-            tagAmounts={tagAmounts}
-          />
-        </header>
-        <main>
-          <graph.Graph
-            entries={entries}
-            tags={tags}
-            opts={this.state.graphOpts}
-            width={10 * 64}
-            height={3 * 64}
-          />
-          <Ledger
-            entries={entries}
-            tags={tags}
-            onTag={(e, t) => {
-              this.onTag(e, t);
-            }}
-          />
-        </main>
-      </>
+      <Page extraHead={opts}>
+        <graph.Graph
+          entries={entries}
+          tags={tags}
+          opts={this.state.graphOpts}
+          width={10 * 64}
+          height={3 * 64}
+        />
+        <Ledger
+          entries={entries}
+          tags={tags}
+          onTag={(e, t) => {
+            this.onTag(e, t);
+          }}
+        />
+      </Page>
     );
   }
 
