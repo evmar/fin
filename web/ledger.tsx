@@ -198,7 +198,7 @@ export class LedgerPage extends React.Component<
     tagAmounts = util.gatherTags(entries);
 
     return (
-      <div className="body">
+      <>
         <header>
           <h1>fin</h1>
           <graph.GraphOptsPane
@@ -226,7 +226,7 @@ export class LedgerPage extends React.Component<
             }}
           />
         </main>
-      </div>
+      </>
     );
   }
 
