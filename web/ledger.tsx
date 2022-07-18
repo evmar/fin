@@ -48,17 +48,6 @@ class LedgerRow extends React.Component<
     var className = 'ledger-entry';
     var editControls: JSX.Element | undefined;
     if (this.props.selected) {
-      if (!this.state.tagSuggestions) {
-        var req = new XMLHttpRequest();
-        req.onload = (e) => {
-          var resp = JSON.parse(req.responseText);
-          if ('tags' in resp) {
-            this.setState({ tagSuggestions: resp.tags });
-          }
-        };
-        req.open('post', '/guess');
-        req.send(e.payee);
-      }
       className += ' sel';
       editControls = (
         <div>
