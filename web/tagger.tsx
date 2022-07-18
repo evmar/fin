@@ -1,3 +1,4 @@
+import { Ledger } from './ledger';
 import { Page } from './page';
 import { Entry } from './types';
 import { URLParams } from './util';
@@ -6,6 +7,7 @@ namespace TagPage {
   export interface Props {
     params: URLParams;
     entries: Entry[];
+    onReload: () => void;
   }
 }
 
@@ -18,6 +20,7 @@ interface Stats {
 
 export class TagPage extends React.Component<TagPage.Props> {
   stats: Stats;
+
   constructor(props: TagPage.Props) {
     super(props);
 
@@ -39,11 +42,35 @@ export class TagPage extends React.Component<TagPage.Props> {
         stats.untaggedAmount += Math.abs(entry.amount);
       }
     }
-    console.log(stats);
     return stats;
   }
 
+  topUntagged(): Entry[] {
+    let top = [...this.props.entries];
+    top.sort((a, b) => d3.descending(Math.abs(a.amount), Math.abs(b.amount)));
+    return top.slice(0, 50);
+  }
+
   render() {
-    return <Page>{JSON.stringify(this.stats)}</Page>;
+    return (
+      <Page>
+        <div>
+          {this.stats.untaggedCount} of {this.stats.totalCount} (
+          {((this.stats.untaggedCount * 100) / this.stats.totalCount).toFixed(
+            0
+          )}
+          %) of entries missing tags.
+        </div>
+        <div>
+          ${this.stats.untaggedAmount / 100} of ${this.stats.totalAmount / 100}{' '}
+          (
+          {((this.stats.untaggedAmount * 100) / this.stats.totalAmount).toFixed(
+            0
+          )}
+          %) missing tags.
+        </div>
+        {/*<Ledger></Ledger>*/}
+      </Page>
+    );
   }
 }

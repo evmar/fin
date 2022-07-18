@@ -47,7 +47,13 @@ class App extends React.Component<App.Props, App.State> {
     }
     if (this.state.view === 'tag') {
       return (
-        <TagPage params={this.props.params} entries={this.state.entries} />
+        <TagPage
+          params={this.props.params}
+          entries={this.state.entries}
+          onReload={() => {
+            this.reload();
+          }}
+        />
       );
     } else {
       return (
