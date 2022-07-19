@@ -54,7 +54,7 @@ class App extends React.Component<App.Props> {
         return <UntaggedPage params={params} entries={this.props.entries} />;
       case 'tag': {
         const id = params['id']!;
-        return <TaggerPage entries={this.props.entries} id={id} />;
+        return <TaggerPage key={id} entries={this.props.entries} id={id} />;
       }
       case 'ledger':
         return (

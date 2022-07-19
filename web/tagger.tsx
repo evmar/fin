@@ -63,12 +63,7 @@ export class UntaggedPage extends React.Component<UntaggedPage.Props> {
           {((stats.untaggedAmount * 100) / stats.totalAmount).toFixed(0)}
           %) missing tags.
         </p>
-        {
-          <Ledger
-            entries={this.topUntagged()}
-            onClick={(e) => app.go('tag', { id: e.id })}
-          />
-        }
+        {<Ledger entries={this.topUntagged()} />}
       </Page>
     );
   }

@@ -93,7 +93,6 @@ class LedgerRow extends React.Component<
 namespace Ledger {
   export interface Props {
     entries: Entry[];
-    onClick?: (entry: Entry) => void;
 
     /** Used in inline tagging, getting removed soon */
     tags?: string[];
@@ -149,10 +148,10 @@ export class Ledger extends React.Component<
             this.props.onTag?.(i == 0 ? entries : [e], t);
           }}
           onClick={() => {
-            if (this.props.onClick) {
-              this.props.onClick(e);
-            } else {
+            if (this.props.tags) {
               this.setState({ sel: e.id });
+            } else {
+              go('tag', { id: e.id });
             }
           }}
         />
@@ -230,13 +229,7 @@ export class LedgerPage extends React.Component<
           width={10 * 64}
           height={3 * 64}
         />
-        <Ledger
-          entries={entries}
-          tags={tags}
-          onClick={(e) => {
-            go('tag', { id: e.id });
-          }}
-        />
+        <Ledger entries={entries} tags={tags} />
       </Page>
     );
   }
