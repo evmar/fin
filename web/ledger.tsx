@@ -92,6 +92,7 @@ class LedgerRow extends React.Component<
 
 namespace Ledger {
   export interface Props {
+    total?: boolean;
     entries: Entry[];
 
     /** Used in inline tagging, getting removed soon */
@@ -112,22 +113,21 @@ export class Ledger extends React.Component<
   }
 
   render() {
-    var entries = this.props.entries;
+    let entries = this.props.entries.slice(0, 200);
 
-    // Make a row for total.
-    var total = {
-      id: 'total',
-      date: '',
-      payee: 'Total of ' + entries.length + ' entries',
-      amount: 0,
-    };
-    entries.forEach((e) => (total.amount += e.amount));
+    if (this.props.total) {
+      const total = {
+        id: 'total',
+        date: '',
+        payee: 'Total of ' + entries.length + ' entries',
+        amount: 0,
+      };
+      this.props.entries.forEach((e) => (total.amount += e.amount));
+      entries.unshift(total);
+    }
 
-    entries = entries.slice(0, 200);
-    entries.unshift(total);
-
-    var last: string | null = null;
-    var rEntries = entries.map((e, i) => {
+    let last: string | null = null;
+    const rEntries = entries.map((e, i) => {
       var date = e.date.slice(0, 7);
       var next = date;
       if (last != null) {
@@ -229,7 +229,7 @@ export class LedgerPage extends React.Component<
           width={10 * 64}
           height={3 * 64}
         />
-        <Ledger entries={entries} tags={tags} />
+        <Ledger total={true} entries={entries} tags={tags} />
       </Page>
     );
   }
