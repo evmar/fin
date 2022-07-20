@@ -33,6 +33,10 @@ export function go<V extends keyof URLs>(view: V, viewData: URLs[V]) {
   appShell.setState({ params });
 }
 
+export function reload() {
+  appShell.load();
+}
+
 /** As returned from `/data` endpoint. */
 interface DataJSON {
   entries: Entry[];

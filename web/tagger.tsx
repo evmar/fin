@@ -72,14 +72,31 @@ export class UntaggedPage extends React.Component<UntaggedPage.Props> {
 namespace TagChip {
   export interface Props {
     tag: string;
-    add?: () => void;
-    del?: () => void;
+    onClick?: () => void;
   }
 }
 class TagChip extends React.Component<TagChip.Props> {
   render() {
-    return <div className="tag-chip">{this.props.tag}</div>;
+    return (
+      <div className="tag-chip" onClick={this.props.onClick}>
+        {this.props.tag}
+      </div>
+    );
   }
+}
+
+async function setTags(ids: string[], tags: string[]): Promise<void> {
+  const json = {
+    tags,
+    ids,
+  };
+
+  const resp = await fetch('/', { method: 'POST', body: JSON.stringify(json) });
+  if (!resp.ok) {
+    throw new Error(`${resp.status} ${resp.statusText}`);
+  }
+  await resp.text(); // Silence Chrome warning that occurs when you don't read body.
+  return;
 }
 
 namespace TaggerPage {
@@ -161,7 +178,7 @@ export class TaggerPage extends React.Component<
   render() {
     const { entry, similar } = this.state;
 
-    function countTags(entries: Entry[]) {
+    function countTags(entries: Entry[]): Array<[string, number]> {
       const tagCounts = new Map<string, number>();
       for (const entry of entries) {
         if (entry.tags) {
@@ -170,41 +187,63 @@ export class TaggerPage extends React.Component<
           }
         }
       }
-      return tagCounts;
+      const arr = Array.from(tagCounts);
+      arr.sort((a, b) => d3.descending(a[1], b[1]) || d3.ascending(a[0], b[0]));
+      return arr;
     }
     const entries = [entry];
-    const tagCounts = countTags(entries);
+    const ids = entries.map((e) => e.id);
+    async function doTag(tag: string) {
+      await setTags(ids, [tag]);
+      app.reload();
+    }
 
-    let tags = {
-      on: [] as string[],
-      partial: [] as string[],
-      suggested: [] as string[],
-    };
+    const tagCounts = countTags(entries);
+    let onRows = [];
+    let offRows = [];
+    let offTags = new Set<string>();
     for (const [tag, count] of tagCounts) {
       if (count === entries.length) {
-        tags.on.push(tag);
+        onRows.push(<TagChip tag={tag} onClick={() => doTag(`-${tag}`)} />);
       } else {
-        tags.partial.push(tag);
+        onRows.push(
+          <span>
+            <TagChip tag={tag} /> ({count})
+          </span>
+        );
+        offRows.push(
+          <span>
+            <TagChip tag={tag} /> ({count})
+          </span>
+        );
+        offTags.add(tag);
       }
+    }
+
+    const similarCounts = countTags(similar);
+    for (const [tag] of similarCounts) {
+      if (offTags.has(tag)) continue;
+      offRows.push(<TagChip tag={tag} onClick={() => doTag(tag)} />);
     }
 
     return (
       <Page>
         <Ledger entries={entries} />
         <p>Tags:</p>
-        {tags.on.length > 0 ? (
-          <p>
-            on:{' '}
-            {tags.on.map((tag) => (
-              <TagChip tag={tag} />
-            ))}
-          </p>
-        ) : null}
-        {tags.partial.length > 0 ? (
-          <p>partial: {tags.partial.join(' ')}</p>
-        ) : null}
-
-        <p>Similar entries:</p>
+        <table>
+          <tr>
+            <th>on</th>
+            <th>off</th>
+          </tr>
+          <tr>
+            <td width="50%" valign="top">
+              {onRows}
+            </td>
+            <td width="50%" valign="top">
+              {offRows}
+            </td>
+          </tr>
+        </table>
         <Ledger entries={similar} />
       </Page>
     );
