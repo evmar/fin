@@ -152,6 +152,7 @@ export class TaggerPage extends React.Component<
   }
 
   findSimilar(index: Map<string, Set<Entry>>, entry: Entry): Entry[] {
+    console.time('findSimilar');
     const matches = new Map<Entry, number>();
 
     // For each overlapping term, score it by the IDF of the term.
@@ -171,8 +172,10 @@ export class TaggerPage extends React.Component<
 
     const scored = Array.from(matches.entries());
     scored.sort((a, b) => d3.descending(a[1], b[1]));
-    console.log(scored.slice(0, 50));
-    return scored.map(([e, _]) => e);
+    // console.log(scored.slice(0, 50));
+    const similar = scored.map(([e, _]) => e);
+    console.timeEnd('findSimilar');
+    return similar;
   }
 
   render() {
