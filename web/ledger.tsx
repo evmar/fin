@@ -20,71 +20,34 @@ import * as graph from './graph';
 import { Entry } from './types';
 import { go } from './app';
 
-interface LedgerRowProps {
-  key: any;
-  date: string;
-  entry: Entry;
-  selected: boolean;
-  allTags: string[];
-  onTag: (tags: string) => void;
-  onClick: () => void;
+namespace LedgerRow {
+  export interface Props {
+    date: string;
+    entry: Entry;
+    onClick: () => void;
+  }
 }
 
-class LedgerRow extends React.Component<
-  LedgerRowProps,
-  {
-    tagSuggestions?: string[];
-  }
-> {
-  constructor(props: LedgerRowProps) {
-    super(props);
-    this.state = { tagSuggestions: [] };
-  }
+class LedgerRow extends React.Component<LedgerRow.Props> {
   render() {
-    var e = this.props.entry;
-    var tags: JSX.Element | undefined;
-    if (e.tags) {
-      tags = <span>{e.tags.map((t) => ' #' + t)}</span>;
-    }
-    var className = 'ledger-entry';
-    var editControls: JSX.Element | undefined;
-    if (this.props.selected) {
-      className += ' sel';
-      editControls = (
-        <div>
-          tag:&nbsp;
-          <AutoComplete
-            options={this.props.allTags}
-            onCommit={(t) => {
-              this.props.onTag(t);
-            }}
-            initialText={(e.tags || []).join(' ')}
-            placeholder={
-              this.state.tagSuggestions
-                ? this.state.tagSuggestions.join(' ')
-                : ''
-            }
-          />
-        </div>
-      );
+    const entry = this.props.entry;
+    let tags: JSX.Element | undefined;
+    if (entry.tags) {
+      tags = <span>{entry.tags.map((t) => ' #' + t)}</span>;
     }
     return (
       <div
-        className={className}
+        className="ledger-entry"
         onClick={() => {
           this.props.onClick();
         }}
       >
         <div className="ledger-date">{this.props.date}</div>
-        <div className="ledger-body" title={e.date}>
-          <div className="ledger-payee">{e.payee}</div>
-          {this.props.selected ? (
-            editControls
-          ) : (
-            <div className="ledger-tags">{tags}</div>
-          )}
+        <div className="ledger-body" title={entry.date}>
+          <div className="ledger-payee">{entry.payee}</div>
+          <div className="ledger-tags">{tags}</div>
         </div>
-        <div className="ledger-money">{util.formatAmount(e.amount)}</div>
+        <div className="ledger-money">{util.formatAmount(entry.amount)}</div>
       </div>
     );
   }
@@ -94,24 +57,10 @@ namespace Ledger {
   export interface Props {
     total?: boolean;
     entries: Entry[];
-
-    /** Used in inline tagging, getting removed soon */
-    tags?: string[];
-    onTag?: (entries: Entry[], tag: string) => void;
   }
 }
 
-export class Ledger extends React.Component<
-  Ledger.Props,
-  {
-    sel: string | null;
-  }
-> {
-  constructor(props: Ledger.Props) {
-    super(props);
-    this.state = { sel: null };
-  }
-
+export class Ledger extends React.Component<Ledger.Props> {
   render() {
     let entries = this.props.entries.slice(0, 200);
 
@@ -142,17 +91,8 @@ export class Ledger extends React.Component<
           key={e.id.substring(0, 7) + i}
           date={date}
           entry={e}
-          selected={this.state.sel != null && e.id == this.state.sel}
-          allTags={this.props.tags ?? []}
-          onTag={(t) => {
-            this.props.onTag?.(i == 0 ? entries : [e], t);
-          }}
           onClick={() => {
-            if (this.props.tags) {
-              this.setState({ sel: e.id });
-            } else {
-              go('tag', { id: e.id });
-            }
+            go('tag', { id: e.id });
           }}
         />
       );
@@ -229,7 +169,7 @@ export class LedgerPage extends React.Component<
           width={10 * 64}
           height={3 * 64}
         />
-        <Ledger total={true} entries={entries} tags={tags} />
+        <Ledger total={true} entries={entries} />
       </Page>
     );
   }

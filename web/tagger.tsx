@@ -69,6 +69,19 @@ export class UntaggedPage extends React.Component<UntaggedPage.Props> {
   }
 }
 
+namespace TagChip {
+  export interface Props {
+    tag: string;
+    add?: () => void;
+    del?: () => void;
+  }
+}
+class TagChip extends React.Component<TagChip.Props> {
+  render() {
+    return <div className="tag-chip">{this.props.tag}</div>;
+  }
+}
+
 namespace TaggerPage {
   export interface Props {
     entries: Entry[];
@@ -147,9 +160,50 @@ export class TaggerPage extends React.Component<
 
   render() {
     const { entry, similar } = this.state;
+
+    function countTags(entries: Entry[]) {
+      const tagCounts = new Map<string, number>();
+      for (const entry of entries) {
+        if (entry.tags) {
+          for (const tag of entry.tags) {
+            tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+          }
+        }
+      }
+      return tagCounts;
+    }
+    const entries = [entry];
+    const tagCounts = countTags(entries);
+
+    let tags = {
+      on: [] as string[],
+      partial: [] as string[],
+      suggested: [] as string[],
+    };
+    for (const [tag, count] of tagCounts) {
+      if (count === entries.length) {
+        tags.on.push(tag);
+      } else {
+        tags.partial.push(tag);
+      }
+    }
+
     return (
       <Page>
-        <Ledger entries={[entry]} />
+        <Ledger entries={entries} />
+        <p>Tags:</p>
+        {tags.on.length > 0 ? (
+          <p>
+            on:{' '}
+            {tags.on.map((tag) => (
+              <TagChip tag={tag} />
+            ))}
+          </p>
+        ) : null}
+        {tags.partial.length > 0 ? (
+          <p>partial: {tags.partial.join(' ')}</p>
+        ) : null}
+
         <p>Similar entries:</p>
         <Ledger entries={similar} />
       </Page>

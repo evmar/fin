@@ -1,0 +1,7 @@
+.tag-chip {
+  display: inline-block;
+  background: #eee;
+  border: solid 1px #ddd;
+  border-radius: 2px;
+  padding: 2px 4px;
+}
