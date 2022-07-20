@@ -103,7 +103,7 @@ async function setTags(ids: string[], tags: string[]): Promise<void> {
 namespace TaggerPage {
   export interface Props {
     entries: Entry[];
-    id: string;
+    ids: string[];
   }
 }
 
@@ -134,27 +134,32 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
     return revIndex;
   }
 
-  findSimilar(index: Map<string, Set<Entry>>, entry: Entry): Entry[] {
+  findSimilar(index: Map<string, Set<Entry>>, entries: Entry[]): Entry[] {
     console.time('findSimilar');
     const matches = new Map<Entry, number>();
 
     // For each overlapping term, score it by the IDF of the term.
     // General goal is to find entries that share rare terms.
-    for (const term of terms(entry)) {
-      const list = index.get(term);
-      if (!list) continue;
-      const idf = Math.log(this.props.entries.length / list.size);
+    for (const entry of entries) {
+      for (const term of terms(entry)) {
+        const list = index.get(term);
+        if (!list) continue;
+        const idf = Math.log(this.props.entries.length / list.size);
 
-      for (const match of list) {
-        if (entry === match) continue;
-
-        const score = matches.get(match) ?? 0;
-        matches.set(match, score + idf);
+        for (const match of list) {
+          const score = matches.get(match) ?? 0;
+          matches.set(match, score + idf);
+        }
       }
+    }
+    for (const entry of entries) {
+      matches.delete(entry);
     }
 
     const scored = Array.from(matches.entries());
-    scored.sort((a, b) => d3.descending(a[1], b[1]));
+    scored.sort(
+      (a, b) => d3.descending(a[1], b[1]) || d3.descending(a[0].date, b[0].date)
+    );
     // console.log(scored.slice(0, 50));
     const similar = scored.map(([e, _]) => e);
     console.timeEnd('findSimilar');
@@ -162,8 +167,10 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
   }
 
   render() {
-    const entry = this.props.entries.find((e) => e.id === this.props.id);
-    if (!entry) {
+    const entries = this.props.entries.filter((e) =>
+      this.props.ids.includes(e.id)
+    );
+    if (!entries) {
       throw new Error('no entry');
     }
 
@@ -177,7 +184,7 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
     }
 
     const index = this.index(this.props.entries);
-    const similar = this.findSimilar(index, entry);
+    const similar = this.findSimilar(index, entries);
 
     function countTags(entries: Entry[]): Array<[string, number]> {
       const tagCounts = new Map<string, number>();
@@ -192,7 +199,6 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
       arr.sort((a, b) => d3.descending(a[1], b[1]) || d3.ascending(a[0], b[0]));
       return arr;
     }
-    const entries = [entry];
     const ids = entries.map((e) => e.id);
     async function doTag(tag: string) {
       await setTags(ids, [tag]);
@@ -204,19 +210,13 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
     let offRows = [];
     let offTags = new Set<string>();
     for (const [tag, count] of tagCounts) {
-      if (count === entries.length) {
-        onRows.push(<TagChip tag={tag} onClick={() => doTag(`-${tag}`)} />);
-      } else {
-        onRows.push(
-          <span>
-            <TagChip tag={tag} /> ({count})
-          </span>
-        );
-        offRows.push(
-          <span>
-            <TagChip tag={tag} /> ({count})
-          </span>
-        );
+      let label = tag;
+      if (count !== entries.length) {
+        label += ` (${count})`;
+      }
+      onRows.push(<TagChip tag={label} onClick={() => doTag(`-${tag}`)} />);
+      if (count !== entries.length) {
+        offRows.push(<TagChip tag={label} onClick={() => doTag(tag)} />);
       }
       offTags.add(tag);
     }
@@ -246,14 +246,22 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
               <p>
                 <AutoComplete
                   options={Array.from(allTags)}
-                  onCommit={(text) => doTag(text)}
+                  onCommit={(text) => {
+                    const tags = text.split(/\s+/).filter((t) => !!t);
+                    doTag(tags[0]);
+                  }}
                 />
               </p>
             </td>
           </tr>
         </table>
         <p>Similar entries:</p>
-        <Ledger entries={similar} />
+        <Ledger
+          entries={similar}
+          onClick={(e) => {
+            app.go('tag', { id: [...ids, e.id].join(',') });
+          }}
+        />
       </Page>
     );
   }

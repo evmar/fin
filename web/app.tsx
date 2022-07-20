@@ -77,8 +77,11 @@ class App extends React.Component<App.Props> {
       case 'untagged':
         return <UntaggedPage params={params} entries={this.props.entries} />;
       case 'tag': {
-        const id = params['id']!;
-        return <TaggerPage key={id} entries={this.props.entries} id={id} />;
+        const param = params['id']!;
+        const ids = param.split(',');
+        return (
+          <TaggerPage key={param} entries={this.props.entries} ids={ids} />
+        );
       }
       case 'ledger':
         return (

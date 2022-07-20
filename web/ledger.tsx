@@ -57,6 +57,7 @@ namespace Ledger {
   export interface Props {
     total?: boolean;
     entries: Entry[];
+    onClick?: (e: Entry) => void;
   }
 }
 
@@ -92,7 +93,11 @@ export class Ledger extends React.Component<Ledger.Props> {
           date={date}
           entry={e}
           onClick={() => {
-            go('tag', { id: e.id });
+            if (this.props.onClick) {
+              this.props.onClick(e);
+            } else {
+              go('tag', { id: e.id });
+            }
           }}
         />
       );
