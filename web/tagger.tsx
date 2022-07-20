@@ -104,31 +104,13 @@ namespace TaggerPage {
     entries: Entry[];
     id: string;
   }
-  export interface State {
-    entry: Entry;
-    similar: Entry[];
-  }
 }
 
 function terms(entry: Entry): string[] {
   return entry.payee.split(/[\s-]+/);
 }
 
-export class TaggerPage extends React.Component<
-  TaggerPage.Props,
-  TaggerPage.State
-> {
-  constructor(props: TaggerPage.Props) {
-    super(props);
-    const entry = this.props.entries.find((e) => e.id === this.props.id);
-    if (!entry) {
-      throw new Error('no entry');
-    }
-    const index = this.index(this.props.entries);
-    const similar = this.findSimilar(index, entry);
-    this.state = { entry, similar };
-  }
-
+export class TaggerPage extends React.Component<TaggerPage.Props> {
   index(entries: Entry[]) {
     console.time('index');
     const revIndex = new Map<string, Set<Entry>>();
@@ -179,7 +161,13 @@ export class TaggerPage extends React.Component<
   }
 
   render() {
-    const { entry, similar } = this.state;
+    const entry = this.props.entries.find((e) => e.id === this.props.id);
+    if (!entry) {
+      throw new Error('no entry');
+    }
+
+    const index = this.index(this.props.entries);
+    const similar = this.findSimilar(index, entry);
 
     function countTags(entries: Entry[]): Array<[string, number]> {
       const tagCounts = new Map<string, number>();
@@ -219,8 +207,8 @@ export class TaggerPage extends React.Component<
             <TagChip tag={tag} /> ({count})
           </span>
         );
-        offTags.add(tag);
       }
+      offTags.add(tag);
     }
 
     const similarCounts = countTags(similar);
@@ -229,10 +217,11 @@ export class TaggerPage extends React.Component<
       offRows.push(<TagChip tag={tag} onClick={() => doTag(tag)} />);
     }
 
+    const extraHead = app.link('untagged', 'untagged', undefined);
+
     return (
-      <Page>
+      <Page extraHead={extraHead}>
         <Ledger entries={entries} />
-        <p>Tags:</p>
         <table>
           <tr>
             <th>on</th>
@@ -247,6 +236,7 @@ export class TaggerPage extends React.Component<
             </td>
           </tr>
         </table>
+        <p>Similar entries:</p>
         <Ledger entries={similar} />
       </Page>
     );

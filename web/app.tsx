@@ -25,6 +25,26 @@ interface URLs {
   tag: { id: string };
 }
 
+export function link<V extends keyof URLs>(
+  text: string,
+  view: V,
+  viewData: URLs[V]
+) {
+  const params = { view, ...((viewData ?? {}) as {}) };
+  const url = util.urlWithQuery(location.href, util.makeURLParams(params));
+  return (
+    <a
+      href={url}
+      onClick={(e) => {
+        go(view, viewData);
+        e.preventDefault();
+      }}
+    >
+      {text}
+    </a>
+  );
+}
+
 export function go<V extends keyof URLs>(view: V, viewData: URLs[V]) {
   const params = { view, ...((viewData ?? {}) as {}) };
   const url = util.urlWithQuery(location.href, util.makeURLParams(params));
