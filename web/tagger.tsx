@@ -3,6 +3,7 @@ import { Page } from './page';
 import { Entry } from './types';
 import { memo, URLParams } from './util';
 import * as app from './app';
+import AutoComplete from './autocomplete';
 
 namespace UntaggedPage {
   export interface Props {
@@ -45,7 +46,7 @@ export class UntaggedPage extends React.Component<UntaggedPage.Props> {
   topUntagged(): Entry[] {
     let top = this.props.entries.filter((e) => !e.tags);
     top.sort((a, b) => d3.descending(Math.abs(a.amount), Math.abs(b.amount)));
-    return top.slice(0, 50);
+    return top.slice(0, 200);
   }
 
   render() {
@@ -107,7 +108,7 @@ namespace TaggerPage {
 }
 
 function terms(entry: Entry): string[] {
-  return entry.payee.split(/[\s-]+/);
+  return entry.payee.split(/[\s\*-]+/);
 }
 
 export class TaggerPage extends React.Component<TaggerPage.Props> {
@@ -164,6 +165,15 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
     const entry = this.props.entries.find((e) => e.id === this.props.id);
     if (!entry) {
       throw new Error('no entry');
+    }
+
+    let allTags = new Set<string>();
+    for (const entry of this.props.entries) {
+      if (entry.tags) {
+        for (const tag of entry.tags) {
+          allTags.add(tag);
+        }
+      }
     }
 
     const index = this.index(this.props.entries);
@@ -233,6 +243,12 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
             </td>
             <td width="50%" valign="top">
               {offRows}
+              <p>
+                <AutoComplete
+                  options={Array.from(allTags)}
+                  onCommit={(text) => doTag(text)}
+                />
+              </p>
             </td>
           </tr>
         </table>
