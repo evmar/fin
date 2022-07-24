@@ -31,7 +31,7 @@ export function link<V extends keyof URLs>(
   viewData: URLs[V]
 ) {
   const params = new URLSearchParams({ view, ...((viewData ?? {}) as {}) });
-  const url = util.urlWithQuery(location.href, params.toString());
+  const url = util.urlWithQuery(location.href, params);
   return (
     <a
       href={url}
@@ -47,7 +47,7 @@ export function link<V extends keyof URLs>(
 
 export function go<V extends keyof URLs>(view: V, viewData: URLs[V]) {
   const params = new URLSearchParams({ view, ...((viewData ?? {}) as {}) });
-  const url = util.urlWithQuery(location.href, params.toString());
+  const url = util.urlWithQuery(location.href, params);
 
   history.pushState(undefined, '', url);
   appShell.setState({ params });

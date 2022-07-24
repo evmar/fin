@@ -108,7 +108,7 @@ export class Ledger extends React.Component<Ledger.Props> {
 
 namespace LedgerPage {
   export interface Props {
-    params: util.URLParams;
+    params: URLSearchParams;
     entries: Entry[];
     onReload: () => void;
   }

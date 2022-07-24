@@ -23,7 +23,7 @@ export function formatAmount(a: number, dollars?: boolean): string {
   }
 }
 
-export function urlWithQuery(url: string, query: string): string {
+export function urlWithQuery(url: string, query: URLSearchParams): string {
   var ofs = url.indexOf('?');
   if (ofs > 0) {
     url = url.substring(0, ofs);
