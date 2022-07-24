@@ -29,7 +29,8 @@ export function urlWithQuery(url: string, query: URLSearchParams): string {
     url = url.substring(0, ofs);
   }
   if (query) {
-    url += '?' + query;
+    const queryString = query.toString();
+    if (queryString) url += '?' + queryString;
   }
   return url;
 }
