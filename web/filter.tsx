@@ -20,22 +20,28 @@ export interface Filters {
   query?: string;
 }
 
-export function filterStateFromURL(params: util.URLParams): Filters {
+export function filterStateFromURL(params: URLSearchParams): Filters {
   const hiddenTags: { [tag: string]: boolean } = {};
-  if (params['h']) {
-    for (const t of params['h'].split(',')) {
+  const hidden = params.get('h');
+  if (hidden) {
+    for (const t of hidden.split(',')) {
       hiddenTags[t] = true;
     }
   }
-  var query: string | undefined = params['q'];
+  var query: string | null = params.get('q');
   return { hiddenTags, ...(query && { query }) };
 }
 
-export function filterStateToURL(state: Filters) {
-  return util.makeURLParams({
-    h: Object.keys(state.hiddenTags).join(','),
-    q: state.query,
-  });
+export function filterStateToURL(state: Filters): URLSearchParams {
+  const params = new URLSearchParams();
+  if (state.hiddenTags) {
+    const h = Object.keys(state.hiddenTags).join(',');
+    if (h) params.set('h', h);
+  }
+  if (state.query) {
+    params.set('q', state.query);
+  }
+  return params;
 }
 
 export function filtersToQuery(filters: Filters): string {

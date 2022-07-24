@@ -30,8 +30,8 @@ export function link<V extends keyof URLs>(
   view: V,
   viewData: URLs[V]
 ) {
-  const params = { view, ...((viewData ?? {}) as {}) };
-  const url = util.urlWithQuery(location.href, util.makeURLParams(params));
+  const params = new URLSearchParams({ view, ...((viewData ?? {}) as {}) });
+  const url = util.urlWithQuery(location.href, params.toString());
   return (
     <a
       href={url}
@@ -46,8 +46,8 @@ export function link<V extends keyof URLs>(
 }
 
 export function go<V extends keyof URLs>(view: V, viewData: URLs[V]) {
-  const params = { view, ...((viewData ?? {}) as {}) };
-  const url = util.urlWithQuery(location.href, util.makeURLParams(params));
+  const params = new URLSearchParams({ view, ...((viewData ?? {}) as {}) });
+  const url = util.urlWithQuery(location.href, params.toString());
 
   history.pushState(undefined, '', url);
   appShell.setState({ params });
@@ -64,7 +64,7 @@ interface DataJSON {
 
 namespace App {
   export interface Props {
-    params: util.URLParams;
+    params: URLSearchParams;
     entries: Entry[];
   }
 }
@@ -72,12 +72,12 @@ namespace App {
 class App extends React.Component<App.Props> {
   render() {
     const { params } = this.props;
-    const view = params['view'] ?? 'ledger';
+    const view = params.get('view') ?? 'ledger';
     switch (view) {
       case 'untagged':
         return <UntaggedPage params={params} entries={this.props.entries} />;
       case 'tag': {
-        const param = params['id']!;
+        const param = params.get('id')!;
         const ids = param.split(',');
         return (
           <TaggerPage key={param} entries={this.props.entries} ids={ids} />
@@ -100,7 +100,7 @@ class App extends React.Component<App.Props> {
 
 namespace AppShell {
   export interface State {
-    params: util.URLParams;
+    params: URLSearchParams;
     entries?: Entry[];
   }
 }
@@ -108,7 +108,7 @@ namespace AppShell {
 /** Manages initial load and URL popstate. */
 class AppShell extends React.Component<{}> {
   state: AppShell.State = {
-    params: {},
+    params: new URLSearchParams(),
   };
 
   componentDidMount() {
@@ -121,7 +121,7 @@ class AppShell extends React.Component<{}> {
   }
 
   stateFromURL() {
-    const params = util.parseURLParams(document.location.search);
+    const params = new URLSearchParams(document.location.search);
     this.setState({ params });
   }
 

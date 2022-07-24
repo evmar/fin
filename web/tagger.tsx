@@ -1,13 +1,13 @@
 import { Ledger } from './ledger';
 import { Page } from './page';
 import { Entry } from './types';
-import { memo, URLParams } from './util';
+import { memo } from './util';
 import * as app from './app';
 import AutoComplete from './autocomplete';
 
 namespace UntaggedPage {
   export interface Props {
-    params: URLParams;
+    params: URLSearchParams;
     entries: Entry[];
   }
 }

@@ -23,30 +23,6 @@ export function formatAmount(a: number, dollars?: boolean): string {
   }
 }
 
-export interface URLParams {
-  [key: string]: string|undefined;
-}
-
-export function parseURLParams(search: string): URLParams {
-  var params: URLParams = {};
-  search.substring(1).split('&').forEach((p) => {
-    const [key, val] = p.split('=');
-    params[key] = decodeURIComponent(val);
-  });
-  return params;
-}
-
-export function makeURLParams(params: URLParams): string {
-  var query: string[] = [];
-  for (var key in params) {
-    const val = params[key];
-    if (val == null)
-      continue;
-    query.push(key + '=' + encodeURIComponent(val));
-  }
-  return query.join('&');
-}
-
 export function urlWithQuery(url: string, query: string): string {
   var ofs = url.indexOf('?');
   if (ofs > 0) {
