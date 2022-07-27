@@ -11,7 +11,7 @@ build:
 	mkdir -p build
 	cp static/* build
 
-build/d3.js: node_modules/d3/d3.min.js | build
+build/d3.js: node_modules/d3/dist/d3.min.js | build
 	cp $^ $@
 
 build/react-dom.js: node_modules/react-dom/umd/react-dom.production.min.js | build

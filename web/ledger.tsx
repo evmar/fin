@@ -125,7 +125,6 @@ export class LedgerPage extends React.Component<
     super(props);
     const filters = filter.filterStateFromURL(this.props.params);
     const graphOpts = {
-      stack: new Set<string>(),
       normalize: false,
     };
     this.state = { filters, graphOpts };
@@ -145,8 +144,8 @@ export class LedgerPage extends React.Component<
     // Use this.props.entries (not filtered entries) here so that we
     // always sort tags by total volume and so we see all of them in
     // the autocomplete.
-    var tagAmounts = util.gatherTags(this.props.entries);
-    var tags = Object.keys(tagAmounts);
+    let tagAmounts = util.gatherTags(this.props.entries);
+    const tags = Object.keys(tagAmounts);
     tags.sort(util.sortOnBy((t) => Math.abs(tagAmounts[t]), d3.descending));
 
     // Regather entries and tag amounts after filtering.
@@ -168,7 +167,6 @@ export class LedgerPage extends React.Component<
       <Page extraHead={opts}>
         <graph.Graph
           entries={entries}
-          tags={tags}
           opts={this.state.graphOpts}
           width={10 * 64}
           height={3 * 64}
