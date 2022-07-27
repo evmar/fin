@@ -145,4 +145,7 @@ class AppShell extends React.Component<{}> {
   }
 }
 
-ReactDOM.render(<AppShell />, document.body);
+// React 18 wants us to import the /client module, but this still works
+// and lets us still use it as a global.
+const root = (ReactDOM as any).createRoot(document.body);
+root.render(<AppShell />);
