@@ -45,7 +45,7 @@ export class GraphOptsPane extends React.Component<
       let className = 'legend';
       if (tag in this.props.filters.hiddenTags) {
         className += ' hidden';
-      } else if (!(tag in this.props.tagAmounts)) {
+      } else if (!this.props.tagAmounts.has(tag)) {
         // Tag with no data and no special status; skip.
         return null;
       }
@@ -67,7 +67,7 @@ export class GraphOptsPane extends React.Component<
           ) : (
             <span className="tag">{tag}</span>
           )}
-          {tag in this.props.tagAmounts
+          {this.props.tagAmounts.has(tag)
             ? util.formatAmount(this.props.tagAmounts.get(tag)!, true)
             : ''}
         </div>
