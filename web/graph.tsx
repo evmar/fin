@@ -266,7 +266,7 @@ export class Graph extends React.Component<GraphProps> {
       .rollup((es) => d3.sum(es, (e) => e.amount))
       .map(entries);
 
-    var stackTags = util.setToArray(stackTagSet);
+    var stackTags = Array.from(stackTagSet);
     stackTags.sort();
     stackTags.push('other');
 

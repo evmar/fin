@@ -52,12 +52,6 @@ export function sortOnBy(f:(t:string)=>number, c:(a:number,b:number)=>number) {
   };
 }
 
-export function setToArray<T>(s: Set<T>): T[] {
-  var arr: T[] = [];
-  s.forEach((e) => arr.push(e));
-  return arr;
-}
-
 function arrayEqual(a: unknown[], b: unknown[]): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
