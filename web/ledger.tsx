@@ -15,7 +15,6 @@
 import { Page } from './page';
 import * as util from './util';
 import * as filter from './filter';
-import AutoComplete from './autocomplete';
 import * as graph from './graph';
 import { Entry } from './types';
 import { go } from './app';
