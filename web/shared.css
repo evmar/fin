@@ -1,0 +1,33 @@
+html {
+  margin: 0;
+}
+body {
+  font-family: 'PT Sans';
+  font-size: 14px;
+  margin: 8px;
+  display: flex;
+  flex-direction: row;
+}
+
+input,
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+/* center checkboxes relative to their text. */
+input[type='checkbox'] {
+  vertical-align: middle;
+}
+
+h1 {
+  font-family: 'PT Serif';
+  font-weight: normal;
+  font-size: 34px;
+  margin: 0;
+  line-height: 1;
+}
+
+header {
+  width: 128px;
+  margin-right: 32px;
+}
