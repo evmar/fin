@@ -131,7 +131,7 @@ export class OverviewPage extends React.Component<OverviewPage.Props> {
       .style('stroke', 'black')
       .style('fill', (d) => color(d.data.tag))
       .append('title')
-      .text((d) => d.data.tag);
+      .text((d) => d.data.tag || '[untagged]');
   }
 
   render() {
