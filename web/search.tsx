@@ -15,7 +15,7 @@
 // TypeScript/React don't know about <input type=search> so we have to
 // hook it up more manually than usual.
 
-interface SearchInputProps extends React.Props<any> {
+interface SearchInputProps {
   initialText: string;
   onSearch: (query: string) => void;
 }
