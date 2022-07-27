@@ -16,6 +16,7 @@ import { Entry } from './types';
 import * as ledger from './ledger';
 import * as util from './util';
 import { TaggerPage, UntaggedPage } from './tagger';
+import { OverviewPage } from './overview';
 
 let appShell!: AppShell;
 
@@ -72,8 +73,10 @@ namespace App {
 class App extends React.Component<App.Props> {
   render() {
     const { params } = this.props;
-    const view = params.get('view') ?? 'ledger';
+    const view = params.get('view') ?? 'overview';
     switch (view) {
+      case 'overview':
+        return <OverviewPage entries={this.props.entries} />;
       case 'untagged':
         return <UntaggedPage params={params} entries={this.props.entries} />;
       case 'tag': {
