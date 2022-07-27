@@ -26,7 +26,7 @@ namespace GraphOptsPane {
     filters: Filters;
     opts: GraphOpts;
     tags: string[];
-    tagAmounts: { [tag: string]: number };
+    tagAmounts: Map<string, number>;
     onFilters: (f: Filters) => void;
     onChange: (opts: GraphOpts) => void;
   }
@@ -68,7 +68,7 @@ export class GraphOptsPane extends React.Component<
             <span className="tag">{tag}</span>
           )}
           {tag in this.props.tagAmounts
-            ? util.formatAmount(this.props.tagAmounts[tag], true)
+            ? util.formatAmount(this.props.tagAmounts.get(tag)!, true)
             : ''}
         </div>
       );

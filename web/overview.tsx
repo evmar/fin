@@ -67,7 +67,7 @@ function tagHierarchy(entries: Entry[]): Map<string, string> {
     }
     parents.set(tagA, parent);
   }
-  console.log(parents);
+  console.timeEnd('tagHierarchy');
   return parents;
 }
 
@@ -78,10 +78,67 @@ namespace OverviewPage {
 }
 
 export class OverviewPage extends React.Component<OverviewPage.Props> {
-  render() {
-    const parents = tagHierarchy(this.props.entries);
+  componentDidMount() {
     const counts = util.gatherTags(this.props.entries);
+    const parents = tagHierarchy(this.props.entries);
 
-    return <Page>wip</Page>;
+    // d3 requires a root node, which we create with the name '#'.
+    // Use '#' as the root node's tag, and null as its parent.
+    counts.set('#', 0);
+    parents.set('#', '');
+    const stratify = d3
+      .stratify<{ tag: string; amount: number }>()
+      .id((d) => d.tag)
+      .parentId((d) => parents.get(d.tag) ?? '#')(
+      Array.from(counts.entries(), ([tag, amount]) => ({ tag, amount }))
+    );
+
+    // stratify needs a .value field filled in, but .sum assumes
+    // that the input data isn't already pre-summed over children,
+    // which ours is.  So hack it manually.
+    stratify.each((d) => {
+      (d as any).value = Math.abs(d.data.amount);
+    });
+    (stratify as any).value = d3.sum(stratify.children!, (d) => d.value!);
+
+    stratify.sort((a, b) => b.value! - a.value!);
+
+    const [width, height] = [300, 300];
+    const color = d3.scaleOrdinal(d3.schemeBlues[9]);
+
+    // Compute .x0/x1/etc fields from values.
+    const partition = d3
+      .partition<{ tag: string; amount: number }>()
+      .size([2 * Math.PI, width / 2 - 5]);
+
+    const pie = d3
+      .select('#pie')
+      .attr('width', width)
+      .attr('height', height)
+      .append('g')
+      .attr('transform', `translate(${width / 2},${height / 2})`);
+    const arc = d3
+      .arc<d3.HierarchyRectangularNode<unknown>>()
+      .startAngle((d) => d.x0)
+      .endAngle((d) => d.x1)
+      .innerRadius((d) => d.y0)
+      .outerRadius((d) => d.y1);
+    pie
+      .selectAll('path')
+      .data(partition(stratify).descendants())
+      .join('path')
+      .attr('d', arc)
+      .style('stroke', 'black')
+      .style('fill', (d) => color(d.data.tag))
+      .append('title')
+      .text((d) => d.data.tag);
+  }
+
+  render() {
+    return (
+      <Page>
+        <svg id="pie" />
+      </Page>
+    );
   }
 }

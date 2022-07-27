@@ -145,8 +145,10 @@ export class LedgerPage extends React.Component<
     // always sort tags by total volume and so we see all of them in
     // the autocomplete.
     let tagAmounts = util.gatherTags(this.props.entries);
-    const tags = Object.keys(tagAmounts);
-    tags.sort(util.sortOnBy((t) => Math.abs(tagAmounts[t]), d3.descending));
+    const tags = Array.from(tagAmounts.keys());
+    tags.sort(
+      util.sortOnBy((t) => Math.abs(tagAmounts.get(t)!), d3.descending)
+    );
 
     // Regather entries and tag amounts after filtering.
     var entries = this.getEntries();

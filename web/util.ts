@@ -35,15 +35,15 @@ export function urlWithQuery(url: string, query: URLSearchParams): string {
   return url;
 }
 
-export function gatherTags(entries: Entry[]): {[tag:string]:number} {
-  var tagCounts: {[tag:string]:number} = {};
-  entries.forEach((entry) => {
-    var tags: string[] = entry.tags || [''];
-    tags.forEach((tag) => {
-      tagCounts[tag] = (tagCounts[tag] || 0) + entry.amount;
-    });
-  });
-  return tagCounts;
+export function gatherTags(entries: Entry[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const entry of entries) {
+    const tags = entry.tags || [''];
+    for (const tag of tags) {
+      counts.set(tag, (counts.get(tag) ?? 0) + entry.amount);
+    }
+  }
+  return counts;
 }
 
 export function sortOnBy(f:(t:string)=>number, c:(a:number,b:number)=>number) {
