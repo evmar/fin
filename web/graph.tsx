@@ -181,28 +181,31 @@ export class Graph extends React.Component<Graph.Props> {
       .range([0, this.width]);
 
     const xAxis = d3.axisBottom<Date>(x);
-    const svg = this.g;
-    svg.select<SVGGElement>('g.x').call(xAxis);
+    this.g.select<SVGGElement>('g.x').call(xAxis);
 
     const yext = d3.extent(entries, (d) => d.amount) as [number, number];
     const y = d3.scaleLinear().domain(yext).range([this.height, 0]);
 
     const yAxis = d3.axisLeft<number>(y).ticks(5);
     yAxis.tickFormat((d) => '$' + d3.format(',d')(d / 100));
-    svg.select<SVGGElement>('g.y').call(yAxis);
+    this.g.select<SVGGElement>('g.y').transition().call(yAxis);
 
-    const rect = this.g
-      .selectAll('rect')
-      .data(entries)
-      .join('rect')
+    const rect = this.g.selectAll('rect').data(entries);
+    rect
+      .enter()
+      .append('rect')
+      .style('fill', (d) => 'slategray')
       .attr('x', (d) => x(d.month)!)
       .attr('y', (d) => Math.min(y(0)!, y(d.amount)!))
       .attr(
         'width',
         (d) => x(d3.timeMonth.offset(d.month, 1))! - x(d.month)! - 2
       )
-      .attr('height', (d) => Math.abs(y(d.amount)! - y(0)!))
-      .style('fill', (d) => 'slategray');
+      .attr('height', (d) => Math.abs(y(d.amount)! - y(0)!));
+    rect
+      .transition()
+      .attr('y', (d) => Math.min(y(0)!, y(d.amount)!))
+      .attr('height', (d) => Math.abs(y(d.amount)! - y(0)!));
   }
 
   render() {
