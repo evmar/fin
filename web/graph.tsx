@@ -12,73 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as util from './util';
 import { Entry } from './types';
 import { Filters } from './filter';
 import SearchInput from './search';
+import { TagList } from './taglist';
 
 const margin = { top: 5, right: 100, bottom: 30, left: 70 };
-
-export interface GraphOpts {}
 
 namespace GraphOptsPane {
   export interface Props {
     filters: Filters;
-    opts: GraphOpts;
     tags: string[];
     tagAmounts: Map<string, number>;
     onFilters: (f: Filters) => void;
-    onChange: (opts: GraphOpts) => void;
   }
+  export interface State {}
 }
 
 export class GraphOptsPane extends React.Component<
   GraphOptsPane.Props,
-  { expand: boolean }
+  GraphOptsPane.State
 > {
-  state = { expand: false };
-
   render() {
-    const tags = this.props.tags;
-
-    const tagRow = (tag: string): JSX.Element | null => {
-      let className = 'legend';
-      if (tag in this.props.filters.hiddenTags) {
-        className += ' hidden';
-      } else if (!this.props.tagAmounts.has(tag)) {
-        // Tag with no data and no special status; skip.
-        return null;
-      }
-      return (
-        <div
-          key={tag}
-          className="row"
-          onClick={(e) => {
-            if (e.button == 0) {
-              this.onLegend(tag);
-            }
-          }}
-        >
-          <span className={className}>&nbsp;</span>
-          {tag == '' ? (
-            <span className="tag">
-              <em>(untagged)</em>
-            </span>
-          ) : (
-            <span className="tag">{tag}</span>
-          )}
-          {this.props.tagAmounts.has(tag)
-            ? util.formatAmount(this.props.tagAmounts.get(tag)!, true)
-            : ''}
-        </div>
-      );
-    };
-
-    let rows = tags.map(tagRow).filter((t) => t != null);
-    if (!this.state.expand) {
-      rows = rows.slice(0, 10);
-    }
-
     return (
       <div className="controls">
         <p>
@@ -89,27 +44,23 @@ export class GraphOptsPane extends React.Component<
             initialText={this.props.filters.query ?? ''}
           />
         </p>
-        {rows}
-        <button
-          onClick={() => {
-            this.setState({ expand: !this.state.expand });
-          }}
-        >
-          {this.state.expand ? 'less' : 'more'}
-        </button>
+        <TagList
+          tags={this.props.tags}
+          tagAmounts={this.props.tagAmounts}
+          hidden={this.props.filters.hiddenTags}
+          onToggle={(t, hide) => this.onToggle(t, hide)}
+        />
       </div>
     );
   }
 
-  onLegend(tag: string) {
-    const filtered = tag in this.props.filters.hiddenTags;
-    if (!filtered) {
-      this.props.filters.hiddenTags[tag] = true;
-      this.props.onFilters(this.props.filters);
+  onToggle(tag: string, hide: boolean) {
+    if (hide) {
+      this.props.filters.hiddenTags.add(tag);
     } else {
-      delete this.props.filters.hiddenTags[tag];
-      this.props.onFilters(this.props.filters);
+      this.props.filters.hiddenTags.delete(tag);
     }
+    this.props.onFilters(this.props.filters);
   }
 
   onSearch(query: string) {
@@ -121,7 +72,6 @@ export class GraphOptsPane extends React.Component<
 namespace Graph {
   export interface Props {
     entries: Entry[];
-    opts: GraphOpts;
     width: number;
     height: number;
   }

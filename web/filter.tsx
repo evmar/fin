@@ -12,20 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as util from './util';
 import { Entry } from './types';
 
 export interface Filters {
-  hiddenTags: { [tag: string]: boolean };
+  hiddenTags: Set<string>;
   query?: string;
 }
 
 export function filterStateFromURL(params: URLSearchParams): Filters {
-  const hiddenTags: { [tag: string]: boolean } = {};
+  const hiddenTags = new Set<string>();
   const hidden = params.get('h');
   if (hidden) {
     for (const t of hidden.split(',')) {
-      hiddenTags[t] = true;
+      hiddenTags.add(t);
     }
   }
   var query: string | null = params.get('q');
@@ -46,58 +45,13 @@ export function filterStateToURL(state: Filters): URLSearchParams {
 
 export function filtersToQuery(filters: Filters): string {
   var query: string[] = [];
-  for (var t in filters.hiddenTags) {
+  for (const t of filters.hiddenTags) {
     query.push('-t:' + t);
   }
   if (filters.query) {
     query.push(filters.query);
   }
   return query.join(' ');
-}
-
-interface TagListProps {
-  topTags: { key: string; value: number }[];
-  hiddenTags: { [tag: string]: boolean };
-  onToggle: (tag: string, on: boolean) => void;
-}
-
-export class TagList extends React.Component<TagListProps, {}> {
-  render() {
-    var hiddenTags = this.props.hiddenTags;
-
-    var showTags: { tag: string; amount?: number }[] = [];
-    for (let tag in this.props.hiddenTags) {
-      showTags.push({ tag: tag });
-    }
-    for (let tag of this.props.topTags) {
-      if (tag.key in hiddenTags) continue;
-      showTags.push({ tag: tag.key, amount: tag.value });
-    }
-    showTags = showTags.slice(0, 15);
-
-    return (
-      <div style={{ WebkitColumnCount: 3 }}>
-        {showTags.map((t) => (
-          <div key={t.tag}>
-            <label>
-              <input
-                type="checkbox"
-                checked={!(t.tag in hiddenTags)}
-                onChange={() => {
-                  this.onToggle(t.tag, !(t.tag in hiddenTags));
-                }}
-              />
-              {t.tag} {t.amount ? '(' + util.formatAmount(t.amount) + ')' : ''}
-            </label>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  onToggle(tag: string, on: boolean) {
-    this.props.onToggle(tag, on);
-  }
 }
 
 type QueryFunc = (e: Entry) => boolean;

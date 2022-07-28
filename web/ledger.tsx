@@ -113,7 +113,6 @@ namespace LedgerPage {
   }
   export interface State {
     filters: filter.Filters;
-    graphOpts: graph.GraphOpts;
   }
 }
 
@@ -124,10 +123,7 @@ export class LedgerPage extends React.Component<
   constructor(props: LedgerPage.Props) {
     super(props);
     const filters = filter.filterStateFromURL(this.props.params);
-    const graphOpts = {
-      normalize: false,
-    };
-    this.state = { filters, graphOpts };
+    this.state = { filters };
   }
 
   getEntries() {
@@ -151,13 +147,11 @@ export class LedgerPage extends React.Component<
     );
 
     // Regather entries and tag amounts after filtering.
-    var entries = this.getEntries();
+    const entries = this.getEntries();
     tagAmounts = util.gatherTags(entries);
 
     const opts = (
       <graph.GraphOptsPane
-        opts={this.state.graphOpts}
-        onChange={(opts) => this.setState({ graphOpts: opts })}
         filters={this.state.filters}
         onFilters={(filters) => this.onFilters(filters)}
         tags={tags}
@@ -167,12 +161,7 @@ export class LedgerPage extends React.Component<
 
     return (
       <Page extraHead={opts}>
-        <graph.Graph
-          entries={entries}
-          opts={this.state.graphOpts}
-          width={10 * 64}
-          height={3 * 64}
-        />
+        <graph.Graph entries={entries} width={10 * 64} height={3 * 64} />
         <Ledger total={true} entries={entries} />
       </Page>
     );
@@ -195,12 +184,9 @@ export class LedgerPage extends React.Component<
   }
 
   onFilters(filters: filter.Filters) {
-    var search = filter.filterStateToURL(filters);
     this.setState({ filters: filters });
-    history.replaceState(
-      {},
-      '',
-      util.urlWithQuery(location.href, filter.filterStateToURL(filters))
-    );
+    const params = filter.filterStateToURL(filters);
+    params.set('view', 'ledger');
+    history.replaceState({}, '', util.urlWithQuery(location.href, params));
   }
 }
