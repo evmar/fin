@@ -20,15 +20,20 @@ build/react-dom.js: node_modules/react-dom/umd/react-dom.production.min.js | bui
 build/react.js: node_modules/react/umd/react.production.min.js | build
 	cp $^ $@
 
-build/code%js build/code%css: * | build
-	$(BIN)/esbuild --bundle app.tsx --outfile=build/code.js
+build/code%css: *.css | build
 	$(BIN)/esbuild --bundle style.css --outfile=build/code.css
+
+build/code%js: *.ts* | build
+	$(BIN)/esbuild --bundle app.tsx --outfile=build/code.js
 
 build/%.html: %.html
 	cp $^ $@
 
 clean:
 	rm -rf build
+
+watch: | build
+	fswatch . --exclude=build | xargs -n1 -I{} make all
 
 fmt:
 	$(BIN)/prettier --write *.tsx *.css
