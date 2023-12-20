@@ -35,6 +35,7 @@ export function urlWithQuery(url: string, query: URLSearchParams): string {
   return url;
 }
 
+/** Counts the tags applied to entries, returning map of tag => count of entries with that tag. */
 export function gatherTags(entries: Entry[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const entry of entries) {
@@ -47,7 +48,7 @@ export function gatherTags(entries: Entry[]): Map<string, number> {
 }
 
 export function sortOnBy(f: (t: string) => number, c: (a: number, b: number) => number) {
-  return function(a: string, b: string) {
+  return function (a: string, b: string) {
     return c(f(a), f(b));
   };
 }
@@ -63,7 +64,7 @@ function arrayEqual(a: unknown[], b: unknown[]): boolean {
 export function memo<P extends unknown[], R>(f: (...p: P) => R): (...p: P) => R {
   let lastArgs: P | undefined;
   let lastRet: R | undefined;
-  return function(...p: P): R {
+  return function (...p: P): R {
     if (lastArgs === undefined || !arrayEqual(lastArgs, p)) {
       lastArgs = p;
       lastRet = f(...p);

@@ -1,6 +1,7 @@
 html {
   margin: 0;
 }
+
 body {
   font-family: 'PT Sans';
   font-size: 14px;
@@ -14,6 +15,7 @@ button {
   font-family: inherit;
   font-size: inherit;
 }
+
 /* center checkboxes relative to their text. */
 input[type='checkbox'] {
   vertical-align: middle;
@@ -30,4 +32,21 @@ h1 {
 header {
   width: 128px;
   margin-right: 32px;
+}
+
+.right {
+  text-align: right;
+}
+
+table.zebra {
+  border-spacing: 0;
+}
+
+table.zebra td,
+table.zebra th {
+  padding: 4px;
+}
+
+table.zebra>tr:nth-child(even) {
+  background-color: #f2f2f2;
 }

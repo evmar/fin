@@ -29,6 +29,7 @@ function increment<K>(map: Map<K, number>, key: K) {
   map.set(key, (map.get(key) ?? 0) + 1);
 }
 
+/** Infers the hierarchy of tags, returning a map of tag => parent tag. */
 function tagHierarchy(entries: Entry[]): Map<string, string> {
   console.time('tagHierarchy');
   const counts = new Map<string, number>();
@@ -71,38 +72,41 @@ function tagHierarchy(entries: Entry[]): Map<string, string> {
   return parents;
 }
 
-namespace OverviewPage {
-  export interface Props {
-    entries: Entry[];
-  }
+type Stratify = d3.HierarchyNode<{ tag: string, amount: number }>;
+function stratifyEntries(entries: Entry[]): Stratify {
+  const counts = util.gatherTags(entries);
+  counts.delete('transfer');
+  const parents = tagHierarchy(entries);
+
+  // d3 requires a root node, which we create with the name '#'.
+  // Use '#' as the root node's tag, and null as its parent.
+  counts.set('#', 0);
+  parents.set('#', '');
+  const stratify = d3
+    .stratify<{ tag: string; amount: number }>()
+    .id((d) => d.tag)
+    .parentId((d) => parents.get(d.tag) ?? '#')(
+      Array.from(counts.entries(), ([tag, amount]) => ({ tag, amount })),
+    );
+
+  // stratify needs a .value field filled in, but .sum assumes
+  // that the input data isn't already pre-summed over children,
+  // which ours is.  So hack it manually.
+  stratify.each((d) => {
+    (d as any).value = Math.abs(d.data.amount);
+  });
+  stratify.data.amount = d3.sum(stratify.children!, (d) => d.data.amount);
+  (stratify as any).value = d3.sum(stratify.children!, (d) => d.value!);
+
+  stratify.sort((a, b) => b.value! - a.value!);
+
+  return stratify;
 }
 
-export class OverviewPage extends preact.Component<OverviewPage.Props> {
+class Pie extends preact.Component<{ stratify: Stratify }> {
+  svg = preact.createRef();
+
   componentDidMount() {
-    const counts = util.gatherTags(this.props.entries);
-    const parents = tagHierarchy(this.props.entries);
-
-    // d3 requires a root node, which we create with the name '#'.
-    // Use '#' as the root node's tag, and null as its parent.
-    counts.set('#', 0);
-    parents.set('#', '');
-    const stratify = d3
-      .stratify<{ tag: string; amount: number }>()
-      .id((d) => d.tag)
-      .parentId((d) => parents.get(d.tag) ?? '#')(
-        Array.from(counts.entries(), ([tag, amount]) => ({ tag, amount })),
-      );
-
-    // stratify needs a .value field filled in, but .sum assumes
-    // that the input data isn't already pre-summed over children,
-    // which ours is.  So hack it manually.
-    stratify.each((d) => {
-      (d as any).value = Math.abs(d.data.amount);
-    });
-    (stratify as any).value = d3.sum(stratify.children!, (d) => d.value!);
-
-    stratify.sort((a, b) => b.value! - a.value!);
-
     const [width, height] = [300, 300];
     const color = d3.scaleOrdinal(d3.schemeBlues[9]);
 
@@ -112,7 +116,7 @@ export class OverviewPage extends preact.Component<OverviewPage.Props> {
       .size([2 * Math.PI, width / 2 - 5]);
 
     const pie = d3
-      .select('#pie')
+      .select(this.svg.current)
       .attr('width', width)
       .attr('height', height)
       .append('g')
@@ -125,7 +129,7 @@ export class OverviewPage extends preact.Component<OverviewPage.Props> {
       .outerRadius((d) => d.y1);
     pie
       .selectAll('path')
-      .data(partition(stratify).descendants())
+      .data(partition(this.props.stratify).descendants())
       .join('path')
       .attr('d', arc)
       .style('stroke', 'black')
@@ -135,9 +139,52 @@ export class OverviewPage extends preact.Component<OverviewPage.Props> {
   }
 
   render() {
+    return <svg ref={this.svg} />;
+  }
+}
+
+class Breakdown extends preact.Component<{ stratify: Stratify }> {
+  render() {
+    const total = this.props.stratify.data.amount;
+
+    const rows: preact.ComponentChild[] = [];
+    function visit(stratify: Stratify, indent = 1) {
+      const { tag, amount } = stratify.data;
+      rows.push(<tr>
+        <td style={{ paddingLeft: `${indent * 2}ex` }}>{tag === '#' ? 'total' : !tag ? '[untagged]' : tag}</td>
+        <td class='right'>{util.formatAmount(amount, true)}</td>
+        <td class='right'>{util.formatAmount(amount / 12, true)}</td>
+        <td class='right'>{(amount * 100 / total).toFixed(1)}%</td>
+      </tr >);
+
+      if (!stratify.children) return;
+      for (const child of stratify.children) {
+        visit(child, indent + 1);
+      }
+    }
+
+    visit(this.props.stratify)
+
+    return <table class='zebra' style={{ width: '50ex' }}>
+      <thead><tr><th>tag</th><th class='right'>amount</th><th class='right'>per month</th><th>percent</th></tr></thead>
+      {rows}
+    </table>;
+  }
+}
+
+namespace OverviewPage {
+  export interface Props {
+    entries: Entry[];
+  }
+}
+
+export class OverviewPage extends preact.Component<OverviewPage.Props> {
+  render() {
+    const stratify = stratifyEntries(this.props.entries);
     return (
       <Page>
-        <svg id='pie' />
+        <Pie stratify={stratify} />
+        <Breakdown stratify={stratify} />
       </Page>
     );
   }

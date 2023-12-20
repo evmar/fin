@@ -18,7 +18,9 @@ build $builddir/autocomplete.html: copy autocomplete.html
 rule esbuild
     command = $bin/esbuild --sourcemap --bundle --outfile=$out $in
 
-build $builddir/code.css: esbuild style.css
+# echo $(ls *.css)
+build $builddir/code.css: esbuild style.css | autocomplete.css graph.css ledger.css shared.css style.css tagger.css
+
 # echo $(ls *.ts*)
-build $builddir/code.js: esbuild app.tsx |autocomplete.tsx filter.tsx globals.d.ts graph.tsx ledger.tsx overview.tsx page.tsx search.tsx tagger.tsx taglist.tsx types.ts util.ts
+build $builddir/code.js: esbuild app.tsx | autocomplete.tsx filter.tsx globals.d.ts graph.tsx ledger.tsx overview.tsx page.tsx search.tsx tagger.tsx taglist.tsx types.ts util.ts
 build $builddir/autocomplete-demo.js: esbuild autocomplete-demo.tsx | autocomplete-demo.tsx autocomplete.tsx filter.tsx globals.d.ts graph.tsx ledger.tsx overview.tsx page.tsx search.tsx tagger.tsx taglist.tsx types.ts util.ts
