@@ -78,10 +78,11 @@ namespace Graph {
 }
 
 export class Graph extends preact.Component<Graph.Props> {
-  width!: number;
-  height!: number;
-
   svg = preact.createRef();
+
+  width = this.props.width - margin.left - margin.right;
+  height = this.props.height - margin.top - margin.bottom;
+
   g!: d3.Selection<SVGGElement, unknown, null, undefined>;
 
   componentDidMount() {
@@ -94,9 +95,6 @@ export class Graph extends preact.Component<Graph.Props> {
   }
 
   create() {
-    this.width = this.props.width - margin.left - margin.right;
-    this.height = this.props.height - margin.top - margin.bottom;
-
     const svg = d3
       .select(this.svg.current)
       .attr('width', this.props.width)
