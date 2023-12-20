@@ -15,19 +15,15 @@
 // TypeScript/React don't know about <input type=search> so we have to
 // hook it up more manually than usual.
 
-interface SearchInputProps {
+interface Props {
   initialText: string;
   onSearch: (query: string) => void;
 }
 
-export default class SearchInput extends preact.Component<
-  SearchInputProps,
-  {}
-> {
+export default class SearchInput extends preact.Component<Props> {
   render() {
     return (
       <input
-        ref="i"
         type="search"
         autoFocus
         placeholder="search"

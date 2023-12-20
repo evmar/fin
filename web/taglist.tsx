@@ -32,7 +32,7 @@ export class TagList extends preact.Component<TagList.Props, TagList.State> {
   render() {
     const tags = this.props.tags;
 
-    const tagRow = (tag: string): JSX.Element | null => {
+    const tagRow = (tag: string): preact.JSX.Element | null => {
       let className = 'legend';
       if (this.props.hidden.has(tag)) {
         className += ' hidden';
