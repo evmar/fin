@@ -24,11 +24,11 @@ export default class SearchInput extends preact.Component<Props> {
   render() {
     return (
       <input
-        type="search"
+        type='search'
         autoFocus
-        placeholder="search"
+        placeholder='search'
         defaultValue={this.props.initialText}
-        incremental="1"
+        incremental='1'
         onSearch={(e) => this.onSearch(e)}
       />
     );

@@ -46,7 +46,7 @@ function tagHierarchy(entries: Entry[]): Map<string, string> {
           const coB = getOrCreate(
             cooccur,
             tagB,
-            () => new Map<string, number>()
+            () => new Map<string, number>(),
           );
           increment(coB, tagA);
         }
@@ -90,8 +90,8 @@ export class OverviewPage extends preact.Component<OverviewPage.Props> {
       .stratify<{ tag: string; amount: number }>()
       .id((d) => d.tag)
       .parentId((d) => parents.get(d.tag) ?? '#')(
-      Array.from(counts.entries(), ([tag, amount]) => ({ tag, amount }))
-    );
+        Array.from(counts.entries(), ([tag, amount]) => ({ tag, amount })),
+      );
 
     // stratify needs a .value field filled in, but .sum assumes
     // that the input data isn't already pre-summed over children,
@@ -137,7 +137,7 @@ export class OverviewPage extends preact.Component<OverviewPage.Props> {
   render() {
     return (
       <Page>
-        <svg id="pie" />
+        <svg id='pie' />
       </Page>
     );
   }

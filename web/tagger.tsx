@@ -1,9 +1,9 @@
+import * as app from './app';
+import AutoComplete from './autocomplete';
 import { Ledger } from './ledger';
 import { Page } from './page';
 import { Entry } from './types';
 import { memo } from './util';
-import * as app from './app';
-import AutoComplete from './autocomplete';
 
 namespace UntaggedPage {
   export interface Props {
@@ -79,7 +79,7 @@ namespace TagChip {
 class TagChip extends preact.Component<TagChip.Props> {
   render() {
     return (
-      <div className="tag-chip" onClick={this.props.onClick}>
+      <div className='tag-chip' onClick={this.props.onClick}>
         {this.props.tag}
       </div>
     );
@@ -158,7 +158,7 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
 
     const scored = Array.from(matches.entries());
     scored.sort(
-      (a, b) => d3.descending(a[1], b[1]) || d3.descending(a[0].date, b[0].date)
+      (a, b) => d3.descending(a[1], b[1]) || d3.descending(a[0].date, b[0].date),
     );
     // console.log(scored.slice(0, 50));
     const similar = scored.map(([e, _]) => e);
@@ -167,9 +167,7 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
   }
 
   render() {
-    const entries = this.props.entries.filter((e) =>
-      this.props.ids.includes(e.id)
-    );
+    const entries = this.props.entries.filter((e) => this.props.ids.includes(e.id));
     if (!entries) {
       throw new Error('no entry');
     }
@@ -238,8 +236,8 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
             <th>off</th>
           </tr>
           <tr>
-            <td width="50%">{onRows}</td>
-            <td width="50%">
+            <td width='50%'>{onRows}</td>
+            <td width='50%'>
               {offRows}
               <p>
                 <AutoComplete

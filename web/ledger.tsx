@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Page } from './page';
-import * as util from './util';
+import { go } from './app';
 import * as filter from './filter';
 import * as graph from './graph';
+import { Page } from './page';
 import { Entry } from './types';
-import { go } from './app';
+import * as util from './util';
 
 namespace LedgerRow {
   export interface Props {
@@ -36,17 +36,17 @@ class LedgerRow extends preact.Component<LedgerRow.Props> {
     }
     return (
       <div
-        className="ledger-entry"
+        className='ledger-entry'
         onClick={() => {
           this.props.onClick();
         }}
       >
-        <div className="ledger-date">{this.props.date}</div>
-        <div className="ledger-body" title={entry.date}>
-          <div className="ledger-payee">{entry.payee}</div>
-          <div className="ledger-tags">{tags}</div>
+        <div className='ledger-date'>{this.props.date}</div>
+        <div className='ledger-body' title={entry.date}>
+          <div className='ledger-payee'>{entry.payee}</div>
+          <div className='ledger-tags'>{tags}</div>
         </div>
-        <div className="ledger-money">{util.formatAmount(entry.amount)}</div>
+        <div className='ledger-money'>{util.formatAmount(entry.amount)}</div>
       </div>
     );
   }
@@ -101,7 +101,7 @@ export class Ledger extends preact.Component<Ledger.Props> {
         />
       );
     });
-    return <div className="ledger">{rEntries}</div>;
+    return <div className='ledger'>{rEntries}</div>;
   }
 }
 
@@ -143,7 +143,7 @@ export class LedgerPage extends preact.Component<
     let tagAmounts = util.gatherTags(this.props.entries);
     const tags = Array.from(tagAmounts.keys());
     tags.sort(
-      util.sortOnBy((t) => Math.abs(tagAmounts.get(t)!), d3.descending)
+      util.sortOnBy((t) => Math.abs(tagAmounts.get(t)!), d3.descending),
     );
 
     // Regather entries and tag amounts after filtering.

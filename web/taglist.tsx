@@ -43,7 +43,7 @@ export class TagList extends preact.Component<TagList.Props, TagList.State> {
       return (
         <div
           key={tag}
-          className="row"
+          className='row'
           onClick={(e) => {
             if (e.button == 0) {
               this.onTagClick(tag);
@@ -51,13 +51,13 @@ export class TagList extends preact.Component<TagList.Props, TagList.State> {
           }}
         >
           <span className={className}>&nbsp;</span>
-          {tag == '' ? (
-            <span className="tag">
-              <em>(untagged)</em>
-            </span>
-          ) : (
-            <span className="tag">{tag}</span>
-          )}
+          {tag == ''
+            ? (
+              <span className='tag'>
+                <em>(untagged)</em>
+              </span>
+            )
+            : <span className='tag'>{tag}</span>}
           {this.props.tagAmounts.has(tag)
             ? util.formatAmount(this.props.tagAmounts.get(tag)!, true)
             : ''}

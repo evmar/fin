@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Entry} from './types';
+import { Entry } from './types';
 
 export function formatAmount(a: number, dollars?: boolean): string {
   a /= 100;
@@ -46,8 +46,8 @@ export function gatherTags(entries: Entry[]): Map<string, number> {
   return counts;
 }
 
-export function sortOnBy(f:(t:string)=>number, c:(a:number,b:number)=>number) {
-  return function(a:string, b:string) {
+export function sortOnBy(f: (t: string) => number, c: (a: number, b: number) => number) {
+  return function(a: string, b: string) {
     return c(f(a), f(b));
   };
 }
@@ -61,8 +61,8 @@ function arrayEqual(a: unknown[], b: unknown[]): boolean {
 }
 
 export function memo<P extends unknown[], R>(f: (...p: P) => R): (...p: P) => R {
-  let lastArgs: P|undefined;
-  let lastRet: R|undefined;
+  let lastArgs: P | undefined;
+  let lastRet: R | undefined;
   return function(...p: P): R {
     if (lastArgs === undefined || !arrayEqual(lastArgs, p)) {
       lastArgs = p;

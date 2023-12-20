@@ -5,9 +5,9 @@
 `bank` contains Go libraries for loading bank statements.
 
 `cmd/fin` is a Go program that loads the statements and serves the
-website.  To rebuild it you run `make bin` in the root directory.
+website. To rebuild it you run `make bin` in the root directory.
 
-`web` is the website.  To build you run `make` in the `web/` subdirectory.
+`web` is the website. To build you run `make` in the `web/` subdirectory.
 
 ## Setup
 

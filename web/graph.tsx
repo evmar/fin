@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Entry } from './types';
 import { Filters } from './filter';
 import SearchInput from './search';
 import { TagList } from './taglist';
+import { Entry } from './types';
 
 const margin = { top: 5, right: 100, bottom: 30, left: 70 };
 
@@ -26,7 +26,7 @@ namespace GraphOptsPane {
     tagAmounts: Map<string, number>;
     onFilters: (f: Filters) => void;
   }
-  export interface State { }
+  export interface State {}
 }
 
 export class GraphOptsPane extends preact.Component<
@@ -35,7 +35,7 @@ export class GraphOptsPane extends preact.Component<
 > {
   render() {
     return (
-      <div className="controls">
+      <div className='controls'>
         <p>
           <SearchInput
             onSearch={(q) => {
@@ -117,9 +117,9 @@ export class Graph extends preact.Component<Graph.Props> {
       d3.rollup(
         this.props.entries,
         (es) => d3.sum(es, (e) => e.amount),
-        (e) => parseTime(e.date.substring(0, 8) + '01')!
+        (e) => parseTime(e.date.substring(0, 8) + '01')!,
       ),
-      ([month, amount]) => ({ month, amount })
+      ([month, amount]) => ({ month, amount }),
     );
 
     const x = d3
@@ -146,7 +146,7 @@ export class Graph extends preact.Component<Graph.Props> {
       .attr('y', (d) => Math.min(y(0)!, y(d.amount)!))
       .attr(
         'width',
-        (d) => x(d3.timeMonth.offset(d.month, 1))! - x(d.month)! - 2
+        (d) => x(d3.timeMonth.offset(d.month, 1))! - x(d.month)! - 2,
       )
       .attr('height', (d) => Math.abs(y(d.amount)! - y(0)!));
     rect
@@ -156,6 +156,6 @@ export class Graph extends preact.Component<Graph.Props> {
   }
 
   render() {
-    return <svg ref={this.svg} className="graph" />;
+    return <svg ref={this.svg} className='graph' />;
   }
 }

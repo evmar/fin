@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Entry } from './types';
 import * as ledger from './ledger';
-import * as util from './util';
-import { TaggerPage, UntaggedPage } from './tagger';
 import { OverviewPage } from './overview';
+import { TaggerPage, UntaggedPage } from './tagger';
+import { Entry } from './types';
+import * as util from './util';
 
 let appShell!: AppShell;
 
@@ -29,7 +29,7 @@ interface URLs {
 export function link<V extends keyof URLs>(
   text: string,
   view: V,
-  viewData: URLs[V]
+  viewData: URLs[V],
 ) {
   const params = new URLSearchParams({ view, ...((viewData ?? {}) as {}) });
   const url = util.urlWithQuery(location.href, params);
@@ -82,9 +82,7 @@ class App extends preact.Component<App.Props> {
       case 'tag': {
         const param = params.get('id')!;
         const ids = param.split(',');
-        return (
-          <TaggerPage key={param} entries={this.props.entries} ids={ids} />
-        );
+        return <TaggerPage key={param} entries={this.props.entries} ids={ids} />;
       }
       case 'ledger':
         return (

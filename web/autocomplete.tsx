@@ -41,7 +41,7 @@ export default class AutoComplete extends preact.Component<Props, State> {
     const words = this.state.text.split(/\s+/);
     const word = words[words.length - 1];
     return this.props.options.filter(
-      (opt) => word.length > 0 && opt.indexOf(word) == 0
+      (opt) => word.length > 0 && opt.indexOf(word) == 0,
     );
   }
 
@@ -50,7 +50,7 @@ export default class AutoComplete extends preact.Component<Props, State> {
     let dropdown: preact.JSX.Element | null = null;
     if (options.length > 0 && this.state.focus) {
       dropdown = (
-        <div className="dropdown">
+        <div className='dropdown'>
           {options.map((o, i) => {
             let className = 'item';
             if (i == this.state.sel) className += ' sel';
@@ -73,10 +73,10 @@ export default class AutoComplete extends preact.Component<Props, State> {
     }
 
     return (
-      <span className="autoc">
+      <span className='autoc'>
         <input
           ref={this.input}
-          autoComplete="off"
+          autoComplete='off'
           value={this.state.text}
           placeholder={this.props.placeholder}
           onInput={(e) => {
