@@ -20,6 +20,7 @@ class Demo extends preact.Component<{}, {}> {
     return (
       <main>
         <h1>AutoComplete demo</h1>
+        <br />
         <AutoComplete options={options} />
       </main>
     );

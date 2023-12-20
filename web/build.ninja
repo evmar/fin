@@ -16,7 +16,7 @@ build $builddir/view.html: copy view.html
 build $builddir/autocomplete.html: copy autocomplete.html
 
 rule esbuild
-    command = $bin/esbuild --bundle --outfile=$out $in
+    command = $bin/esbuild --sourcemap --bundle --outfile=$out $in
 
 build $builddir/code.css: esbuild style.css
 # echo $(ls *.ts*)

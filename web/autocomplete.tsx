@@ -38,21 +38,21 @@ export default class AutoComplete extends preact.Component<Props, State> {
   }
 
   getOptions(): string[] {
-    var words = this.state.text.split(/\s+/);
-    var word = words[words.length - 1];
+    const words = this.state.text.split(/\s+/);
+    const word = words[words.length - 1];
     return this.props.options.filter(
       (opt) => word.length > 0 && opt.indexOf(word) == 0
     );
   }
 
   render() {
-    var options = this.getOptions();
-    var dropdown: preact.JSX.Element | null = null;
+    const options = this.getOptions();
+    let dropdown: preact.JSX.Element | null = null;
     if (options.length > 0 && this.state.focus) {
       dropdown = (
         <div className="dropdown">
           {options.map((o, i) => {
-            var className = 'item';
+            let className = 'item';
             if (i == this.state.sel) className += ' sel';
             return (
               <div
@@ -76,11 +76,11 @@ export default class AutoComplete extends preact.Component<Props, State> {
       <span className="autoc">
         <input
           ref={this.input}
-          autoComplete="1"
+          autoComplete="off"
           value={this.state.text}
           placeholder={this.props.placeholder}
-          onChange={() => {
-            this.onChange();
+          onInput={(e) => {
+            this.onInput(e);
           }}
           onKeyDown={(e) => {
             this.onKeyDown(e);
@@ -97,16 +97,16 @@ export default class AutoComplete extends preact.Component<Props, State> {
     );
   }
 
-  onChange() {
-    var text = this.input.current!.value;
+  onInput(e: InputEvent) {
+    const text = (e.target as HTMLInputElement).value;
     this.setState({ text });
   }
 
   onKeyDown(e: KeyboardEvent) {
     if (e.shiftKey || e.altKey || e.metaKey) return;
 
-    var options = this.getOptions();
-    var sel = this.state.sel;
+    const options = this.getOptions();
+    let sel = this.state.sel;
     switch (e.key) {
       case 'ArrowDown':
       case 'Tab':
@@ -156,7 +156,7 @@ export default class AutoComplete extends preact.Component<Props, State> {
   }
 
   complete(text: string) {
-    var words = this.state.text.split(/\s+/);
+    const words = this.state.text.split(/\s+/);
     words[words.length - 1] = text;
     text = words.join(' ') + ' ';
     this.setState({ text });
