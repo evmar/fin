@@ -1,6 +1,6 @@
 BIN := node_modules/.bin
 
-JSFILES = d3 react react-dom code
+JSFILES = d3 preact code
 HTMLFILES = autocomplete view
 
 .PHONY: all bin test clean watch
@@ -14,10 +14,7 @@ build:
 build/d3.js: node_modules/d3/dist/d3.min.js | build
 	cp $^ $@
 
-build/react-dom.js: node_modules/react-dom/umd/react-dom.production.min.js | build
-	cp $^ $@
-
-build/react.js: node_modules/react/umd/react.production.min.js | build
+build/preact.js: node_modules/preact/dist/preact.min.js | build
 	cp $^ $@
 
 build/code%css: *.css | build

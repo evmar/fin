@@ -19,7 +19,7 @@ interface Stats {
   untaggedAmount: number;
 }
 
-export class UntaggedPage extends React.Component<UntaggedPage.Props> {
+export class UntaggedPage extends preact.Component<UntaggedPage.Props> {
   computeStats(entries: Entry[]): Stats {
     const stats = {
       totalCount: 0,
@@ -76,7 +76,7 @@ namespace TagChip {
     onClick?: () => void;
   }
 }
-class TagChip extends React.Component<TagChip.Props> {
+class TagChip extends preact.Component<TagChip.Props> {
   render() {
     return (
       <div className="tag-chip" onClick={this.props.onClick}>
@@ -111,7 +111,7 @@ function terms(entry: Entry): string[] {
   return entry.payee.split(/[\s\*-]+/);
 }
 
-export class TaggerPage extends React.Component<TaggerPage.Props> {
+export class TaggerPage extends preact.Component<TaggerPage.Props> {
   index(entries: Entry[]) {
     console.time('index');
     const revIndex = new Map<string, Set<Entry>>();
@@ -238,10 +238,10 @@ export class TaggerPage extends React.Component<TaggerPage.Props> {
             <th>off</th>
           </tr>
           <tr>
-            <td width="50%" valign="top">
+            <td width="50%">
               {onRows}
             </td>
-            <td width="50%" valign="top">
+            <td width="50%">
               {offRows}
               <p>
                 <AutoComplete

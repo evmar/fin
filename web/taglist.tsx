@@ -26,7 +26,7 @@ namespace TagList {
   }
 }
 
-export class TagList extends React.Component<TagList.Props, TagList.State> {
+export class TagList extends preact.Component<TagList.Props, TagList.State> {
   state = { expand: false };
 
   render() {

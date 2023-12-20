@@ -77,7 +77,7 @@ namespace OverviewPage {
   }
 }
 
-export class OverviewPage extends React.Component<OverviewPage.Props> {
+export class OverviewPage extends preact.Component<OverviewPage.Props> {
   componentDidMount() {
     const counts = util.gatherTags(this.props.entries);
     const parents = tagHierarchy(this.props.entries);
@@ -90,8 +90,8 @@ export class OverviewPage extends React.Component<OverviewPage.Props> {
       .stratify<{ tag: string; amount: number }>()
       .id((d) => d.tag)
       .parentId((d) => parents.get(d.tag) ?? '#')(
-      Array.from(counts.entries(), ([tag, amount]) => ({ tag, amount }))
-    );
+        Array.from(counts.entries(), ([tag, amount]) => ({ tag, amount }))
+      );
 
     // stratify needs a .value field filled in, but .sum assumes
     // that the input data isn't already pre-summed over children,

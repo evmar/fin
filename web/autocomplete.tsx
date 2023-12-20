@@ -19,14 +19,15 @@ interface Props {
   onCommit?: (text: string) => void;
 }
 
-export default class AutoComplete extends React.Component<
-  Props,
-  {
-    sel?: number;
-    focus: boolean;
-    text: string;
-  }
-> {
+interface State {
+  sel?: number;
+  focus: boolean;
+  text: string;
+}
+
+export default class AutoComplete extends preact.Component<Props, State> {
+  input = preact.createRef<HTMLInputElement>();
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -46,7 +47,7 @@ export default class AutoComplete extends React.Component<
 
   render() {
     var options = this.getOptions();
-    var dropdown: JSX.Element | null = null;
+    var dropdown: preact.JSX.Element | null = null;
     if (options.length > 0 && this.state.focus) {
       dropdown = (
         <div className="dropdown">
@@ -74,7 +75,7 @@ export default class AutoComplete extends React.Component<
     return (
       <span className="autoc">
         <input
-          ref="input"
+          ref={this.input}
           autoComplete="1"
           value={this.state.text}
           placeholder={this.props.placeholder}
@@ -97,12 +98,11 @@ export default class AutoComplete extends React.Component<
   }
 
   onChange() {
-    var text = (ReactDOM.findDOMNode(this.refs['input']) as HTMLInputElement)
-      .value;
+    var text = this.input.current!.value;
     this.setState({ text });
   }
 
-  onKeyDown(e: React.KeyboardEvent) {
+  onKeyDown(e: KeyboardEvent) {
     if (e.shiftKey || e.altKey || e.metaKey) return;
 
     var options = this.getOptions();

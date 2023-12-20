@@ -1,13 +1,10 @@
 {
   "dependencies": {
     "d3": "^7.6.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "preact": "^10.19.3"
   },
   "devDependencies": {
     "@types/d3": "^7.4.0",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6",
     "esbuild": "^0.8.28",
     "prettier": "^2.2.1",
     "typescript": "^4.1.3"

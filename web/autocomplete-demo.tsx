@@ -14,7 +14,7 @@
 
 import AutoComplete from './autocomplete';
 
-class Demo extends React.Component<{}, {}> {
+class Demo extends preact.Component<{}, {}> {
   render() {
     var options = ['foo', 'foox', 'bar', 'baz', 'longlongword'];
     return (
@@ -26,4 +26,4 @@ class Demo extends React.Component<{}, {}> {
   }
 }
 
-ReactDOM.render(React.createElement(Demo), document.body);
+preact.render(<Demo />, document.body);

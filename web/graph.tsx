@@ -26,10 +26,10 @@ namespace GraphOptsPane {
     tagAmounts: Map<string, number>;
     onFilters: (f: Filters) => void;
   }
-  export interface State {}
+  export interface State { }
 }
 
-export class GraphOptsPane extends React.Component<
+export class GraphOptsPane extends preact.Component<
   GraphOptsPane.Props,
   GraphOptsPane.State
 > {
@@ -77,7 +77,7 @@ namespace Graph {
   }
 }
 
-export class Graph extends React.Component<Graph.Props> {
+export class Graph extends preact.Component<Graph.Props> {
   width!: number;
   height!: number;
 

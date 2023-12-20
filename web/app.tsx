@@ -70,7 +70,7 @@ namespace App {
   }
 }
 
-class App extends React.Component<App.Props> {
+class App extends preact.Component<App.Props> {
   render() {
     const { params } = this.props;
     const view = params.get('view') ?? 'overview';
@@ -109,7 +109,7 @@ namespace AppShell {
 }
 
 /** Manages initial load and URL popstate. */
-class AppShell extends React.Component<{}> {
+class AppShell extends preact.Component<{}> {
   state: AppShell.State = {
     params: new URLSearchParams(),
   };
@@ -148,7 +148,4 @@ class AppShell extends React.Component<{}> {
   }
 }
 
-// React 18 wants us to import the /client module, but this still works
-// and lets us still use it as a global.
-const root = (ReactDOM as any).createRoot(document.body);
-root.render(<AppShell />);
+preact.render(<AppShell />, document.body);

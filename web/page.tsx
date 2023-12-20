@@ -13,10 +13,10 @@
 // limitations under the License.
 
 interface Props {
-  extraHead?: React.ReactNode;
+  extraHead?: preact.VNode;
 }
 
-export class Page extends React.Component<React.PropsWithChildren<Props>, {}> {
+export class Page extends preact.Component<Props, {}> {
   render() {
     return (
       <>

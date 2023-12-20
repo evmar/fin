@@ -27,10 +27,10 @@ namespace LedgerRow {
   }
 }
 
-class LedgerRow extends React.Component<LedgerRow.Props> {
+class LedgerRow extends preact.Component<LedgerRow.Props> {
   render() {
     const entry = this.props.entry;
-    let tags: JSX.Element | undefined;
+    let tags: preact.JSX.Element | undefined;
     if (entry.tags) {
       tags = <span>{entry.tags.map((t) => ' #' + t)}</span>;
     }
@@ -60,7 +60,7 @@ namespace Ledger {
   }
 }
 
-export class Ledger extends React.Component<Ledger.Props> {
+export class Ledger extends preact.Component<Ledger.Props> {
   render() {
     let entries = this.props.entries.slice(0, 200);
 
@@ -116,7 +116,7 @@ namespace LedgerPage {
   }
 }
 
-export class LedgerPage extends React.Component<
+export class LedgerPage extends preact.Component<
   LedgerPage.Props,
   LedgerPage.State
 > {
