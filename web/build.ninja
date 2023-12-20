@@ -1,0 +1,24 @@
+builddir = build
+
+bin = node_modules/.bin
+
+rule copy
+    command = cp $in $out
+
+build $builddir/d3.js: copy node_modules/d3/dist/d3.min.js
+build $builddir/preact.js: copy node_modules/preact/dist/preact.min.js
+
+build $builddir/pt.css: copy static/pt.css
+build $builddir/sans.woff2: copy static/sans.woff2
+build $builddir/serif.woff2: copy static/serif.woff2
+
+build $builddir/view.html: copy view.html
+build $builddir/autocomplete.html: copy autocomplete.html
+
+rule esbuild
+    command = $bin/esbuild --bundle --outfile=$out $in
+
+build $builddir/code.css: esbuild style.css
+# echo $(ls *.ts*)
+build $builddir/code.js: esbuild app.tsx |autocomplete.tsx filter.tsx globals.d.ts graph.tsx ledger.tsx overview.tsx page.tsx search.tsx tagger.tsx taglist.tsx types.ts util.ts
+build $builddir/autocomplete-demo.js: esbuild autocomplete-demo.tsx | autocomplete-demo.tsx autocomplete.tsx filter.tsx globals.d.ts graph.tsx ledger.tsx overview.tsx page.tsx search.tsx tagger.tsx taglist.tsx types.ts util.ts
