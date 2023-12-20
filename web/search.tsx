@@ -32,22 +32,14 @@ export default class SearchInput extends preact.Component<
         autoFocus
         placeholder="search"
         defaultValue={this.props.initialText}
+        incremental="1"
+        onSearch={(e) => this.onSearch(e)}
       />
     );
   }
 
-  getInput(): HTMLInputElement {
-    return ReactDOM.findDOMNode(this.refs['i']) as HTMLInputElement;
-  }
-
-  componentDidMount() {
-    var i = this.getInput();
-    (i as any).incremental = true;
-    i.addEventListener('search', () => this.onSearch());
-  }
-
-  onSearch() {
-    var query = this.getInput().value;
-    this.props.onSearch(query);
+  onSearch(e: Event) {
+    const input = e.target as HTMLInputElement;
+    this.props.onSearch(input.value);
   }
 }

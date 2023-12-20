@@ -26,7 +26,7 @@ namespace GraphOptsPane {
     tagAmounts: Map<string, number>;
     onFilters: (f: Filters) => void;
   }
-  export interface State {}
+  export interface State { }
 }
 
 export class GraphOptsPane extends preact.Component<
@@ -81,6 +81,7 @@ export class Graph extends preact.Component<Graph.Props> {
   width!: number;
   height!: number;
 
+  svg = preact.createRef();
   g!: d3.Selection<SVGGElement, unknown, null, undefined>;
 
   componentDidMount() {
@@ -96,10 +97,8 @@ export class Graph extends preact.Component<Graph.Props> {
     this.width = this.props.width - margin.left - margin.right;
     this.height = this.props.height - margin.top - margin.bottom;
 
-    var el = ReactDOM.findDOMNode(this) as Element;
     const svg = d3
-      .select(el)
-      .append('svg')
+      .select(this.svg.current)
       .attr('width', this.props.width)
       .attr('height', this.props.height);
     this.g = svg
@@ -159,6 +158,6 @@ export class Graph extends preact.Component<Graph.Props> {
   }
 
   render() {
-    return <div className="graph" />;
+    return <svg ref={this.svg} className="graph" />;
   }
 }
