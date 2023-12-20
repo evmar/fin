@@ -238,9 +238,7 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
             <th>off</th>
           </tr>
           <tr>
-            <td width="50%">
-              {onRows}
-            </td>
+            <td width="50%">{onRows}</td>
             <td width="50%">
               {offRows}
               <p>

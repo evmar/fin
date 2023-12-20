@@ -26,7 +26,7 @@ namespace GraphOptsPane {
     tagAmounts: Map<string, number>;
     onFilters: (f: Filters) => void;
   }
-  export interface State { }
+  export interface State {}
 }
 
 export class GraphOptsPane extends preact.Component<

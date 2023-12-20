@@ -20,7 +20,10 @@ interface SearchInputProps {
   onSearch: (query: string) => void;
 }
 
-export default class SearchInput extends preact.Component<SearchInputProps, {}> {
+export default class SearchInput extends preact.Component<
+  SearchInputProps,
+  {}
+> {
   render() {
     return (
       <input
