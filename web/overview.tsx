@@ -75,7 +75,9 @@ function tagHierarchy(entries: Entry[]): Map<string, string> {
 type Stratify = d3.HierarchyNode<{ tag: string, amount: number }>;
 function stratifyEntries(entries: Entry[]): Stratify {
   const counts = util.gatherTags(entries);
-  counts.delete('transfer');
+  for (const [tag, count] of Array.from(counts.entries())) {
+    if (count > 0) counts.delete(tag);
+  }
   const parents = tagHierarchy(entries);
 
   // d3 requires a root node, which we create with the name '#'.
@@ -143,14 +145,14 @@ class Pie extends preact.Component<{ stratify: Stratify }> {
   }
 }
 
-class Breakdown extends preact.Component<{ stratify: Stratify }> {
+class Breakdown extends preact.Component<{ stratify: Stratify, toggle: (tag: string) => void }> {
   render() {
     const total = this.props.stratify.data.amount;
 
     const rows: preact.ComponentChild[] = [];
-    function visit(stratify: Stratify, indent = 1) {
+    const visit = (stratify: Stratify, indent = 1) => {
       const { tag, amount } = stratify.data;
-      rows.push(<tr>
+      rows.push(<tr onClick={() => this.props.toggle(tag)}>
         <td style={{ paddingLeft: `${indent * 2}ex` }}>{tag === '#' ? 'total' : !tag ? '[untagged]' : tag}</td>
         <td class='right'>{util.formatAmount(amount, true)}</td>
         <td class='right'>{util.formatAmount(amount / 12, true)}</td>
@@ -176,15 +178,38 @@ namespace OverviewPage {
   export interface Props {
     entries: Entry[];
   }
+  export interface State {
+    filtered: Set<string>;
+  }
 }
 
-export class OverviewPage extends preact.Component<OverviewPage.Props> {
+export class OverviewPage extends preact.Component<OverviewPage.Props, OverviewPage.State> {
+  state = { filtered: new Set<string>() };
+
+  toggle(tag: string) {
+    if (this.state.filtered.has(tag)) {
+      this.state.filtered.delete(tag);
+    } else {
+      this.state.filtered.add(tag);
+    }
+    this.setState({ filtered: this.state.filtered });
+  }
+
+  filtered(e: Entry) {
+    if (!e.tags) return false;
+    for (const tag of e.tags) {
+      if (this.state.filtered.has(tag)) return true;
+    }
+    return false;
+  }
+
   render() {
-    const stratify = stratifyEntries(this.props.entries);
+    const entries = this.props.entries.filter((e) => !this.filtered(e));
+    const stratify = stratifyEntries(entries);
     return (
       <Page>
         <Pie stratify={stratify} />
-        <Breakdown stratify={stratify} />
+        <Breakdown stratify={stratify} toggle={(tag) => this.toggle(tag)} />
       </Page>
     );
   }
