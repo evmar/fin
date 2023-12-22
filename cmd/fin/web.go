@@ -25,9 +25,9 @@ import (
 )
 
 type web struct {
-	tagsPath string
-	tags     Tags
-	entries  []*qif.Entry
+	metasPath string
+	metas     Metas
+	entries   []*qif.Entry
 }
 
 func (web *web) toJson(w io.Writer) {
@@ -41,8 +41,8 @@ func (web *web) toJson(w io.Writer) {
 		je["amount"] = e.Amount
 		je["payee"] = e.Payee
 		je["addr"] = e.Address
-		if tags, ok := web.tags[id]; ok {
-			je["tags"] = tags
+		if meta, ok := web.metas[id]; ok {
+			je["tags"] = meta.Tags
 		}
 		jentries = append(jentries, je)
 	}
@@ -67,7 +67,13 @@ func (web *web) updateTagsFromPost(r io.Reader) error {
 
 	for _, id := range data.Ids {
 		tagset := map[string]struct{}{}
-		for _, tag := range web.tags[id] {
+
+		meta := web.metas[id]
+		if meta == nil {
+			meta = &Meta{}
+			web.metas[id] = meta
+		}
+		for _, tag := range meta.Tags {
 			tagset[tag] = struct{}{}
 		}
 		for _, tag := range data.Tags {
@@ -87,9 +93,9 @@ func (web *web) updateTagsFromPost(r io.Reader) error {
 		}
 		sort.Strings(tags)
 
-		web.tags[id] = tags
+		meta.Tags = tags
 	}
-	web.tags.Save(web.tagsPath)
+	web.metas.Save(web.metasPath)
 	return nil
 }
 

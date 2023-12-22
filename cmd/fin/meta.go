@@ -1,4 +1,4 @@
-// Copyright 2014 Google Inc. All Rights Reserved.
+// Copyright 2022 Evan Martin. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,43 +15,30 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"encoding/json"
 	"os"
-	"sort"
-	"strings"
 )
 
-type Tags map[string][]string
+type Meta struct {
+	Tags []string `json:"tags"`
+}
+type Metas map[string]*Meta
 
-func LoadTags(path string) (Tags, error) {
-	t := make(map[string][]string)
-
+func LoadMetas(path string) (Metas, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return t, nil
-		}
 		return nil, err
 	}
+	defer f.Close()
 
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		parts := strings.Split(s.Text(), " ")
-		key := parts[0]
-		for _, tag := range parts[1:] {
-			if tag != "" {
-				t[key] = append(t[key], tag)
-			}
-		}
-	}
-	if err := s.Err(); err != nil {
+	var metas Metas
+	if err := json.NewDecoder(f).Decode(&metas); err != nil {
 		return nil, err
 	}
-	return t, nil
+	return metas, nil
 }
 
-func (t Tags) Save(path string) error {
+func (m Metas) Save(path string) error {
 	tpath := path + ".tmp"
 	f, err := os.Create(tpath)
 	if err != nil {
@@ -63,19 +50,9 @@ func (t Tags) Save(path string) error {
 		}
 	}()
 
-	var keys []string
-	for k := range t {
-		keys = append(keys, k)
+	if err := json.NewEncoder(f).Encode(m); err != nil {
+		return err
 	}
-	sort.Strings(keys)
-
-	for _, k := range keys {
-		v := t[k]
-		if _, err := fmt.Fprintf(f, "%s %s\n", k, strings.Join(v, " ")); err != nil {
-			return err
-		}
-	}
-
 	if err := f.Close(); err != nil {
 		return err
 	}

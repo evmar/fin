@@ -102,8 +102,8 @@ func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 }
 
 func run() error {
-	var tagsPath string
-	flag.StringVar(&tagsPath, "tags", "", "path to read/write tag list")
+	var metasPath string
+	flag.StringVar(&metasPath, "meta", "", "path to metas")
 	flag.Parse()
 
 	mode := ""
@@ -116,15 +116,15 @@ func run() error {
 
 	switch mode {
 	case "web":
-		if tagsPath == "" {
+		if metasPath == "" {
 			fmt.Println("must specify tags path")
 			flag.PrintDefaults()
 			return nil
 		}
 
-		tags, err := LoadTags(tagsPath)
+		metas, err := LoadMetas(metasPath)
 		if err != nil {
-			return err
+			return nil
 		}
 
 		var entries []*qif.Entry
@@ -136,9 +136,9 @@ func run() error {
 		}
 
 		w := web{
-			entries:  entries,
-			tags:     tags,
-			tagsPath: tagsPath,
+			entries:   entries,
+			metas:     metas,
+			metasPath: metasPath,
 		}
 		w.start(":8888")
 	default:

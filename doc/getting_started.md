@@ -35,5 +35,5 @@ flag; the remainder of the command line is the paths to the input bank
 records.
 
 ```sh
-$ ./fin -tags path/to/tags/file data/*.qif
+$ ./fin -meta path/to/meta/file data/*.qif
 ```
