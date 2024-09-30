@@ -33,6 +33,11 @@ namespace LedgerRow {
 class LedgerRow extends preact.Component<LedgerRow.Props> {
   render() {
     const entry = this.props.entry;
+
+    let payee = entry.payee;
+    payee = payee.replace(/ #?XXXX*\d+/, '');
+    payee = payee.replace(/ null\b/, '');
+
     let tags: preact.JSX.Element | undefined;
     if (entry.tags) {
       tags = <span>{entry.tags.map((t) => ' #' + t)}</span>;
@@ -46,7 +51,7 @@ class LedgerRow extends preact.Component<LedgerRow.Props> {
       >
         <div className='ledger-date'>{this.props.date}</div>
         <div className='ledger-body' title={entry.date}>
-          <div className='ledger-payee'>{entry.payee}</div>
+          <div className='ledger-payee'>{payee}</div>
           <div className='ledger-tags'>{tags}</div>
         </div>
         <div className='ledger-money'>{util.formatAmount(entry.amount)}</div>
