@@ -1,9 +1,11 @@
+import * as d3 from 'd3';
 import * as app from './app';
 import AutoComplete from './autocomplete';
 import { Ledger } from './ledger';
 import { Page } from './page';
 import { Entry } from './types';
 import { memo } from './util';
+import * as preact from 'preact';
 
 namespace UntaggedPage {
   export interface Props {

@@ -1,11 +1,14 @@
 {
+  "scripts": {
+    "serve": "esbuild --bundle --target=esnext --outdir=build --platform=browser --target=esnext --sourcemap --watch app.tsx app.css"
+  },
   "dependencies": {
     "d3": "^7.6.1",
     "preact": "^10.19.3"
   },
   "devDependencies": {
     "@types/d3": "^7.4.0",
-    "esbuild": "^0.8.28",
+    "esbuild": "^0.24.0",
     "typescript": "^4.1.3"
   }
 }

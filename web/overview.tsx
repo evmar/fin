@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as preact from 'preact';
 import { Page } from './page';
 import { Entry } from './types';
 import * as util from './util';
+import * as d3 from 'd3';
 
 function getOrCreate<K, V>(map: Map<K, V>, key: K, def: () => V): V {
   let val = map.get(key);

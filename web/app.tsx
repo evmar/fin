@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as preact from 'preact';
 import * as ledger from './ledger';
 import { OverviewPage } from './overview';
 import { TaggerPage, UntaggedPage } from './tagger';
 import { Entry } from './types';
 import * as util from './util';
+import * as d3 from 'd3';
 
 let appShell!: AppShell;
 

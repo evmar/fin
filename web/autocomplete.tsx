@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as preact from "preact";
+
 interface Props {
   options: string[];
   initialText?: string;

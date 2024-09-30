@@ -15,6 +15,8 @@
 // TypeScript/React don't know about <input type=search> so we have to
 // hook it up more manually than usual.
 
+import * as preact from "preact";
+
 interface Props {
   initialText: string;
   onSearch: (query: string) => void;
