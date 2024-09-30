@@ -4,49 +4,39 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/evmar/fin/bank/qif"
 )
 
-const input = `"Status","Date","Description","Debit","Credit"` + "\r\n" +
-	`"Cleared","08/04/2015","FOREIGN TRANSACTION FEE                 
+func date(year, month, day int) time.Time {
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+}
+
+func TestCiti(t *testing.T) {
+	const input = `"Status","Date","Description","Debit","Credit"` + "\r\n" +
+		`"Cleared","08/04/2015","FOREIGN TRANSACTION FEE                 
 ","3,117.29",""` + "\r\n" +
-	`"Cleared","08/03/2015","GOOGLE *Music          GOOGLE.COM/CH CA 
+		`"Cleared","08/03/2015","GOOGLE *Music          GOOGLE.COM/CH CA 
 ","",""` + "\r\n"
 
-func TestCSV(t *testing.T) {
 	r := strings.NewReader(input)
 	cr, err := NewCSVReader(r)
 	if err != nil {
 		panic(err)
 	}
 
-	tcases := []struct {
-		date    string
-		desc    string
-		amount  int
-		cleared qif.ClearedType
-	}{
-		{"08/04/2015", "FOREIGN TRANSACTION FEE", 311729, qif.Cleared},
-		{"08/03/2015", "GOOGLE *Music          GOOGLE.COM/CH CA", 0, qif.Cleared},
+	expects := []qif.Entry{
+		{Date: date(2015, 8, 4), Amount: 311729, Payee: "FOREIGN TRANSACTION FEE", Cleared: 1},
+		{Date: date(2015, 8, 3), Amount: 0, Payee: "GOOGLE *Music          GOOGLE.COM/CH CA", Cleared: 1},
 	}
-	for _, tcase := range tcases {
+	for i, expect := range expects {
 		e, err := cr.ReadEntry()
 		if err != nil {
 			panic(err)
 		}
-
-		if d := e.Date.Format("01/02/2006"); d != tcase.date {
-			t.Errorf("bad date: %q", d)
-		}
-		if e.Payee != tcase.desc {
-			t.Errorf("bad desc: %q", e.Payee)
-		}
-		if e.Amount != tcase.amount {
-			t.Errorf("bad amount: got %v, want %v", e.Amount, tcase.amount)
-		}
-		if e.Cleared != tcase.cleared {
-			t.Errorf("bad cleared: %v", e.Cleared)
+		if *e != expect {
+			t.Errorf("%d: got\n%#v\nwant\n%#v", i, *e, expect)
 		}
 	}
 
