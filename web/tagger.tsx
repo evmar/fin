@@ -231,6 +231,8 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
       offRows.push(<TagChip tag={tag} onClick={() => doTag(tag)} />);
     }
 
+    const untaggedSimilar = similar.filter(e => !e.tags);
+
     const extraHead = app.link('untagged', 'untagged', undefined);
 
     return (
@@ -259,7 +261,7 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
         </table>
         <p>Similar entries:</p>
         <Ledger
-          entries={similar}
+          entries={untaggedSimilar}
           onClick={(e) => {
             app.go('tag', { id: [...ids, e.id].join(',') });
           }}
