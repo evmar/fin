@@ -110,7 +110,7 @@ function stratifyEntries(entries: Entry[]): Stratify {
 class Pie extends preact.Component<{ stratify: Stratify }> {
   svg = preact.createRef();
 
-  componentDidMount() {
+  private pie() {
     const [width, height] = [300, 300];
     const color = d3.scaleOrdinal(d3.schemeBlues[9]);
 
@@ -140,6 +140,14 @@ class Pie extends preact.Component<{ stratify: Stratify }> {
       .style('fill', (d) => color(d.data.tag))
       .append('title')
       .text((d) => d.data.tag || '[untagged]');
+  }
+
+  componentDidMount() {
+    this.pie();
+  }
+  componentDidUpdate() {
+    this.svg.current.innerHTML = '';
+    this.pie();
   }
 
   render() {
