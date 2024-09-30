@@ -16,6 +16,7 @@ import * as preact from 'preact';
 import { Page } from './page';
 import { Entry } from './types';
 import * as util from './util';
+import * as app from './app';
 import * as d3 from 'd3';
 
 function getOrCreate<K, V>(map: Map<K, V>, key: K, def: () => V): V {
@@ -216,8 +217,13 @@ export class OverviewPage extends preact.Component<OverviewPage.Props, OverviewP
   render() {
     const entries = this.props.entries.filter((e) => !this.filtered(e));
     const stratify = stratifyEntries(entries);
+    const extraHead = <div>
+      <div>{app.link('ledger', 'ledger', undefined)}</div>
+      <div>{app.link('untagged', 'untagged', undefined)}</div>
+    </div>;
+
     return (
-      <Page>
+      <Page extraHead={extraHead}>
         <Pie stratify={stratify} />
         <Breakdown stratify={stratify} toggle={(tag) => this.toggle(tag)} />
       </Page>

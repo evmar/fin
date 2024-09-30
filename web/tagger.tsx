@@ -53,8 +53,12 @@ export class UntaggedPage extends preact.Component<UntaggedPage.Props> {
 
   render() {
     const stats = this.stats(this.props.entries);
+    const extraHead = <div>
+      <div>{app.link('overview', 'overview', undefined)}</div>
+      <div>{app.link('ledger', 'ledger', undefined)}</div>
+    </div>;
     return (
-      <Page>
+      <Page extraHead={extraHead}>
         <p>
           {stats.untaggedCount} of {stats.totalCount} (
           {((stats.untaggedCount * 100) / stats.totalCount).toFixed(0)}

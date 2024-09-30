@@ -20,6 +20,7 @@ import { Page } from './page';
 import { Entry } from './types';
 import * as util from './util';
 import * as d3 from 'd3';
+import * as app from './app';
 
 namespace LedgerRow {
   export interface Props {
@@ -161,8 +162,14 @@ export class LedgerPage extends preact.Component<
       />
     );
 
+    const extraHead = <div>
+      <div>{app.link('overview', 'overview', undefined)}</div>
+      <div>{app.link('untagged', 'untagged', undefined)}</div>
+      {opts}
+    </div>;
+
     return (
-      <Page extraHead={opts}>
+      <Page extraHead={extraHead}>
         <graph.Graph entries={entries} width={10 * 64} height={3 * 64} />
         <Ledger total={true} entries={entries} />
       </Page>

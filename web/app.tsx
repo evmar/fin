@@ -23,6 +23,7 @@ import * as d3 from 'd3';
 let appShell!: AppShell;
 
 interface URLs {
+  overview: unknown;
   ledger: unknown;
   untagged: unknown;
   tag: { id: string };
