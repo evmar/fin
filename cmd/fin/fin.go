@@ -58,7 +58,6 @@ func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 	}
 
 	var qr QIFRead
-	invert := false
 
 	ext := filepath.Ext(path)
 	switch ext {
@@ -76,8 +75,6 @@ func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 			return nil, err
 		}
 		log.Printf("%s: csv", path)
-		// CSV came from credit card, where numbers are flipped.
-		invert = true
 		qr = r
 	default:
 		log.Printf("%s: unknown format %q", path, ext)
@@ -90,9 +87,6 @@ func parse(path string, entries []*qif.Entry) ([]*qif.Entry, error) {
 				break
 			}
 			return nil, err
-		}
-		if invert {
-			entry.Amount = -entry.Amount
 		}
 
 		entries = append(entries, entry)
