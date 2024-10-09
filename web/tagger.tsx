@@ -111,13 +111,21 @@ namespace TaggerPage {
     entries: Entry[];
     ids: string[];
   }
+  export interface State {
+    includeTagged: boolean;
+  }
 }
 
 function terms(entry: Entry): string[] {
   return entry.payee.split(/[\s\*-]+/);
 }
 
-export class TaggerPage extends preact.Component<TaggerPage.Props> {
+export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.State> {
+  constructor(props: TaggerPage.Props) {
+    super(props);
+    this.state = { includeTagged: false };
+  }
+
   index(entries: Entry[]) {
     console.time('index');
     const revIndex = new Map<string, Set<Entry>>();
@@ -188,7 +196,7 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
     }
 
     const index = this.index(this.props.entries);
-    const similar = this.findSimilar(index, entries);
+    let similar = this.findSimilar(index, entries);
 
     function countTags(entries: Entry[]): Array<[string, number]> {
       const tagCounts = new Map<string, number>();
@@ -231,7 +239,9 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
       offRows.push(<TagChip tag={tag} onClick={() => doTag(tag)} />);
     }
 
-    const untaggedSimilar = similar.filter(e => !e.tags);
+    if (!this.state.includeTagged) {
+      similar = similar.filter(e => !e.tags);
+    }
 
     const extraHead = app.link('untagged', 'untagged', undefined);
 
@@ -259,9 +269,11 @@ export class TaggerPage extends preact.Component<TaggerPage.Props> {
             </td>
           </tr>
         </table>
-        <p>Similar entries:</p>
+        <p>Similar entries:
+          <label><input type='checkbox' checked={this.state.includeTagged} onChange={() => this.setState({ includeTagged: !this.state.includeTagged })} /> Include tagged</label>
+        </p>
         <Ledger
-          entries={untaggedSimilar}
+          entries={similar}
           onClick={(e) => {
             app.go('tag', { id: [...ids, e.id].join(',') });
           }}
