@@ -85,7 +85,7 @@ class App extends preact.Component<App.Props> {
       case 'tag': {
         const param = params.get('id')!;
         const ids = param.split(',');
-        return <TaggerPage key={param} entries={this.props.entries} ids={ids} />;
+        return <TaggerPage entries={this.props.entries} ids={ids} />;
       }
       case 'ledger':
         return (
