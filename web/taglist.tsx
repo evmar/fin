@@ -22,14 +22,9 @@ namespace TagList {
     hidden: Set<string>;
     onToggle: (tag: string, hide: boolean) => void;
   }
-  export interface State {
-    expand: boolean;
-  }
 }
 
-export class TagList extends preact.Component<TagList.Props, TagList.State> {
-  state = { expand: false };
-
+export class TagList extends preact.Component<TagList.Props> {
   render() {
     const tags = this.props.tags;
 
@@ -67,20 +62,9 @@ export class TagList extends preact.Component<TagList.Props, TagList.State> {
     };
 
     let rows = tags.map(tagRow).filter((t) => t != null);
-    if (!this.state.expand) {
-      rows = rows.slice(0, 10);
-    }
-
     return (
       <div>
         {rows}
-        <button
-          onClick={() => {
-            this.setState({ expand: !this.state.expand });
-          }}
-        >
-          {this.state.expand ? 'less' : 'more'}
-        </button>
       </div>
     );
   }
