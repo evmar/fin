@@ -247,7 +247,9 @@ export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.St
 
     return (
       <Page extraHead={extraHead}>
-        <Ledger entries={entries} />
+        <Ledger entries={entries} onClick={(e) => {
+          app.go('tag', { id: ids.filter(id => id !== e.id).join(',') });
+        }} />
         <table>
           <tr>
             <th>on</th>
