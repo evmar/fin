@@ -156,7 +156,7 @@ class Pie extends preact.Component<{ stratify: Stratify }> {
   }
 }
 
-class Breakdown extends preact.Component<{ stratify: Stratify, toggle: (tag: string) => void }> {
+class Breakdown extends preact.Component<{ stratify: Stratify, monthCount: number, toggle: (tag: string) => void }> {
   render() {
     const total = this.props.stratify.data.amount;
 
@@ -166,7 +166,7 @@ class Breakdown extends preact.Component<{ stratify: Stratify, toggle: (tag: str
       rows.push(<tr onClick={() => this.props.toggle(tag)}>
         <td style={{ paddingLeft: `${indent * 2}ex` }}>{tag === '#' ? 'total' : !tag ? '[untagged]' : tag}</td>
         <td class='right'>{util.formatAmount(amount, true)}</td>
-        <td class='right'>{util.formatAmount(amount / 12, true)}</td>
+        <td class='right'>{util.formatAmount(amount / this.props.monthCount, true)}</td>
         <td class='right'>{(amount * 100 / total).toFixed(1)}%</td>
       </tr >);
 
@@ -216,6 +216,17 @@ export class OverviewPage extends preact.Component<OverviewPage.Props, OverviewP
 
   render() {
     const entries = this.props.entries.filter((e) => !this.filtered(e));
+
+    function roundMonth(d: Date): number {
+      let mon = d.getFullYear() * 12 + d.getMonth();
+      if (d.getDay() > 15) mon++;
+      return mon;
+    }
+
+    const parseTime = d3.timeParse('%Y/%m/%d');
+    const endDate = roundMonth(parseTime(entries[0].date)!);
+    const startDate = roundMonth(parseTime(entries[entries.length - 1].date)!);
+
     const stratify = stratifyEntries(entries);
     const extraHead = <div>
       <div>{app.link('ledger', 'ledger', undefined)}</div>
@@ -225,7 +236,7 @@ export class OverviewPage extends preact.Component<OverviewPage.Props, OverviewP
     return (
       <Page extraHead={extraHead}>
         <Pie stratify={stratify} />
-        <Breakdown stratify={stratify} toggle={(tag) => this.toggle(tag)} />
+        <Breakdown monthCount={endDate - startDate} stratify={stratify} toggle={(tag) => this.toggle(tag)} />
       </Page>
     );
   }
