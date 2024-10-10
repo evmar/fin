@@ -62,7 +62,6 @@ class LedgerRow extends preact.Component<LedgerRow.Props> {
 
 namespace Ledger {
   export interface Props {
-    total?: boolean;
     entries: Entry[];
     onClick?: (e: Entry) => void;
   }
@@ -70,18 +69,7 @@ namespace Ledger {
 
 export class Ledger extends preact.Component<Ledger.Props> {
   render() {
-    let entries = this.props.entries.slice(0, 200);
-
-    if (this.props.total) {
-      const total = {
-        id: 'total',
-        date: '',
-        payee: 'Total of ' + entries.length + ' entries',
-        amount: 0,
-      };
-      this.props.entries.forEach((e) => (total.amount += e.amount));
-      entries.unshift(total);
-    }
+    let entries = this.props.entries.slice(0, 400);
 
     let last: string | null = null;
     const rEntries = entries.map((e, i) => {
@@ -176,9 +164,23 @@ export class LedgerPage extends preact.Component<
     // TODO: graph is too busted for now
     // <graph.Graph entries={entries} width={10 * 64} height={3 * 64} />
 
+    if (entries.length == 0) {
+      return <Page extraHead={extraHead}></Page>;
+    }
+
+    let header;
+    if (entries.length > 1) {
+      const total = entries.reduce((sum, e) => sum + e.amount, 0);
+      const parseTime = d3.timeParse('%Y/%m/%d');
+      const timeSpan = parseTime(entries[0].date)!.valueOf() - parseTime(entries[entries.length - 1].date)!.valueOf();
+      const days = timeSpan / (24 * 60 * 60 * 1000);
+      header = <p>Total: {util.formatAmount(total)}, per day: {util.formatAmount(total / days)}</p>;
+    }
+
     return (
       <Page extraHead={extraHead}>
-        <Ledger total={true} entries={entries} />
+        {header}
+        <Ledger entries={entries} />
       </Page>
     );
   }
