@@ -173,9 +173,11 @@ export class LedgerPage extends preact.Component<
       {opts}
     </div>;
 
+    // TODO: graph is too busted for now
+    // <graph.Graph entries={entries} width={10 * 64} height={3 * 64} />
+
     return (
       <Page extraHead={extraHead}>
-        <graph.Graph entries={entries} width={10 * 64} height={3 * 64} />
         <Ledger total={true} entries={entries} />
       </Page>
     );
