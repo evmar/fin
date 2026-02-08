@@ -289,6 +289,9 @@ export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.St
         </p>
         <Ledger
           entries={similar}
+          onMultiClick={(newEntries) => {
+            app.go('tag', { id: [...ids, ...newEntries.map(e => e.id)].join(',') });
+          }}
           onClick={(e) => {
             app.go('tag', { id: [...ids, e.id].join(',') });
           }}
