@@ -119,7 +119,9 @@ namespace TaggerPage {
 }
 
 function terms(entry: Entry): string[] {
-  return entry.payee.split(/[\s\*-]+/);
+  return entry.payee.split(/[\s\*#-]+/).filter(s => {
+    return s !== '' && !Number.isFinite(+s)
+  });
 }
 
 export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.State> {
