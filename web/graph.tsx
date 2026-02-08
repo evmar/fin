@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import * as d3 from 'd3';
+import * as preact from 'preact';
 import { Filters } from './filter';
 import SearchInput from './search';
 import { TagList } from './taglist';
 import { Entry } from './types';
-import * as preact from 'preact';
 
 const margin = { top: 5, right: 100, bottom: 30, left: 70 };
 
@@ -28,7 +28,7 @@ namespace GraphOptsPane {
     tagAmounts: Map<string, number>;
     onFilters: (f: Filters) => void;
   }
-  export interface State { }
+  export interface State {}
 }
 
 export class GraphOptsPane extends preact.Component<

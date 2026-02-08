@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
+import * as preact from 'preact';
 import * as app from './app';
 import AutoComplete from './autocomplete';
 import { Ledger } from './ledger';
 import { Page } from './page';
 import { Entry } from './types';
 import { memo } from './util';
-import * as preact from 'preact';
 
 namespace UntaggedPage {
   export interface Props {
@@ -53,10 +53,12 @@ export class UntaggedPage extends preact.Component<UntaggedPage.Props> {
 
   render() {
     const stats = this.stats(this.props.entries);
-    const extraHead = <div>
-      <div>{app.link('overview', 'overview', undefined)}</div>
-      <div>{app.link('ledger', 'ledger', undefined)}</div>
-    </div>;
+    const extraHead = (
+      <div>
+        <div>{app.link('overview', 'overview', undefined)}</div>
+        <div>{app.link('ledger', 'ledger', undefined)}</div>
+      </div>
+    );
     return (
       <Page extraHead={extraHead}>
         <p>
@@ -247,9 +249,12 @@ export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.St
 
     return (
       <Page extraHead={extraHead}>
-        <Ledger entries={entries} onClick={(e) => {
-          app.go('tag', { id: ids.filter(id => id !== e.id).join(',') });
-        }} />
+        <Ledger
+          entries={entries}
+          onClick={(e) => {
+            app.go('tag', { id: ids.filter(id => id !== e.id).join(',') });
+          }}
+        />
         <table>
           <tr>
             <th>on</th>
@@ -271,8 +276,16 @@ export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.St
             </td>
           </tr>
         </table>
-        <p>Similar entries:
-          <label><input type='checkbox' checked={this.state.includeTagged} onChange={() => this.setState({ includeTagged: !this.state.includeTagged })} /> Include tagged</label>
+        <p>
+          Similar entries:
+          <label>
+            <input
+              type='checkbox'
+              checked={this.state.includeTagged}
+              onChange={() => this.setState({ includeTagged: !this.state.includeTagged })}
+            />{' '}
+            Include tagged
+          </label>
         </p>
         <Ledger
           entries={similar}

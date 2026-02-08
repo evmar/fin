@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as d3 from 'd3';
 import * as preact from 'preact';
 import { go } from './app';
+import * as app from './app';
 import * as filter from './filter';
 import * as graph from './graph';
 import { Page } from './page';
 import { Entry } from './types';
 import * as util from './util';
-import * as d3 from 'd3';
-import * as app from './app';
 
 namespace LedgerRow {
   export interface Props {
@@ -161,11 +161,13 @@ export class LedgerPage extends preact.Component<
       />
     );
 
-    const extraHead = <div>
-      <div>{app.link('overview', 'overview', undefined)}</div>
-      <div>{app.link('untagged', 'untagged', undefined)}</div>
-      {opts}
-    </div>;
+    const extraHead = (
+      <div>
+        <div>{app.link('overview', 'overview', undefined)}</div>
+        <div>{app.link('untagged', 'untagged', undefined)}</div>
+        {opts}
+      </div>
+    );
 
     // TODO: graph is too busted for now
     // <graph.Graph entries={entries} width={10 * 64} height={3 * 64} />

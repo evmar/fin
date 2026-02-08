@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as d3 from 'd3';
 import * as preact from 'preact';
+import * as app from './app';
 import { Page } from './page';
 import { Entry } from './types';
 import * as util from './util';
-import * as app from './app';
-import * as d3 from 'd3';
 
 function getOrCreate<K, V>(map: Map<K, V>, key: K, def: () => V): V {
   let val = map.get(key);
@@ -75,7 +75,7 @@ function tagHierarchy(entries: Entry[]): Map<string, string> {
   return parents;
 }
 
-type Stratify = d3.HierarchyNode<{ tag: string, amount: number }>;
+type Stratify = d3.HierarchyNode<{ tag: string; amount: number }>;
 function stratifyEntries(entries: Entry[]): Stratify {
   const counts = util.gatherTags(entries);
   for (const [tag, count] of Array.from(counts.entries())) {
@@ -156,32 +156,43 @@ class Pie extends preact.Component<{ stratify: Stratify }> {
   }
 }
 
-class Breakdown extends preact.Component<{ stratify: Stratify, monthCount: number, toggle: (tag: string) => void }> {
+class Breakdown extends preact.Component<{ stratify: Stratify; monthCount: number; toggle: (tag: string) => void }> {
   render() {
     const total = this.props.stratify.data.amount;
 
     const rows: preact.ComponentChild[] = [];
     const visit = (stratify: Stratify, indent = 1) => {
       const { tag, amount } = stratify.data;
-      rows.push(<tr onClick={() => this.props.toggle(tag)}>
-        <td style={{ paddingLeft: `${indent * 2}ex` }}>{tag === '#' ? 'total' : !tag ? '[untagged]' : tag}</td>
-        <td class='right'>{util.formatAmount(amount, true)}</td>
-        <td class='right'>{util.formatAmount(amount / this.props.monthCount, true)}</td>
-        <td class='right'>{(amount * 100 / total).toFixed(1)}%</td>
-      </tr >);
+      rows.push(
+        <tr onClick={() => this.props.toggle(tag)}>
+          <td style={{ paddingLeft: `${indent * 2}ex` }}>{tag === '#' ? 'total' : !tag ? '[untagged]' : tag}</td>
+          <td class='right'>{util.formatAmount(amount, true)}</td>
+          <td class='right'>{util.formatAmount(amount / this.props.monthCount, true)}</td>
+          <td class='right'>{(amount * 100 / total).toFixed(1)}%</td>
+        </tr>,
+      );
 
       if (!stratify.children) return;
       for (const child of stratify.children) {
         visit(child, indent + 1);
       }
-    }
+    };
 
-    visit(this.props.stratify)
+    visit(this.props.stratify);
 
-    return <table class='zebra' style={{ width: '50ex' }}>
-      <thead><tr><th>tag</th><th class='right'>amount</th><th class='right'>per month</th><th>percent</th></tr></thead>
-      {rows}
-    </table>;
+    return (
+      <table class='zebra' style={{ width: '50ex' }}>
+        <thead>
+          <tr>
+            <th>tag</th>
+            <th class='right'>amount</th>
+            <th class='right'>per month</th>
+            <th>percent</th>
+          </tr>
+        </thead>
+        {rows}
+      </table>
+    );
   }
 }
 
@@ -228,10 +239,12 @@ export class OverviewPage extends preact.Component<OverviewPage.Props, OverviewP
     const startDate = roundMonth(parseTime(entries[entries.length - 1].date)!);
 
     const stratify = stratifyEntries(entries);
-    const extraHead = <div>
-      <div>{app.link('ledger', 'ledger', undefined)}</div>
-      <div>{app.link('untagged', 'untagged', undefined)}</div>
-    </div>;
+    const extraHead = (
+      <div>
+        <div>{app.link('ledger', 'ledger', undefined)}</div>
+        <div>{app.link('untagged', 'untagged', undefined)}</div>
+      </div>
+    );
 
     return (
       <Page extraHead={extraHead}>
