@@ -15,7 +15,15 @@
 // TypeScript/React don't know about <input type=search> so we have to
 // hook it up more manually than usual.
 
-import * as preact from "preact";
+import * as preact from 'preact';
+
+declare module 'preact' {
+  namespace JSX {
+    interface HTMLAttributes<RefType extends EventTarget = EventTarget> {
+      incremental?: boolean;
+    }
+  }
+}
 
 interface Props {
   initialText: string;
@@ -30,7 +38,7 @@ export default class SearchInput extends preact.Component<Props> {
         autoFocus
         placeholder='search'
         defaultValue={this.props.initialText}
-        incremental='1'
+        incremental={true}
         onSearch={(e) => this.onSearch(e)}
       />
     );
