@@ -26,7 +26,7 @@ namespace LedgerRow {
   export interface Props {
     date: string;
     entry: Entry;
-    onClick: () => void;
+    onClick: (shift: boolean) => void;
   }
 }
 
@@ -45,8 +45,9 @@ class LedgerRow extends preact.Component<LedgerRow.Props> {
     return (
       <div
         className='ledger-entry'
-        onClick={() => {
-          this.props.onClick();
+        onClick={(e) => {
+          const shift = e.shiftKey;
+          this.props.onClick(shift);
         }}
       >
         <div className='ledger-date'>{this.props.date}</div>
@@ -87,7 +88,7 @@ export class Ledger extends preact.Component<Ledger.Props> {
           key={e.id.substring(0, 7) + i}
           date={date}
           entry={e}
-          onClick={() => {
+          onClick={(_shift) => {
             if (this.props.onClick) {
               this.props.onClick(e);
             } else {
