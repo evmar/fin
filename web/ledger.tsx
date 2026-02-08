@@ -65,6 +65,7 @@ namespace Ledger {
   export interface Props {
     entries: Entry[];
     onClick?: (e: Entry) => void;
+    onMultiClick?: (entries: Entry[]) => void;
   }
 }
 
@@ -88,7 +89,11 @@ export class Ledger extends preact.Component<Ledger.Props> {
           key={e.id.substring(0, 7) + i}
           date={date}
           entry={e}
-          onClick={(_shift) => {
+          onClick={(shift) => {
+            if (shift && this.props.onMultiClick) {
+              this.props.onMultiClick(entries.slice(0, i + 1));
+              return;
+            }
             if (this.props.onClick) {
               this.props.onClick(e);
             } else {
