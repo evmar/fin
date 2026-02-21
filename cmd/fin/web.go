@@ -15,43 +15,38 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
-	"sort"
-
-	"github.com/evmar/fin/bank/qif"
 )
 
 type web struct {
-	metasPath string
-	metas     Metas
-	entries   []*qif.Entry
+	db *sql.DB
 }
 
-func (web *web) toJson(w io.Writer) {
+func (web *web) toJson(w io.Writer) error {
+	entries, err := allEntries(web.db)
+	if err != nil {
+		return err
+	}
+
 	jentries := []map[string]interface{}{}
-	for _, e := range web.entries {
+	for _, e := range entries {
 		je := make(map[string]interface{})
-		id := qifId(e)
+		id := e.qifId()
 		je["id"] = id
-		je["number"] = e.Number
-		je["date"] = e.Date.Format("2006/01/02")
+		je["date"] = e.Date
 		je["amount"] = e.Amount
 		je["payee"] = e.Payee
-		je["addr"] = e.Address
-		if meta, ok := web.metas[id]; ok {
-			je["tags"] = meta.Tags
-		}
+		je["tags"] = e.Tags
 		jentries = append(jentries, je)
 	}
 	data := map[string]interface{}{
 		"entries": jentries,
 	}
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		log.Printf("encode json: %s", err)
-	}
+	return json.NewEncoder(w).Encode(data)
 }
 
 func (web *web) updateTagsFromPost(r io.Reader) error {
@@ -65,37 +60,37 @@ func (web *web) updateTagsFromPost(r io.Reader) error {
 		return err
 	}
 
-	for _, id := range data.Ids {
-		tagset := map[string]struct{}{}
+	// for _, id := range data.Ids {
+	// 	tagset := map[string]struct{}{}
 
-		meta := web.metas[id]
-		if meta == nil {
-			meta = &Meta{}
-			web.metas[id] = meta
-		}
-		for _, tag := range meta.Tags {
-			tagset[tag] = struct{}{}
-		}
-		for _, tag := range data.Tags {
-			if len(tag) == 0 {
-				continue
-			}
-			if tag[0] == '-' {
-				delete(tagset, tag[1:])
-			} else {
-				tagset[tag] = struct{}{}
-			}
-		}
+	// 	meta := web.metas[id]
+	// 	if meta == nil {
+	// 		meta = &Meta{}
+	// 		web.metas[id] = meta
+	// 	}
+	// 	for _, tag := range meta.Tags {
+	// 		tagset[tag] = struct{}{}
+	// 	}
+	// 	for _, tag := range data.Tags {
+	// 		if len(tag) == 0 {
+	// 			continue
+	// 		}
+	// 		if tag[0] == '-' {
+	// 			delete(tagset, tag[1:])
+	// 		} else {
+	// 			tagset[tag] = struct{}{}
+	// 		}
+	// 	}
 
-		tags := []string{}
-		for tag := range tagset {
-			tags = append(tags, tag)
-		}
-		sort.Strings(tags)
+	// 	tags := []string{}
+	// 	for tag := range tagset {
+	// 		tags = append(tags, tag)
+	// 	}
+	// 	sort.Strings(tags)
 
-		meta.Tags = tags
-	}
-	web.metas.Save(web.metasPath)
+	// 	meta.Tags = tags
+	// }
+	// web.metas.Save(web.metasPath)
 	return nil
 }
 
@@ -118,7 +113,9 @@ func (web *web) start(addr string) {
 	})
 	http.HandleFunc("/data", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
-		web.toJson(w)
+		if err := web.toJson(w); err != nil {
+			log.Print(err)
+		}
 	})
 	http.Handle("/static/", fs)
 
