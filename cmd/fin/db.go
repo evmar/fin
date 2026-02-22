@@ -15,11 +15,8 @@
 package main
 
 import (
-	"crypto/sha1"
 	"database/sql"
 	"fmt"
-	"io"
-	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -36,16 +33,6 @@ type Entry struct {
 type Tag struct {
 	EntryID uint
 	Tag     string
-}
-
-func (e *Entry) qifId() string {
-	h := sha1.New()
-	io.WriteString(h, "\n") // Number
-	io.WriteString(h, e.Date+"\n")
-	io.WriteString(h, strconv.Itoa(e.Amount)+"\n")
-	io.WriteString(h, e.Payee+"\n")
-	io.WriteString(h, "\n") // Address
-	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
 func openDB() (*sql.DB, error) {

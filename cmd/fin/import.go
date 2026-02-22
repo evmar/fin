@@ -15,28 +15,15 @@
 package main
 
 import (
-	"crypto/sha1"
 	"database/sql"
-	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	qifcsv "github.com/evmar/fin/bank/csv"
 	"github.com/evmar/fin/bank/qif"
 )
-
-func qifId(e *qif.Entry) string {
-	h := sha1.New()
-	io.WriteString(h, e.Number+"\n")
-	io.WriteString(h, e.Date.Format("2006/01/02")+"\n")
-	io.WriteString(h, strconv.Itoa(e.Amount)+"\n")
-	io.WriteString(h, e.Payee+"\n")
-	io.WriteString(h, e.Address+"\n")
-	return fmt.Sprintf("%x", h.Sum(nil))
-}
 
 type QIFRead interface {
 	ReadEntry() (*qif.Entry, error)
@@ -88,44 +75,7 @@ func parse(path string) ([]*qif.Entry, error) {
 	return entries, nil
 }
 
-func importMeta(db *sql.DB) error {
-	entries, err := allEntries(db)
-	if err != nil {
-		return err
-	}
-	metas, err := LoadMetas("meta")
-	if err != nil {
-		return err
-	}
-
-	for _, e := range entries {
-		meta := metas[e.qifId()]
-		if meta == nil {
-			continue
-		}
-		if len(meta.Tags) == 0 {
-			continue
-		}
-		tx, err := db.Begin()
-		if err != nil {
-			return err
-		}
-		for _, tag := range meta.Tags {
-			tx.Exec(`insert into tag (entryid, tag) values (?, ?)`, e.ID, tag)
-		}
-		if err := tx.Commit(); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func importFile(db *sql.DB, path, name string) error {
-	if path == "meta" {
-		return importMeta(db)
-	}
-
 	entries, err := parse(path)
 	if err != nil {
 		return err

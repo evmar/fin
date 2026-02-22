@@ -35,8 +35,7 @@ func (web *web) toJson(w io.Writer) error {
 	jentries := []map[string]interface{}{}
 	for _, e := range entries {
 		je := make(map[string]interface{})
-		id := e.qifId()
-		je["id"] = id
+		je["id"] = e.ID
 		je["date"] = e.Date
 		je["amount"] = e.Amount
 		je["payee"] = e.Payee
