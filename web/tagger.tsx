@@ -102,7 +102,7 @@ async function setTags(ids: number[], tags: string[]): Promise<void> {
 
   const resp = await fetch('/', { method: 'POST', body: JSON.stringify(json) });
   if (!resp.ok) {
-    throw new Error(`${resp.status} ${resp.statusText}`);
+    throw new Error(`${resp.status} ${resp.statusText} ${await resp.text()}`);
   }
   await resp.text(); // Silence Chrome warning that occurs when you don't read body.
   return;
