@@ -86,7 +86,7 @@ export class Ledger extends preact.Component<Ledger.Props> {
 
       return (
         <LedgerRow
-          key={e.id.substring(0, 7) + i}
+          key={e.id}
           date={date}
           entry={e}
           onClick={(shift) => {
@@ -97,7 +97,7 @@ export class Ledger extends preact.Component<Ledger.Props> {
             if (this.props.onClick) {
               this.props.onClick(e);
             } else {
-              go('tag', { id: e.id });
+              go('tag', { id: `${e.id}` });
             }
           }}
         />
@@ -180,9 +180,14 @@ export class LedgerPage extends preact.Component<
     if (entries.length > 1) {
       const total = entries.reduce((sum, e) => sum + e.amount, 0);
       const parseTime = d3.timeParse('%Y/%m/%d');
-      const timeSpan = parseTime(entries[0].date)!.valueOf() - parseTime(entries[entries.length - 1].date)!.valueOf();
+      const timeSpan = parseTime(entries[0].date)!.valueOf()
+        - parseTime(entries[entries.length - 1].date)!.valueOf();
       const days = timeSpan / (24 * 60 * 60 * 1000);
-      header = <p>Total: {util.formatAmount(total)}, per day: {util.formatAmount(total / days)}</p>;
+      header = (
+        <p>
+          Total: {util.formatAmount(total)}, per day: {util.formatAmount(total / days)}
+        </p>
+      );
     }
 
     return (

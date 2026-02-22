@@ -84,7 +84,7 @@ class App extends preact.Component<App.Props> {
         return <UntaggedPage params={params} entries={this.props.entries} />;
       case 'tag': {
         const param = params.get('id')!;
-        const ids = param.split(',');
+        const ids = param.split(',').map((s) => parseInt(s, 10));
         return <TaggerPage entries={this.props.entries} ids={ids} />;
       }
       case 'ledger':

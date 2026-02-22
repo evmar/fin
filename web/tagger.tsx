@@ -94,7 +94,7 @@ class TagChip extends preact.Component<TagChip.Props> {
   }
 }
 
-async function setTags(ids: string[], tags: string[]): Promise<void> {
+async function setTags(ids: number[], tags: string[]): Promise<void> {
   const json = {
     tags,
     ids,
@@ -111,7 +111,7 @@ async function setTags(ids: string[], tags: string[]): Promise<void> {
 namespace TaggerPage {
   export interface Props {
     entries: Entry[];
-    ids: string[];
+    ids: number[];
   }
   export interface State {
     includeTagged: boolean;
@@ -119,12 +119,15 @@ namespace TaggerPage {
 }
 
 function terms(entry: Entry): string[] {
-  return entry.payee.split(/[\s\*#-]+/).filter(s => {
-    return s !== '' && !Number.isFinite(+s)
+  return entry.payee.split(/[\s\*#-]+/).filter((s) => {
+    return s !== '' && !Number.isFinite(+s);
   });
 }
 
-export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.State> {
+export class TaggerPage extends preact.Component<
+  TaggerPage.Props,
+  TaggerPage.State
+> {
   constructor(props: TaggerPage.Props) {
     super(props);
     this.state = { includeTagged: false };
@@ -244,7 +247,7 @@ export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.St
     }
 
     if (!this.state.includeTagged) {
-      similar = similar.filter(e => !e.tags);
+      similar = similar.filter((e) => !e.tags);
     }
 
     const extraHead = app.link('untagged', 'untagged', undefined);
@@ -254,7 +257,7 @@ export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.St
         <Ledger
           entries={entries}
           onClick={(e) => {
-            app.go('tag', { id: ids.filter(id => id !== e.id).join(',') });
+            app.go('tag', { id: ids.filter((id) => id !== e.id).join(',') });
           }}
         />
         <table>
@@ -292,7 +295,9 @@ export class TaggerPage extends preact.Component<TaggerPage.Props, TaggerPage.St
         <Ledger
           entries={similar}
           onMultiClick={(newEntries) => {
-            app.go('tag', { id: [...ids, ...newEntries.map(e => e.id)].join(',') });
+            app.go('tag', {
+              id: [...ids, ...newEntries.map((e) => e.id)].join(','),
+            });
           }}
           onClick={(e) => {
             app.go('tag', { id: [...ids, e.id].join(',') });
