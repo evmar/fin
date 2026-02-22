@@ -3,12 +3,10 @@
     "serve": "esbuild --bundle --target=esnext --outdir=build --platform=browser --target=esnext --sourcemap --watch app.tsx app.css"
   },
   "dependencies": {
-    "d3": "^7.6.1",
-    "preact": "^10.19.3"
-  },
-  "devDependencies": {
     "@types/d3": "^7.4.0",
+    "d3": "^7.6.1",
     "esbuild": "^0.24.0",
-    "typescript": "^4.1.3"
+    "preact": "^10.19.3",
+    "typescript": "^5.9.3"
   }
 }
