@@ -51,7 +51,7 @@ func (web *web) toJson(w io.Writer) error {
 func (web *web) updateTagsFromPost(r io.Reader) error {
 	type tagUpdate struct {
 		Tags []string `json:"tags"`
-		Ids  []string `json:"ids"`
+		Ids  []int    `json:"ids"`
 	}
 
 	var data tagUpdate
@@ -59,38 +59,28 @@ func (web *web) updateTagsFromPost(r io.Reader) error {
 		return err
 	}
 
-	// for _, id := range data.Ids {
-	// 	tagset := map[string]struct{}{}
+	tx, err := web.db.Begin()
+	if err != nil {
+		return err
+	}
 
-	// 	meta := web.metas[id]
-	// 	if meta == nil {
-	// 		meta = &Meta{}
-	// 		web.metas[id] = meta
-	// 	}
-	// 	for _, tag := range meta.Tags {
-	// 		tagset[tag] = struct{}{}
-	// 	}
-	// 	for _, tag := range data.Tags {
-	// 		if len(tag) == 0 {
-	// 			continue
-	// 		}
-	// 		if tag[0] == '-' {
-	// 			delete(tagset, tag[1:])
-	// 		} else {
-	// 			tagset[tag] = struct{}{}
-	// 		}
-	// 	}
+	for _, id := range data.Ids {
+		for _, tag := range data.Tags {
+			if tag[0] == '-' {
+				_, err := tx.Exec(`delete from tag where entryid = ? and tag = ?`, id, tag[1:])
+				if err != nil {
+					return err
+				}
+			} else {
+				_, err := tx.Exec(`insert or ignore into tag (entryid, tag) values (?, ?)`, id, tag)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 
-	// 	tags := []string{}
-	// 	for tag := range tagset {
-	// 		tags = append(tags, tag)
-	// 	}
-	// 	sort.Strings(tags)
-
-	// 	meta.Tags = tags
-	// }
-	// web.metas.Save(web.metasPath)
-	return nil
+	return tx.Commit()
 }
 
 func (web *web) start(addr string) {
